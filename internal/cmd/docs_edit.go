@@ -485,7 +485,7 @@ func (c *DocsUpdateCmd) Run(ctx context.Context, kctx *kong.Context, flags *Root
 type DocsInsertCmd struct {
 	DocID   string `arg:"" name:"docId" help:"Doc ID"`
 	Content string `arg:"" optional:"" name:"content" help:"Text to insert (or use --file / stdin)"`
-	Index   int64  `name:"index" help:"Character index to insert at (1 = beginning)" default:"1"`
+	Index   *int64 `name:"index" help:"Character index to insert at (1 = beginning). Defaults to end-of-doc when omitted."`
 	File    string `name:"file" short:"f" help:"Read content from file (use - for stdin)"`
 	Tab     string `name:"tab" help:"Target a specific tab by title or ID (see docs list-tabs)"`
 	TabID   string `name:"tab-id" hidden:"" help:"(deprecated) Use --tab"`
@@ -504,7 +504,7 @@ func (c *DocsInsertCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if content == "" {
 		return usage("no content provided (use argument, --file, or stdin)")
 	}
-	if c.Index < 1 {
+	if c.Index != nil && *c.Index < 1 {
 		return usage("--index must be >= 1 (index 0 is reserved)")
 	}
 
@@ -514,12 +514,17 @@ func (c *DocsInsertCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 	c.Tab = tab
 
-	if dryRunErr := dryRunExit(ctx, flags, "docs.insert", map[string]any{
+	dryRunPayload := map[string]any{
 		"documentId": docID,
 		"inserted":   len(content),
-		"atIndex":    c.Index,
 		"tab":        c.Tab,
-	}); dryRunErr != nil {
+	}
+	if c.Index != nil {
+		dryRunPayload["atIndex"] = *c.Index
+	} else {
+		dryRunPayload["atIndex"] = "end"
+	}
+	if dryRunErr := dryRunExit(ctx, flags, "docs.insert", dryRunPayload); dryRunErr != nil {
 		return dryRunErr
 	}
 
@@ -527,12 +532,24 @@ func (c *DocsInsertCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	if c.Tab != "" {
-		tabID, tabErr := resolveDocsTabID(ctx, svc, docID, c.Tab)
-		if tabErr != nil {
-			return tabErr
+
+	var insertIndex int64
+	if c.Index != nil {
+		insertIndex = *c.Index
+		if c.Tab != "" {
+			tabID, tabErr := resolveDocsTabID(ctx, svc, docID, c.Tab)
+			if tabErr != nil {
+				return tabErr
+			}
+			c.Tab = tabID
+		}
+	} else {
+		endIndex, tabID, endErr := docsTargetEndIndexAndTabID(ctx, svc, docID, c.Tab)
+		if endErr != nil {
+			return endErr
 		}
 		c.Tab = tabID
+		insertIndex = docsAppendIndex(endIndex)
 	}
 
 	result, err := svc.Documents.BatchUpdate(docID, &docs.BatchUpdateDocumentRequest{
@@ -540,7 +557,7 @@ func (c *DocsInsertCmd) Run(ctx context.Context, flags *RootFlags) error {
 			InsertText: &docs.InsertTextRequest{
 				Text: content,
 				Location: &docs.Location{
-					Index: c.Index,
+					Index: insertIndex,
 					TabId: c.Tab,
 				},
 			},
@@ -551,7 +568,7 @@ func (c *DocsInsertCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	if outfmt.IsJSON(ctx) {
-		payload := map[string]any{"documentId": result.DocumentId, "inserted": len(content), "atIndex": c.Index}
+		payload := map[string]any{"documentId": result.DocumentId, "inserted": len(content), "atIndex": insertIndex}
 		if c.Tab != "" {
 			payload["tabId"] = c.Tab
 		}
@@ -560,7 +577,7 @@ func (c *DocsInsertCmd) Run(ctx context.Context, flags *RootFlags) error {
 
 	u.Out().Linef("documentId\t%s", result.DocumentId)
 	u.Out().Linef("inserted\t%d bytes", len(content))
-	u.Out().Linef("atIndex\t%d", c.Index)
+	u.Out().Linef("atIndex\t%d", insertIndex)
 	if c.Tab != "" {
 		u.Out().Linef("tabId\t%s", c.Tab)
 	}
