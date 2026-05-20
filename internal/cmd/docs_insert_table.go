@@ -66,7 +66,7 @@ func (c *DocsInsertTableCmd) Run(ctx context.Context, flags *RootFlags) error {
 		"tab":        c.Tab,
 	}
 	if resolveEnd {
-		dryRunPayload["atIndex"] = "end"
+		dryRunPayload["atIndex"] = docsAtIndexEnd
 	} else {
 		dryRunPayload["atIndex"] = *c.Index
 	}
