@@ -19,7 +19,7 @@ import (
 type SheetsReorderTabCmd struct {
 	SpreadsheetID string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID"`
 	Tab           string `name:"tab" required:"" help:"Target tab by name or numeric sheet ID (see sheets metadata)"`
-	To            *int64 `name:"to" required:"" help:"Destination 0-based tab index"`
+	To            *int64 `name:"to" required:"" help:"Destination final 0-based tab index"`
 }
 
 func (c *SheetsReorderTabCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -58,9 +58,17 @@ func (c *SheetsReorderTabCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return err
 	}
 
-	sheetID, resolvedTitle, err := resolveSheetTabID(ctx, svc, spreadsheetID, tab)
+	target, err := resolveSheetTab(ctx, svc, spreadsheetID, tab)
 	if err != nil {
 		return err
+	}
+	if *c.To >= int64(target.Count) {
+		return usagef("--to must be between 0 and %d", target.Count-1)
+	}
+
+	apiIndex := *c.To
+	if *c.To > target.Index {
+		apiIndex++
 	}
 
 	req := &sheets.BatchUpdateSpreadsheetRequest{
@@ -68,8 +76,8 @@ func (c *SheetsReorderTabCmd) Run(ctx context.Context, flags *RootFlags) error {
 			{
 				UpdateSheetProperties: &sheets.UpdateSheetPropertiesRequest{
 					Properties: &sheets.SheetProperties{
-						SheetId:         sheetID,
-						Index:           *c.To,
+						SheetId:         target.ID,
+						Index:           apiIndex,
 						ForceSendFields: []string{"Index"},
 					},
 					Fields: "index",
@@ -85,47 +93,50 @@ func (c *SheetsReorderTabCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if outfmt.IsJSON(ctx) {
 		payload := map[string]any{
 			"spreadsheetId": spreadsheetID,
-			"sheetId":       sheetID,
+			"sheetId":       target.ID,
 			"index":         *c.To,
 		}
-		if resolvedTitle != "" {
-			payload["title"] = resolvedTitle
+		if target.Title != "" {
+			payload["title"] = target.Title
 		}
 		return outfmt.WriteJSON(ctx, os.Stdout, payload)
 	}
 
-	if resolvedTitle != "" {
-		u.Out().Linef("Moved tab %q (sheetId %d) to index %d in spreadsheet %s", resolvedTitle, sheetID, *c.To, spreadsheetID)
+	if target.Title != "" {
+		u.Out().Linef("Moved tab %q (sheetId %d) to index %d in spreadsheet %s", target.Title, target.ID, *c.To, spreadsheetID)
 	} else {
-		u.Out().Linef("Moved sheetId %d to index %d in spreadsheet %s", sheetID, *c.To, spreadsheetID)
+		u.Out().Linef("Moved sheetId %d to index %d in spreadsheet %s", target.ID, *c.To, spreadsheetID)
 	}
 	return nil
 }
 
-// resolveSheetTabID accepts either a tab title or a numeric sheet ID and
-// returns (sheetID, title). When the caller passed a numeric ID, title is
-// empty unless we happen to find a matching tab while listing IDs.
-func resolveSheetTabID(ctx context.Context, svc *sheets.Service, spreadsheetID, tab string) (int64, string, error) {
-	if id, err := strconv.ParseInt(tab, 10, 64); err == nil {
-		// Numeric: try to enrich with title for nicer output, but accept it
-		// even if the GET fails or the tab isn't found in the map.
-		if titles, mapErr := fetchSheetIDMap(ctx, svc, spreadsheetID); mapErr == nil {
-			for title, sheetID := range titles {
-				if sheetID == id {
-					return id, title, nil
-				}
-			}
-		}
-		return id, "", nil
+type sheetTabTarget struct {
+	ID    int64
+	Title string
+	Index int64
+	Count int
+}
+
+// resolveSheetTab accepts either a tab title or a numeric sheet ID.
+func resolveSheetTab(ctx context.Context, svc *sheets.Service, spreadsheetID, tab string) (sheetTabTarget, error) {
+	catalog, err := fetchSpreadsheetRangeCatalog(ctx, svc, spreadsheetID)
+	if err != nil {
+		return sheetTabTarget{}, err
 	}
 
-	sheetIDs, err := fetchSheetIDMap(ctx, svc, spreadsheetID)
-	if err != nil {
-		return 0, "", err
+	if id, err := strconv.ParseInt(tab, 10, 64); err == nil {
+		for _, props := range catalog.Sheets {
+			if props != nil && props.SheetId == id {
+				return sheetTabTarget{ID: id, Title: props.Title, Index: props.Index, Count: len(catalog.Sheets)}, nil
+			}
+		}
+		return sheetTabTarget{}, usagef("unknown sheetId %d", id)
 	}
-	sheetID, ok := sheetIDs[tab]
-	if !ok {
-		return 0, "", usagef("unknown tab %q", tab)
+
+	for _, props := range catalog.Sheets {
+		if props != nil && props.Title == tab {
+			return sheetTabTarget{ID: props.SheetId, Title: props.Title, Index: props.Index, Count: len(catalog.Sheets)}, nil
+		}
 	}
-	return sheetID, tab, nil
+	return sheetTabTarget{}, usagef("unknown tab %q", tab)
 }

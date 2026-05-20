@@ -106,6 +106,8 @@ func TestSheetsReorderTabCmd_AcceptsNumericSheetID(t *testing.T) {
 	var captured sheets.BatchUpdateSpreadsheetRequest
 	svc, cleanup := newSheetsTestServer(t, &captured, []map[string]any{
 		{"properties": map[string]any{"sheetId": 99, "title": "Only", "index": 0}},
+		{"properties": map[string]any{"sheetId": 100, "title": "Next", "index": 1}},
+		{"properties": map[string]any{"sheetId": 101, "title": "Last", "index": 2}},
 	})
 	defer cleanup()
 	newSheetsService = func(context.Context, string) (*sheets.Service, error) { return svc, nil }
@@ -113,7 +115,7 @@ func TestSheetsReorderTabCmd_AcceptsNumericSheetID(t *testing.T) {
 	flags := &RootFlags{Account: "a@b.com"}
 	ctx := newSheetsCmdContext(t)
 
-	if err := runKong(t, &SheetsReorderTabCmd{}, []string{"s1", "--tab", "99", "--to", "5"}, ctx, flags); err != nil {
+	if err := runKong(t, &SheetsReorderTabCmd{}, []string{"s1", "--tab", "99", "--to", "2"}, ctx, flags); err != nil {
 		t.Fatalf("reorder-tab: %v", err)
 	}
 
@@ -124,8 +126,40 @@ func TestSheetsReorderTabCmd_AcceptsNumericSheetID(t *testing.T) {
 	if req.Properties.SheetId != 99 {
 		t.Fatalf("expected numeric sheetId passed through, got %d", req.Properties.SheetId)
 	}
-	if req.Properties.Index != 5 {
-		t.Fatalf("expected target index 5, got %d", req.Properties.Index)
+	if req.Properties.Index != 3 {
+		t.Fatalf("expected rightward move to send API index 3, got %d", req.Properties.Index)
+	}
+}
+
+func TestSheetsReorderTabCmd_RightwardMoveAdjustsAPIIndex(t *testing.T) {
+	origNew := newSheetsService
+	t.Cleanup(func() { newSheetsService = origNew })
+
+	var captured sheets.BatchUpdateSpreadsheetRequest
+	svc, cleanup := newSheetsTestServer(t, &captured, []map[string]any{
+		{"properties": map[string]any{"sheetId": 11, "title": "First", "index": 0}},
+		{"properties": map[string]any{"sheetId": 22, "title": "Second", "index": 1}},
+		{"properties": map[string]any{"sheetId": 33, "title": "Third", "index": 2}},
+	})
+	defer cleanup()
+	newSheetsService = func(context.Context, string) (*sheets.Service, error) { return svc, nil }
+
+	flags := &RootFlags{Account: "a@b.com"}
+	ctx := newSheetsCmdContext(t)
+
+	if err := runKong(t, &SheetsReorderTabCmd{}, []string{"s1", "--tab", "First", "--to", "1"}, ctx, flags); err != nil {
+		t.Fatalf("reorder-tab: %v", err)
+	}
+
+	req := captured.Requests[0].UpdateSheetProperties
+	if req == nil || req.Properties == nil {
+		t.Fatalf("expected UpdateSheetProperties, got %#v", captured.Requests[0])
+	}
+	if req.Properties.SheetId != 11 {
+		t.Fatalf("expected sheetId=11, got %d", req.Properties.SheetId)
+	}
+	if req.Properties.Index != 2 {
+		t.Fatalf("expected rightward move to final index 1 to send API index 2, got %d", req.Properties.Index)
 	}
 }
 
@@ -208,6 +242,47 @@ func TestSheetsReorderTabCmd_UnknownTabName(t *testing.T) {
 	err := runKong(t, &SheetsReorderTabCmd{}, []string{"s1", "--tab", "Nope", "--to", "1"}, ctx, flags)
 	if err == nil || !strings.Contains(err.Error(), `unknown tab "Nope"`) {
 		t.Fatalf("expected unknown-tab error, got %v", err)
+	}
+}
+
+func TestSheetsReorderTabCmd_UnknownNumericSheetID(t *testing.T) {
+	origNew := newSheetsService
+	t.Cleanup(func() { newSheetsService = origNew })
+
+	var captured sheets.BatchUpdateSpreadsheetRequest
+	svc, cleanup := newSheetsTestServer(t, &captured, []map[string]any{
+		{"properties": map[string]any{"sheetId": 1, "title": "Sheet1", "index": 0}},
+	})
+	defer cleanup()
+	newSheetsService = func(context.Context, string) (*sheets.Service, error) { return svc, nil }
+
+	flags := &RootFlags{Account: "a@b.com"}
+	ctx := newSheetsCmdContext(t)
+
+	err := runKong(t, &SheetsReorderTabCmd{}, []string{"s1", "--tab", "99", "--to", "0"}, ctx, flags)
+	if err == nil || !strings.Contains(err.Error(), "unknown sheetId 99") {
+		t.Fatalf("expected unknown-sheetId error, got %v", err)
+	}
+}
+
+func TestSheetsReorderTabCmd_IndexOutOfRangeRejected(t *testing.T) {
+	origNew := newSheetsService
+	t.Cleanup(func() { newSheetsService = origNew })
+
+	var captured sheets.BatchUpdateSpreadsheetRequest
+	svc, cleanup := newSheetsTestServer(t, &captured, []map[string]any{
+		{"properties": map[string]any{"sheetId": 1, "title": "Sheet1", "index": 0}},
+		{"properties": map[string]any{"sheetId": 2, "title": "Sheet2", "index": 1}},
+	})
+	defer cleanup()
+	newSheetsService = func(context.Context, string) (*sheets.Service, error) { return svc, nil }
+
+	flags := &RootFlags{Account: "a@b.com"}
+	ctx := newSheetsCmdContext(t)
+
+	err := runKong(t, &SheetsReorderTabCmd{}, []string{"s1", "--tab", "Sheet1", "--to", "2"}, ctx, flags)
+	if err == nil || !strings.Contains(err.Error(), "--to must be between 0 and 1") {
+		t.Fatalf("expected range validation error, got %v", err)
 	}
 }
 
