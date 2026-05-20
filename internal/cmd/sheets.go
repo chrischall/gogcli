@@ -56,6 +56,7 @@ type SheetsCmd struct {
 	AddTab        SheetsAddTabCmd        `cmd:"" name:"add-tab" aliases:"add-sheet" help:"Add a new tab/sheet to a spreadsheet"`
 	RenameTab     SheetsRenameTabCmd     `cmd:"" name:"rename-tab" aliases:"rename-sheet" help:"Rename a tab/sheet in a spreadsheet"`
 	DeleteTab     SheetsDeleteTabCmd     `cmd:"" name:"delete-tab" aliases:"delete-sheet" help:"Delete a tab/sheet from a spreadsheet (use --force to skip confirmation)"`
+	ReorderTab    SheetsReorderTabCmd    `cmd:"" name:"reorder-tab" aliases:"move-tab,reorder-sheet,move-sheet" help:"Move a tab/sheet to a specific 0-based position in the spreadsheet"`
 }
 
 type SheetsExportCmd struct {
