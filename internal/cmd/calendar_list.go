@@ -385,6 +385,8 @@ func listCalendarList(ctx context.Context, svc *calendar.Service) ([]*calendar.C
 // crossing timezones interleave correctly. String keys (summary, calendar)
 // compare case-insensitive for summary, exact for calendar id.
 func sortEventsBy(events []*eventWithCalendar, key, order string) {
+	const calendarSortEnd = "end"
+
 	key = strings.ToLower(strings.TrimSpace(key))
 	if key == "" || len(events) < 2 {
 		return
@@ -392,9 +394,9 @@ func sortEventsBy(events []*eventWithCalendar, key, order string) {
 	desc := strings.ToLower(strings.TrimSpace(order)) == "desc"
 
 	switch key {
-	case "start", "end":
+	case "start", calendarSortEnd:
 		instantFn := eventStartInstant
-		if key == "end" {
+		if key == calendarSortEnd {
 			instantFn = eventEndInstant
 		}
 		sort.SliceStable(events, func(i, j int) bool {
