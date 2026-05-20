@@ -37,6 +37,8 @@ type DocsFormatFlags struct {
 	NoStrike      bool    `name:"no-strikethrough" aliases:"no-strike" help:"Clear strikethrough"`
 	Alignment     string  `name:"alignment" help:"Paragraph alignment: left, center, right, justify, start, end, justified"`
 	LineSpacing   float64 `name:"line-spacing" help:"Paragraph line spacing percentage, for example 100 or 150"`
+	HeadingLevel  int     `name:"heading-level" help:"Set paragraph named style to HEADING_1..HEADING_6 (shortcut for --named-style=HEADING_N)"`
+	NamedStyle    string  `name:"named-style" help:"Set paragraph named style: NORMAL_TEXT, TITLE, SUBTITLE, HEADING_1..HEADING_6"`
 }
 
 func (c *DocsFormatCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -82,6 +84,8 @@ func (c *DocsFormatCmd) Run(ctx context.Context, flags *RootFlags) error {
 			"no_strike":     c.Format.NoStrike,
 			"alignment":     c.Format.Alignment,
 			"line_spacing":  c.Format.LineSpacing,
+			"heading_level": c.Format.HeadingLevel,
+			"named_style":   c.Format.NamedStyle,
 		},
 	}); err != nil {
 		return err
@@ -207,7 +211,9 @@ func (f DocsFormatFlags) any() bool {
 		f.Underline || f.NoUnderline ||
 		f.Strikethrough || f.NoStrike ||
 		strings.TrimSpace(f.Alignment) != "" ||
-		f.LineSpacing != 0
+		f.LineSpacing != 0 ||
+		f.HeadingLevel != 0 ||
+		strings.TrimSpace(f.NamedStyle) != ""
 }
 
 func (f DocsFormatFlags) buildRequests(start, end int64, tabID string) ([]*docs.Request, error) {
@@ -321,6 +327,14 @@ func (f DocsFormatFlags) buildParagraphStyleRequest(start, end int64, tabID stri
 		style.LineSpacing = f.LineSpacing
 		fields = append(fields, "lineSpacing")
 	}
+	namedStyle, err := docsFormatNamedStyle(f.HeadingLevel, f.NamedStyle)
+	if err != nil {
+		return nil, false, err
+	}
+	if namedStyle != "" {
+		style.NamedStyleType = namedStyle
+		fields = append(fields, "namedStyleType")
+	}
 	if len(fields) == 0 {
 		return nil, false, nil
 	}
@@ -329,6 +343,34 @@ func (f DocsFormatFlags) buildParagraphStyleRequest(start, end int64, tabID stri
 		ParagraphStyle: style,
 		Fields:         strings.Join(fields, ","),
 	}}, true, nil
+}
+
+// docsFormatNamedStyle resolves the named paragraph style requested via
+// --heading-level (1..6 shortcut) and/or --named-style (full enum). The two
+// are mutually exclusive — supplying both is a usage error. Returns "" when
+// neither was supplied.
+func docsFormatNamedStyle(headingLevel int, namedStyle string) (string, error) {
+	trimmed := strings.ToUpper(strings.TrimSpace(namedStyle))
+	if headingLevel != 0 && trimmed != "" {
+		return "", usage("--heading-level and --named-style cannot be combined")
+	}
+	if headingLevel != 0 {
+		if headingLevel < 1 || headingLevel > 6 {
+			return "", usage("--heading-level must be between 1 and 6")
+		}
+		return fmt.Sprintf("HEADING_%d", headingLevel), nil
+	}
+	if trimmed == "" {
+		return "", nil
+	}
+	switch trimmed {
+	case "NORMAL_TEXT", "TITLE", "SUBTITLE",
+		"HEADING_1", "HEADING_2", "HEADING_3",
+		"HEADING_4", "HEADING_5", "HEADING_6":
+		return trimmed, nil
+	default:
+		return "", usage("--named-style must be one of NORMAL_TEXT, TITLE, SUBTITLE, HEADING_1..HEADING_6")
+	}
 }
 
 func docsFormatColor(hex, flag string) (*docs.OptionalColor, error) {
