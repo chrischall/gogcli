@@ -41,12 +41,12 @@ func TestBuildTableCellRequests_AppliesInlineBold(t *testing.T) {
 
 func TestBuildTableCellRequests_AppliesInlineItalicAndCode(t *testing.T) {
 	cases := []struct {
-		name        string
-		cell        string
-		wantText    string
-		wantBold    bool
-		wantItalic  bool
-		wantCode    bool
+		name       string
+		cell       string
+		wantText   string
+		wantBold   bool
+		wantItalic bool
+		wantCode   bool
 	}{
 		{"italic", "*important*", "important", false, true, false},
 		{"code", "`xyz123`", "xyz123", false, false, true},
