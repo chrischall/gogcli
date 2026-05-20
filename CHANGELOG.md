@@ -14,6 +14,7 @@
 - CLI: bound retry request replay buffering, recover failed async backup pushes, ignore global git commit signing in backup snapshots, and protect account manager OAuth redirects with CSRF checks.
 - Release: update the Homebrew handoff to publish through `openclaw/tap`.
 - Version: `gog --version` now reports an informative fallback (for example, `v0.17.0-dev`) when built from source with plain `go build` instead of returning `dev`.
+- Docs: `gog docs insert` now defaults to end-of-doc when `--index` is omitted, instead of always inserting at position 1 (which silently reversed iterative inserts across multiple calls). Pass `--index 1` explicitly to keep the previous behaviour. (#606)
 
 ## 0.17.0 - 2026-05-15
 
