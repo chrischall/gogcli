@@ -30,7 +30,7 @@ gog docs (doc) insert-table --rows=INT --cols=INT <docId> [flags]
 | `-y`<br>`--force`<br>`--assume-yes`<br>`--yes` | `bool` |  | Skip confirmations for destructive commands |
 | `--gmail-no-send` | `bool` | false | Block Gmail send operations (agent safety) |
 | `-h`<br>`--help` | `kong.helpFlag` |  | Show context-sensitive help. |
-| `--index` | `int64` |  | Character index to insert at (1 = beginning). Omit or use --at-end for end-of-doc. |
+| `--index` | `*int64` |  | Character index to insert at (1 = beginning). Omit or use --at-end for end-of-doc. |
 | `-j`<br>`--json`<br>`--machine` | `bool` | false | Output JSON to stdout (best for scripting) |
 | `--no-input`<br>`--non-interactive`<br>`--noninteractive` | `bool` |  | Never prompt; fail instead (useful for CI) |
 | `-p`<br>`--plain`<br>`--tsv` | `bool` | false | Output stable, parseable text to stdout (TSV; no colors) |

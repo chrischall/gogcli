@@ -61,6 +61,7 @@ func TestDocsInsertTableCmd_FlagValidation(t *testing.T) {
 		{"rows < 1", []string{"doc1", "--rows", "0", "--cols", "2"}, "--rows must be >= 1"},
 		{"cols < 1", []string{"doc1", "--rows", "2", "--cols", "0"}, "--cols must be >= 1"},
 		{"index + at-end conflict", []string{"doc1", "--rows", "2", "--cols", "2", "--index", "5", "--at-end"}, "mutually exclusive"},
+		{"zero index", []string{"doc1", "--rows", "2", "--cols", "2", "--index", "0"}, "--index must be >= 1"},
 		{"negative index", []string{"doc1", "--rows", "2", "--cols", "2", "--index=-1"}, "--index must be >= 1"},
 		{"values-json dims wrong", []string{"doc1", "--rows", "2", "--cols", "2", "--values-json", `[["a","b"]]`}, "row count 1 does not match --rows 2"},
 	}

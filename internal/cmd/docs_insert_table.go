@@ -20,7 +20,7 @@ type DocsInsertTableCmd struct {
 	DocID      string `arg:"" name:"docId" help:"Doc ID"`
 	Rows       int    `name:"rows" required:"" help:"Number of rows (>=1)"`
 	Cols       int    `name:"cols" required:"" help:"Number of columns (>=1)"`
-	Index      int64  `name:"index" help:"Character index to insert at (1 = beginning). Omit or use --at-end for end-of-doc."`
+	Index      *int64 `name:"index" help:"Character index to insert at (1 = beginning). Omit or use --at-end for end-of-doc."`
 	AtEnd      bool   `name:"at-end" help:"Insert at end-of-doc/tab (mutually exclusive with --index)"`
 	ValuesJSON string `name:"values-json" help:"Cell values as a JSON 2D string array; dimensions must match --rows x --cols when supplied"`
 	Tab        string `name:"tab" help:"Target a specific tab by title or ID (see docs list-tabs)"`
@@ -39,10 +39,10 @@ func (c *DocsInsertTableCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if c.Cols < 1 {
 		return usage("--cols must be >= 1")
 	}
-	if c.AtEnd && c.Index != 0 {
+	if c.AtEnd && c.Index != nil {
 		return usage("--at-end and --index are mutually exclusive")
 	}
-	if c.Index < 0 {
+	if c.Index != nil && *c.Index < 1 {
 		return usage("--index must be >= 1 (index 0 is reserved)")
 	}
 
@@ -57,7 +57,7 @@ func (c *DocsInsertTableCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 	c.Tab = tab
 
-	resolveEnd := c.AtEnd || c.Index == 0
+	resolveEnd := c.AtEnd || c.Index == nil
 
 	dryRunPayload := map[string]any{
 		"documentId": docID,
@@ -68,7 +68,7 @@ func (c *DocsInsertTableCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if resolveEnd {
 		dryRunPayload["atIndex"] = "end"
 	} else {
-		dryRunPayload["atIndex"] = c.Index
+		dryRunPayload["atIndex"] = *c.Index
 	}
 	if dryRunErr := dryRunExit(ctx, flags, "docs.insert-table", dryRunPayload); dryRunErr != nil {
 		return dryRunErr
@@ -79,7 +79,7 @@ func (c *DocsInsertTableCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return err
 	}
 
-	insertIndex := c.Index
+	var insertIndex int64
 	if resolveEnd {
 		endIndex, tabID, endErr := docsTargetEndIndexAndTabID(ctx, svc, docID, c.Tab)
 		if endErr != nil {
@@ -87,12 +87,15 @@ func (c *DocsInsertTableCmd) Run(ctx context.Context, flags *RootFlags) error {
 		}
 		c.Tab = tabID
 		insertIndex = docsAppendIndex(endIndex)
-	} else if c.Tab != "" {
-		tabID, tabErr := resolveDocsTabID(ctx, svc, docID, c.Tab)
-		if tabErr != nil {
-			return tabErr
+	} else {
+		insertIndex = *c.Index
+		if c.Tab != "" {
+			tabID, tabErr := resolveDocsTabID(ctx, svc, docID, c.Tab)
+			if tabErr != nil {
+				return tabErr
+			}
+			c.Tab = tabID
 		}
-		c.Tab = tabID
 	}
 
 	inserter := NewTableInserter(svc, docID)
