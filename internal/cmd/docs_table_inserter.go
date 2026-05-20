@@ -201,12 +201,12 @@ func (ti *TableInserter) updateIndicesAfter(afterIndex, length int64, cellIndice
 
 // nextTableInsertOffset returns the running offset to apply to subsequent
 // markdown-table placeholder positions after inserting a native table that
-// spans [tableIndex, tableEnd). InsertTable inserts the new table BEFORE the
+// spans [tableIndex, tableEnd). InsertTable inserts the new table before the
 // existing character at tableIndex, so the placeholder "\n" we wrote into
 // plainText for that table position stays in the doc; every subsequent
 // placeholder therefore shifts forward by (tableEnd - tableIndex). The
 // previous formula subtracted an extra 1, which accumulated one missing
-// character of drift per table — see #607.
+// character of drift per table; see #607.
 func nextTableInsertOffset(currentOffset, tableIndex, tableEnd int64) int64 {
 	if tableEnd <= tableIndex {
 		return currentOffset
