@@ -163,6 +163,38 @@ func TestSheetsReorderTabCmd_RightwardMoveAdjustsAPIIndex(t *testing.T) {
 	}
 }
 
+func TestSheetsReorderTabCmd_PrefersNumericTitleBeforeSheetID(t *testing.T) {
+	origNew := newSheetsService
+	t.Cleanup(func() { newSheetsService = origNew })
+
+	var captured sheets.BatchUpdateSpreadsheetRequest
+	svc, cleanup := newSheetsTestServer(t, &captured, []map[string]any{
+		{"properties": map[string]any{"sheetId": 11, "title": "2024", "index": 0}},
+		{"properties": map[string]any{"sheetId": 2024, "title": "Other", "index": 1}},
+		{"properties": map[string]any{"sheetId": 33, "title": "Last", "index": 2}},
+	})
+	defer cleanup()
+	newSheetsService = func(context.Context, string) (*sheets.Service, error) { return svc, nil }
+
+	flags := &RootFlags{Account: "a@b.com"}
+	ctx := newSheetsCmdContext(t)
+
+	if err := runKong(t, &SheetsReorderTabCmd{}, []string{"s1", "--tab", "2024", "--to", "2"}, ctx, flags); err != nil {
+		t.Fatalf("reorder-tab: %v", err)
+	}
+
+	req := captured.Requests[0].UpdateSheetProperties
+	if req == nil || req.Properties == nil {
+		t.Fatalf("expected UpdateSheetProperties, got %#v", captured.Requests[0])
+	}
+	if req.Properties.SheetId != 11 {
+		t.Fatalf("expected numeric-looking title to resolve before sheetId, got sheetId %d", req.Properties.SheetId)
+	}
+	if req.Properties.Index != 3 {
+		t.Fatalf("expected rightward move to send API index 3, got %d", req.Properties.Index)
+	}
+}
+
 func TestSheetsReorderTabCmd_IndexZeroIsSerialized(t *testing.T) {
 	// Index=0 is the leftmost position and is also Go's zero value for int64.
 	// Without ForceSendFields the JSON wire format would omit it and the API

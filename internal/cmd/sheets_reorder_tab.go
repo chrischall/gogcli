@@ -127,6 +127,12 @@ func resolveSheetTab(ctx context.Context, svc *sheets.Service, spreadsheetID, ta
 		return sheetTabTarget{}, err
 	}
 
+	for _, props := range catalog.Sheets {
+		if props != nil && props.Title == tab {
+			return sheetTabTarget{ID: props.SheetId, Title: props.Title, Index: props.Index, Count: len(catalog.Sheets)}, nil
+		}
+	}
+
 	if id, err := strconv.ParseInt(tab, 10, 64); err == nil {
 		for _, props := range catalog.Sheets {
 			if props != nil && props.SheetId == id {
@@ -134,12 +140,6 @@ func resolveSheetTab(ctx context.Context, svc *sheets.Service, spreadsheetID, ta
 			}
 		}
 		return sheetTabTarget{}, usagef("unknown sheetId %d", id)
-	}
-
-	for _, props := range catalog.Sheets {
-		if props != nil && props.Title == tab {
-			return sheetTabTarget{ID: props.SheetId, Title: props.Title, Index: props.Index, Count: len(catalog.Sheets)}, nil
-		}
 	}
 	return sheetTabTarget{}, usagef("unknown tab %q", tab)
 }
