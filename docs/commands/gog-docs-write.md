@@ -34,7 +34,7 @@ gog docs (doc) write <docId> [flags]
 | `--font-size` | `float64` |  | Font size in points |
 | `-y`<br>`--force`<br>`--assume-yes`<br>`--yes` | `bool` |  | Skip confirmations for destructive commands |
 | `--gmail-no-send` | `bool` | false | Block Gmail send operations (agent safety) |
-| `--heading-level` | `int` |  | Set paragraph named style to HEADING_1..HEADING_6 (shortcut for --named-style=HEADING_N) |
+| `--heading-level` | `*int` |  | Set paragraph named style to HEADING_1..HEADING_6 (shortcut for --named-style=HEADING_N) |
 | `-h`<br>`--help` | `kong.helpFlag` |  | Show context-sensitive help. |
 | `--italic` | `bool` |  | Set italic |
 | `-j`<br>`--json`<br>`--machine` | `bool` | false | Output JSON to stdout (best for scripting) |
