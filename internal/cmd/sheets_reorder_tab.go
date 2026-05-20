@@ -71,16 +71,19 @@ func (c *SheetsReorderTabCmd) Run(ctx context.Context, flags *RootFlags) error {
 		apiIndex++
 	}
 
+	props := &sheets.SheetProperties{
+		SheetId:         target.ID,
+		Index:           apiIndex,
+		ForceSendFields: []string{"Index"},
+	}
+	forceSendSheetPropertiesSheetID(props)
+
 	req := &sheets.BatchUpdateSpreadsheetRequest{
 		Requests: []*sheets.Request{
 			{
 				UpdateSheetProperties: &sheets.UpdateSheetPropertiesRequest{
-					Properties: &sheets.SheetProperties{
-						SheetId:         target.ID,
-						Index:           apiIndex,
-						ForceSendFields: []string{"Index"},
-					},
-					Fields: "index",
+					Properties: props,
+					Fields:     "index",
 				},
 			},
 		},

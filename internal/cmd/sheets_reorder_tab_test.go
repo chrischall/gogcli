@@ -225,6 +225,64 @@ func TestSheetsReorderTabCmd_IndexZeroIsSerialized(t *testing.T) {
 	}
 }
 
+func TestSheetsReorderTabCmd_SheetIDZeroIsSerialized(t *testing.T) {
+	origNew := newSheetsService
+	t.Cleanup(func() { newSheetsService = origNew })
+
+	var rawBody []byte
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := strings.TrimPrefix(r.URL.Path, "/sheets/v4")
+		path = strings.TrimPrefix(path, "/v4")
+		switch {
+		case strings.HasPrefix(path, "/spreadsheets/s1") && !strings.Contains(path, ":batchUpdate") && r.Method == http.MethodGet:
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"spreadsheetId": "s1",
+				"sheets": []map[string]any{
+					{"properties": map[string]any{"sheetId": 0, "title": "First", "index": 0}},
+					{"properties": map[string]any{"sheetId": 22, "title": "Second", "index": 1}},
+				},
+			})
+		case strings.Contains(path, "/spreadsheets/s1:batchUpdate") && r.Method == http.MethodPost:
+			body, err := io.ReadAll(r.Body)
+			if err != nil {
+				t.Fatalf("read body: %v", err)
+			}
+			rawBody = body
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{}`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	t.Cleanup(srv.Close)
+
+	svc, err := sheets.NewService(context.Background(),
+		option.WithoutAuthentication(),
+		option.WithHTTPClient(srv.Client()),
+		option.WithEndpoint(srv.URL+"/"),
+	)
+	if err != nil {
+		t.Fatalf("NewService: %v", err)
+	}
+	newSheetsService = func(context.Context, string) (*sheets.Service, error) { return svc, nil }
+
+	flags := &RootFlags{Account: "a@b.com"}
+	ctx := newSheetsCmdContext(t)
+
+	if err := runKong(t, &SheetsReorderTabCmd{}, []string{"s1", "--tab", "First", "--to", "1"}, ctx, flags); err != nil {
+		t.Fatalf("reorder-tab: %v", err)
+	}
+
+	body := string(rawBody)
+	if !strings.Contains(body, `"sheetId":0`) {
+		t.Fatalf("expected raw body to contain \"sheetId\":0; body = %s", rawBody)
+	}
+	if !strings.Contains(body, `"index":2`) {
+		t.Fatalf("expected rightward final index 1 to send API index 2; body = %s", rawBody)
+	}
+}
+
 func TestSheetsReorderTabCmd_UnknownTabName(t *testing.T) {
 	origNew := newSheetsService
 	t.Cleanup(func() { newSheetsService = origNew })
