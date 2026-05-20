@@ -15,7 +15,7 @@ import (
 // SheetsReorderTabCmd moves a tab to a specific 0-based position in the
 // spreadsheet via spreadsheets.batchUpdate -> updateSheetProperties with field
 // mask `index`. Existing tab management (add/rename/delete) does not expose
-// this — see #603.
+// this; see #603.
 type SheetsReorderTabCmd struct {
 	SpreadsheetID string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID"`
 	Tab           string `name:"tab" required:"" help:"Target tab by name or numeric sheet ID (see sheets metadata)"`
@@ -107,7 +107,7 @@ func (c *SheetsReorderTabCmd) Run(ctx context.Context, flags *RootFlags) error {
 // empty unless we happen to find a matching tab while listing IDs.
 func resolveSheetTabID(ctx context.Context, svc *sheets.Service, spreadsheetID, tab string) (int64, string, error) {
 	if id, err := strconv.ParseInt(tab, 10, 64); err == nil {
-		// Numeric — try to enrich with title for nicer output, but accept it
+		// Numeric: try to enrich with title for nicer output, but accept it
 		// even if the GET fails or the tab isn't found in the map.
 		if titles, mapErr := fetchSheetIDMap(ctx, svc, spreadsheetID); mapErr == nil {
 			for title, sheetID := range titles {
