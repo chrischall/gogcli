@@ -499,6 +499,7 @@ Generated from `gog schema --json`.
     - [`gog sheets (sheet) raw <spreadsheetId> [flags]`](commands/gog-sheets-raw.md) - Dump raw Google Sheets API response as JSON (Spreadsheets.Get; lossless; for scripting and LLM consumption)
     - [`gog sheets (sheet) read-format (get-format,format-read) <spreadsheetId> <range> [flags]`](commands/gog-sheets-read-format.md) - Read cell formatting from a range
     - [`gog sheets (sheet) rename-tab (rename-sheet) <spreadsheetId> <oldName> <newName>`](commands/gog-sheets-rename-tab.md) - Rename a tab/sheet in a spreadsheet
+    - [`gog sheets (sheet) reorder-tab (move-tab,reorder-sheet,move-sheet) --tab=STRING --to=TO <spreadsheetId>`](commands/gog-sheets-reorder-tab.md) - Move a tab/sheet to a specific 0-based position in the spreadsheet
     - [`gog sheets (sheet) resize-columns <spreadsheetId> <columns> [flags]`](commands/gog-sheets-resize-columns.md) - Resize sheet columns
     - [`gog sheets (sheet) resize-rows <spreadsheetId> <rows> [flags]`](commands/gog-sheets-resize-rows.md) - Resize sheet rows
     - [`gog sheets (sheet) table (tables) <command>`](commands/gog-sheets-table.md) - Manage Google Sheets tables

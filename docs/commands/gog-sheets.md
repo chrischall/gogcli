@@ -40,6 +40,7 @@ gog sheets (sheet) <command> [flags]
 - [gog sheets raw](gog-sheets-raw.md) - Dump raw Google Sheets API response as JSON (Spreadsheets.Get; lossless; for scripting and LLM consumption)
 - [gog sheets read-format](gog-sheets-read-format.md) - Read cell formatting from a range
 - [gog sheets rename-tab](gog-sheets-rename-tab.md) - Rename a tab/sheet in a spreadsheet
+- [gog sheets reorder-tab](gog-sheets-reorder-tab.md) - Move a tab/sheet to a specific 0-based position in the spreadsheet
 - [gog sheets resize-columns](gog-sheets-resize-columns.md) - Resize sheet columns
 - [gog sheets resize-rows](gog-sheets-resize-rows.md) - Resize sheet rows
 - [gog sheets table](gog-sheets-table.md) - Manage Google Sheets tables
