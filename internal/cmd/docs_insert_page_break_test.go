@@ -179,6 +179,15 @@ func TestDocsInsertPageBreakCmd_NegativeIndexRejected(t *testing.T) {
 	}
 }
 
+func TestDocsInsertPageBreakCmd_ZeroIndexRejected(t *testing.T) {
+	flags := &RootFlags{Account: "a@b.com"}
+	ctx := newDocsCmdContext(t)
+	err := runKong(t, &DocsInsertPageBreakCmd{}, []string{"doc1", "--index", "0"}, ctx, flags)
+	if err == nil || !strings.Contains(err.Error(), "--index must be >= 1") {
+		t.Fatalf("expected --index validation error, got %v", err)
+	}
+}
+
 func TestDocsInsertPageBreakCmd_WithTab(t *testing.T) {
 	origDocs := newDocsService
 	t.Cleanup(func() { newDocsService = origDocs })

@@ -19,7 +19,7 @@ import (
 // could translate.
 type DocsInsertPageBreakCmd struct {
 	DocID string `arg:"" name:"docId" help:"Doc ID"`
-	Index int64  `name:"index" help:"Character index to insert at (1 = beginning). Omit or use --at-end for end-of-doc."`
+	Index *int64 `name:"index" help:"Character index to insert at (1 = beginning). Omit or use --at-end for end-of-doc."`
 	AtEnd bool   `name:"at-end" help:"Insert at end-of-doc/tab (mutually exclusive with --index)"`
 	Tab   string `name:"tab" help:"Target a specific tab by title or ID (see docs list-tabs)"`
 	TabID string `name:"tab-id" hidden:"" help:"(deprecated) Use --tab"`
@@ -31,10 +31,10 @@ func (c *DocsInsertPageBreakCmd) Run(ctx context.Context, flags *RootFlags) erro
 	if docID == "" {
 		return usage("empty docId")
 	}
-	if c.AtEnd && c.Index != 0 {
+	if c.AtEnd && c.Index != nil {
 		return usage("--at-end and --index are mutually exclusive")
 	}
-	if c.Index < 0 {
+	if c.Index != nil && *c.Index < 1 {
 		return usage("--index must be >= 1 (index 0 is reserved)")
 	}
 
@@ -44,7 +44,7 @@ func (c *DocsInsertPageBreakCmd) Run(ctx context.Context, flags *RootFlags) erro
 	}
 	c.Tab = tab
 
-	resolveEnd := c.AtEnd || c.Index == 0
+	resolveEnd := c.AtEnd || c.Index == nil
 
 	dryRunPayload := map[string]any{
 		"documentId": docID,
@@ -53,7 +53,7 @@ func (c *DocsInsertPageBreakCmd) Run(ctx context.Context, flags *RootFlags) erro
 	if resolveEnd {
 		dryRunPayload["atIndex"] = "end"
 	} else {
-		dryRunPayload["atIndex"] = c.Index
+		dryRunPayload["atIndex"] = *c.Index
 	}
 	if dryRunErr := dryRunExit(ctx, flags, "docs.insert-page-break", dryRunPayload); dryRunErr != nil {
 		return dryRunErr
@@ -64,7 +64,7 @@ func (c *DocsInsertPageBreakCmd) Run(ctx context.Context, flags *RootFlags) erro
 		return err
 	}
 
-	insertIndex := c.Index
+	var insertIndex int64
 	if resolveEnd {
 		endIndex, tabID, endErr := docsTargetEndIndexAndTabID(ctx, svc, docID, c.Tab)
 		if endErr != nil {
@@ -72,12 +72,15 @@ func (c *DocsInsertPageBreakCmd) Run(ctx context.Context, flags *RootFlags) erro
 		}
 		c.Tab = tabID
 		insertIndex = docsAppendIndex(endIndex)
-	} else if c.Tab != "" {
-		tabID, tabErr := resolveDocsTabID(ctx, svc, docID, c.Tab)
-		if tabErr != nil {
-			return tabErr
+	} else {
+		insertIndex = *c.Index
+		if c.Tab != "" {
+			tabID, tabErr := resolveDocsTabID(ctx, svc, docID, c.Tab)
+			if tabErr != nil {
+				return tabErr
+			}
+			c.Tab = tabID
 		}
-		c.Tab = tabID
 	}
 
 	result, err := svc.Documents.BatchUpdate(docID, &docs.BatchUpdateDocumentRequest{
