@@ -18,6 +18,9 @@ type SheetsInsertCmd struct {
 	Start         int64  `arg:"" name:"start" help:"Position before which to insert (1-based; for cols 1=A, 2=B)"`
 	Count         int64  `name:"count" help:"Number of rows/columns to insert" default:"1"`
 	After         bool   `name:"after" help:"Insert after the position instead of before"`
+	// *bool so an unset flag keeps the historical default (inherit only when
+	// --after); passing --inherit-from-before[=false] overrides it explicitly.
+	InheritFromBefore *bool `name:"inherit-from-before" help:"Inherit number format / styling from the adjacent row/column. Defaults to true with --after, false otherwise; set to false to insert with plain formatting."`
 }
 
 func (c *SheetsInsertCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -58,7 +61,12 @@ func (c *SheetsInsertCmd) Run(ctx context.Context, flags *RootFlags) error {
 		startIndex = c.Start
 	}
 	endIndex := startIndex + c.Count
+	// Default: inherit formatting only when inserting after an existing line.
+	// An explicit --inherit-from-before[=false] overrides that default.
 	inheritFromBefore := c.After
+	if c.InheritFromBefore != nil {
+		inheritFromBefore = *c.InheritFromBefore
+	}
 
 	if dryRunErr := dryRunExit(ctx, flags, "sheets.insert", map[string]any{
 		"spreadsheet_id":      spreadsheetID,
