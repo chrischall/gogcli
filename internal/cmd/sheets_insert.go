@@ -20,7 +20,7 @@ type SheetsInsertCmd struct {
 	After         bool   `name:"after" help:"Insert after the position instead of before"`
 	// *bool so an unset flag keeps the historical default (inherit only when
 	// --after); passing --inherit-from-before[=false] overrides it explicitly.
-	InheritFromBefore *bool `name:"inherit-from-before" help:"Inherit number format / styling from the adjacent row/column. Defaults to true with --after, false otherwise; set to false to insert with plain formatting."`
+	InheritFromBefore *bool `name:"inherit-from-before" help:"Inherit number format / styling from the row/column before the insertion. Defaults to true with --after, false otherwise; false inherits from the row/column after the insertion."`
 }
 
 func (c *SheetsInsertCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -66,6 +66,9 @@ func (c *SheetsInsertCmd) Run(ctx context.Context, flags *RootFlags) error {
 	inheritFromBefore := c.After
 	if c.InheritFromBefore != nil {
 		inheritFromBefore = *c.InheritFromBefore
+	}
+	if inheritFromBefore && startIndex == 0 {
+		return usagef("cannot inherit from the previous %s when inserting at position 1", dimLabel)
 	}
 
 	if dryRunErr := dryRunExit(ctx, flags, "sheets.insert", map[string]any{
