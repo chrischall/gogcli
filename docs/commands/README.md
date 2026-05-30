@@ -2,7 +2,7 @@
 
 Every `gog` command has a generated docs page. The source of truth is the live CLI schema; run `make docs-commands` after changing command names, flags, help text, aliases, or arguments.
 
-Generated pages: 572.
+Generated pages: 573.
 
 ## Top-level Commands
 
@@ -534,6 +534,7 @@ Generated pages: 572.
       - [gog sheets conditional-format clear](gog-sheets-conditional-format-clear.md) - Remove conditional formatting rules
       - [gog sheets conditional-format list](gog-sheets-conditional-format-list.md) - List conditional formatting rules
     - [gog sheets copy](gog-sheets-copy.md) - Copy a Google Sheet
+    - [gog sheets copy-paste](gog-sheets-copy-paste.md) - Copy a range's values/formulas/format to another range (tiles to fill down/across)
     - [gog sheets create](gog-sheets-create.md) - Create a new spreadsheet
     - [gog sheets delete-tab](gog-sheets-delete-tab.md) - Delete a tab/sheet from a spreadsheet (use --force to skip confirmation)
     - [gog sheets export](gog-sheets-export.md) - Export a Google Sheet (pdf|xlsx|csv) via Drive
