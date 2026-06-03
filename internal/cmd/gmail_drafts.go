@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -348,7 +349,7 @@ func carryForwardDraftAttachments(ctx context.Context, svc *gmail.Service, messa
 			}
 			switch {
 			case part.Body.AttachmentId != "":
-				data, dlErr := fetchAttachmentBytes(ctx, svc, messageID, part.Body.AttachmentId)
+				data, dlErr := fetchDraftAttachmentBytes(ctx, svc, messageID, part.Body.AttachmentId, part.Body.Size)
 				if dlErr != nil {
 					return fmt.Errorf("preserve attachment %q: %w", filename, dlErr)
 				}
@@ -356,16 +357,22 @@ func carryForwardDraftAttachments(ctx context.Context, svc *gmail.Service, messa
 					Filename: filename,
 					MIMEType: part.MimeType,
 					Data:     data,
+					DataSet:  true,
 				})
-			case filename != "" && part.Body.Data != "":
-				data, decErr := decodeBase64URLBytes(part.Body.Data)
-				if decErr != nil {
-					return fmt.Errorf("preserve attachment %q: %w", filename, decErr)
+			case filename != "" && (part.Body.Data != "" || part.Body.Size == 0):
+				var data []byte
+				if part.Body.Data != "" {
+					decoded, decErr := decodeBase64URLBytes(part.Body.Data)
+					if decErr != nil {
+						return fmt.Errorf("preserve attachment %q: %w", filename, decErr)
+					}
+					data = decoded
 				}
 				out = append(out, mailAttachment{
 					Filename: filename,
 					MIMEType: part.MimeType,
 					Data:     data,
+					DataSet:  true,
 				})
 			}
 		}
@@ -380,6 +387,23 @@ func carryForwardDraftAttachments(ctx context.Context, svc *gmail.Service, messa
 		return nil, err
 	}
 	return out, nil
+}
+
+func fetchDraftAttachmentBytes(ctx context.Context, svc *gmail.Service, messageID, attachmentID string, expectedSize int64) ([]byte, error) {
+	body, err := svc.Users.Messages.Attachments.Get("me", messageID, attachmentID).Context(ctx).Do()
+	if err != nil {
+		return nil, err
+	}
+	if body == nil {
+		return nil, errors.New("empty attachment data")
+	}
+	if body.Data == "" {
+		if expectedSize == 0 {
+			return []byte{}, nil
+		}
+		return nil, errors.New("empty attachment data")
+	}
+	return decodeBase64URLBytes(body.Data)
 }
 
 func writeDraftResult(ctx context.Context, u *ui.UI, draft *gmail.Draft, threadID string) error {

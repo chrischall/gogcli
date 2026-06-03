@@ -1618,7 +1618,9 @@ func draftUpdateAttachmentServer(t *testing.T, posted *gmail.Draft, attBytesHit 
 						"parts": []map[string]any{
 							{"mimeType": "text/plain", "body": map[string]any{"data": base64.RawURLEncoding.EncodeToString([]byte("old body"))}},
 							{"filename": "report.pdf", "mimeType": "application/pdf", "body": map[string]any{"attachmentId": "att1", "size": 5}},
+							{"filename": "empty.bin", "mimeType": "application/octet-stream", "body": map[string]any{"attachmentId": "att-empty", "size": 0}},
 							{"filename": "inline.txt", "mimeType": "text/plain", "body": map[string]any{"data": base64.RawURLEncoding.EncodeToString([]byte("INLINE")), "size": 6}},
+							{"filename": "zero.txt", "mimeType": "text/plain", "body": map[string]any{"data": "", "size": 0}},
 						},
 					},
 				},
@@ -1627,6 +1629,9 @@ func draftUpdateAttachmentServer(t *testing.T, posted *gmail.Draft, attBytesHit 
 			*attBytesHit = true
 			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode(map[string]any{"data": base64.RawURLEncoding.EncodeToString([]byte("HELLO")), "size": 5})
+		case strings.Contains(r.URL.Path, "/gmail/v1/users/me/messages/dm1/attachments/att-empty") && r.Method == http.MethodGet:
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]any{"data": "", "size": 0})
 		case strings.Contains(r.URL.Path, "/gmail/v1/users/me/drafts/d1") && r.Method == http.MethodPut:
 			body, _ := io.ReadAll(r.Body)
 			if unmarshalErr := json.Unmarshal(body, posted); unmarshalErr != nil {
@@ -1686,11 +1691,17 @@ func TestGmailDraftsUpdateCmd_PreservesAttachmentsWhenOmitted(t *testing.T) {
 	if !strings.Contains(s, base64.StdEncoding.EncodeToString([]byte("HELLO"))) {
 		t.Fatalf("preserved attachment bytes missing from rebuilt draft:\n%s", s)
 	}
+	if !strings.Contains(s, `filename="empty.bin"`) {
+		t.Fatalf("zero-byte fetched attachment filename missing from rebuilt draft:\n%s", s)
+	}
 	if !strings.Contains(s, `filename="inline.txt"`) {
 		t.Fatalf("inline attachment filename missing from rebuilt draft:\n%s", s)
 	}
 	if !strings.Contains(s, base64.StdEncoding.EncodeToString([]byte("INLINE"))) {
 		t.Fatalf("inline attachment bytes missing from rebuilt draft:\n%s", s)
+	}
+	if !strings.Contains(s, `filename="zero.txt"`) {
+		t.Fatalf("zero-byte inline attachment filename missing from rebuilt draft:\n%s", s)
 	}
 }
 
