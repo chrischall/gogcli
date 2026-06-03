@@ -335,21 +335,49 @@ func buildDraftMessage(ctx context.Context, svc *gmail.Service, account string, 
 // attachments so they can be re-attached to a rebuilt draft on update. Returns
 // nil when the draft has no attachments. Mirrors the gmail forward reattach path.
 func carryForwardDraftAttachments(ctx context.Context, svc *gmail.Service, messageID string, payload *gmail.MessagePart) ([]mailAttachment, error) {
-	metas := collectAttachments(payload)
-	if len(metas) == 0 {
-		return nil, nil
-	}
-	out := make([]mailAttachment, 0, len(metas))
-	for _, att := range metas {
-		data, dlErr := fetchAttachmentBytes(ctx, svc, messageID, att.AttachmentID)
-		if dlErr != nil {
-			return nil, fmt.Errorf("preserve attachment %q: %w", att.Filename, dlErr)
+	var out []mailAttachment
+	var walk func(*gmail.MessagePart) error
+	walk = func(part *gmail.MessagePart) error {
+		if part == nil {
+			return nil
 		}
-		out = append(out, mailAttachment{
-			Filename: att.Filename,
-			MIMEType: att.MimeType,
-			Data:     data,
-		})
+		if part.Body != nil {
+			filename := strings.TrimSpace(part.Filename)
+			if filename == "" && part.Body.AttachmentId != "" {
+				filename = defaultAttachmentFilename
+			}
+			switch {
+			case part.Body.AttachmentId != "":
+				data, dlErr := fetchAttachmentBytes(ctx, svc, messageID, part.Body.AttachmentId)
+				if dlErr != nil {
+					return fmt.Errorf("preserve attachment %q: %w", filename, dlErr)
+				}
+				out = append(out, mailAttachment{
+					Filename: filename,
+					MIMEType: part.MimeType,
+					Data:     data,
+				})
+			case filename != "" && part.Body.Data != "":
+				data, decErr := decodeBase64URLBytes(part.Body.Data)
+				if decErr != nil {
+					return fmt.Errorf("preserve attachment %q: %w", filename, decErr)
+				}
+				out = append(out, mailAttachment{
+					Filename: filename,
+					MIMEType: part.MimeType,
+					Data:     data,
+				})
+			}
+		}
+		for _, child := range part.Parts {
+			if err := walk(child); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	if err := walk(payload); err != nil {
+		return nil, err
 	}
 	return out, nil
 }

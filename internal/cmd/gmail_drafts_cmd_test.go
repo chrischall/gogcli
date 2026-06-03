@@ -1618,6 +1618,7 @@ func draftUpdateAttachmentServer(t *testing.T, posted *gmail.Draft, attBytesHit 
 						"parts": []map[string]any{
 							{"mimeType": "text/plain", "body": map[string]any{"data": base64.RawURLEncoding.EncodeToString([]byte("old body"))}},
 							{"filename": "report.pdf", "mimeType": "application/pdf", "body": map[string]any{"attachmentId": "att1", "size": 5}},
+							{"filename": "inline.txt", "mimeType": "text/plain", "body": map[string]any{"data": base64.RawURLEncoding.EncodeToString([]byte("INLINE")), "size": 6}},
 						},
 					},
 				},
@@ -1684,6 +1685,12 @@ func TestGmailDraftsUpdateCmd_PreservesAttachmentsWhenOmitted(t *testing.T) {
 	}
 	if !strings.Contains(s, base64.StdEncoding.EncodeToString([]byte("HELLO"))) {
 		t.Fatalf("preserved attachment bytes missing from rebuilt draft:\n%s", s)
+	}
+	if !strings.Contains(s, `filename="inline.txt"`) {
+		t.Fatalf("inline attachment filename missing from rebuilt draft:\n%s", s)
+	}
+	if !strings.Contains(s, base64.StdEncoding.EncodeToString([]byte("INLINE"))) {
+		t.Fatalf("inline attachment bytes missing from rebuilt draft:\n%s", s)
 	}
 }
 
