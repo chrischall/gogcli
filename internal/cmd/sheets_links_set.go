@@ -118,9 +118,15 @@ func (c *SheetsLinksSetCmd) Run(ctx context.Context, flags *RootFlags) error {
 		}
 		requests = append(requests, &sheets.Request{
 			UpdateCells: &sheets.UpdateCellsRequest{
-				Start:  start,
-				Rows:   []*sheets.RowData{{Values: []*sheets.CellData{cell}}},
-				Fields: "userEnteredValue,textFormatRuns",
+				Start: start,
+				Rows:  []*sheets.RowData{{Values: []*sheets.CellData{cell}}},
+				// Also clear any pre-existing whole-cell hyperlink
+				// (userEnteredFormat.textFormat.link): the cell above leaves
+				// that field unset, so listing it in the mask resets it to none.
+				// Without this, a cell that previously held a whole-cell link
+				// would keep the stale URL alongside the new runs and `links
+				// get` would still report it — the write wouldn't round-trip.
+				Fields: "userEnteredValue,textFormatRuns,userEnteredFormat.textFormat.link",
 			},
 		})
 	}

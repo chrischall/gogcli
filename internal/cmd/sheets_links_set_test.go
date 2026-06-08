@@ -162,6 +162,27 @@ func TestSheetsLinksSet_SingleLink(t *testing.T) {
 	}
 }
 
+func TestSheetsLinksSet_ClearsStaleWholeCellLink(t *testing.T) {
+	origNew := newSheetsService
+	t.Cleanup(func() { newSheetsService = origNew })
+	rec := &linksSetRecorder{}
+	svc := newLinksSetService(t, rec)
+	newSheetsService = func(context.Context, string) (*sheets.Service, error) { return svc, nil }
+
+	flags := &RootFlags{Account: "a@b.com"}
+	_ = captureStdout(t, func() {
+		if err := runKong(t, &SheetsLinksSetCmd{}, []string{"s1", "Sheet1!B2", "https://x.test/a", "A"}, linksSetCtx(t), flags); err != nil {
+			t.Fatalf("links set: %v", err)
+		}
+	})
+	// The field mask must clear a pre-existing whole-cell link, else a replaced
+	// cell keeps the stale URL and `links get` reports it (does not round-trip).
+	fields := rec.requests[0]["updateCells"].(map[string]any)["fields"]
+	if fields != "userEnteredValue,textFormatRuns,userEnteredFormat.textFormat.link" {
+		t.Errorf("fields mask = %q, must clear userEnteredFormat.textFormat.link", fields)
+	}
+}
+
 func TestSheetsLinksSet_DefaultTextIsURL(t *testing.T) {
 	origNew := newSheetsService
 	t.Cleanup(func() { newSheetsService = origNew })
