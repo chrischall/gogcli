@@ -45,7 +45,7 @@ func mcpGmailSearchThreadsTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "gmail", "search").
-				num("max", "--max", 10, 1, 100).
+				num("max", "--max", 10, 100).
 				flag("oldest", "--oldest").
 				done(query)
 		},
@@ -94,7 +94,7 @@ func mcpGmailListDraftsTool() mcpToolSpec {
 		},
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
 			return mcpCommand(req, "gmail", "drafts", "list").
-				num("max", "--max", 20, 1, 100).done()
+				num("max", "--max", 20, 100).done()
 		},
 	}
 }
@@ -131,7 +131,7 @@ func mcpGmailHistoryTool() mcpToolSpec {
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
 			return mcpCommand(req, "gmail", "history").
 				str("since", "--since").
-				num("max", "--max", 50, 1, 500).done()
+				num("max", "--max", 50, 500).done()
 		},
 	}
 }

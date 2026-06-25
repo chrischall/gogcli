@@ -30,7 +30,7 @@ func mcpCalendarListCalendarsTool() mcpToolSpec {
 		},
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
 			return mcpCommand(req, "calendar", "calendars").
-				num("max", "--max", 50, 1, 250).done()
+				num("max", "--max", 50, 250).done()
 		},
 	}
 }
@@ -82,7 +82,7 @@ func mcpCalendarSearchTool() mcpToolSpec {
 				str("calendar", "--calendar").
 				str("from", "--from").
 				str("to", "--to").
-				num("max", "--max", 20, 1, 250).done(query)
+				num("max", "--max", 20, 250).done(query)
 		},
 	}
 }

@@ -74,7 +74,7 @@ func mcpDocsListCommentsTool() mcpToolSpec {
 			}
 			return mcpCommand(req, "docs", "comments", "list").
 				flag("include_resolved", "--include-resolved").
-				num("max", "--max", 50, 1, 200).done(docID)
+				num("max", "--max", 50, 200).done(docID)
 		},
 	}
 }

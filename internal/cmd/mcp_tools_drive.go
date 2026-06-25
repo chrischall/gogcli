@@ -40,7 +40,7 @@ func mcpDriveListTool() mcpToolSpec {
 			return mcpCommand(req, "drive", "ls").
 				str("parent", "--parent").
 				str("query", "--query").
-				num("max", "--max", 50, 1, 200).done()
+				num("max", "--max", 50, 200).done()
 		},
 	}
 }
@@ -58,7 +58,7 @@ func mcpDriveListDrivesTool() mcpToolSpec {
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
 			return mcpCommand(req, "drive", "drives").
 				str("query", "--query").
-				num("max", "--max", 50, 1, 100).done()
+				num("max", "--max", 50, 100).done()
 		},
 	}
 }
@@ -100,7 +100,7 @@ func mcpDriveListCommentsTool() mcpToolSpec {
 			}
 			return mcpCommand(req, "drive", "comments", "list").
 				flag("include_quoted", "--include-quoted").
-				num("max", "--max", 50, 1, 200).done(fileID)
+				num("max", "--max", 50, 200).done(fileID)
 		},
 	}
 }
@@ -121,7 +121,7 @@ func mcpDriveListRevisionsTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "drive", "revisions", "list").
-				num("max", "--max", 50, 1, 200).done(fileID)
+				num("max", "--max", 50, 200).done(fileID)
 		},
 	}
 }
@@ -140,8 +140,8 @@ func mcpDriveTreeTool() mcpToolSpec {
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
 			return mcpCommand(req, "drive", "tree").
 				str("parent", "--parent").
-				num("depth", "--depth", 3, 1, 20).
-				num("max", "--max", 200, 1, 2000).done()
+				num("depth", "--depth", 3, 20).
+				num("max", "--max", 200, 2000).done()
 		},
 	}
 }

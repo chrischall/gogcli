@@ -73,9 +73,9 @@ func (a *mcpArgs) flag(key, name string) *mcpArgs {
 	return a
 }
 
-// num appends "--flag N" using the request value (or def), clamped to [lo,hi].
-func (a *mcpArgs) num(key, flag string, def, lo, hi int) *mcpArgs {
-	a.out = append(a.out, flag, strconv.Itoa(clampMCPInt(a.req.GetInt(key, def), lo, hi)))
+// num appends "--flag N" using the request value (or def), clamped to [1,hi].
+func (a *mcpArgs) num(key, flag string, def, hi int) *mcpArgs {
+	a.out = append(a.out, flag, strconv.Itoa(clampMCPInt(a.req.GetInt(key, def), 1, hi)))
 	return a
 }
 

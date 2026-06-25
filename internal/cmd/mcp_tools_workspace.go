@@ -31,7 +31,7 @@ func mcpContactsListTool() mcpToolSpec {
 		},
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
 			return mcpCommand(req, "contacts", "list").
-				num("max", "--max", 50, 1, 200).done()
+				num("max", "--max", 50, 200).done()
 		},
 	}
 }
@@ -71,7 +71,7 @@ func mcpContactsSearchTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "contacts", "search").
-				num("max", "--max", 25, 1, 100).done(query)
+				num("max", "--max", 25, 100).done(query)
 		},
 	}
 }
@@ -92,7 +92,7 @@ func mcpContactsDirectorySearchTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "contacts", "directory", "search").
-				num("max", "--max", 25, 1, 100).done(query)
+				num("max", "--max", 25, 100).done(query)
 		},
 	}
 }
@@ -237,7 +237,7 @@ func mcpPeopleSearchTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "people", "search").
-				num("max", "--max", 25, 1, 100).done(query)
+				num("max", "--max", 25, 100).done(query)
 		},
 	}
 }
@@ -267,7 +267,7 @@ func mcpTasksListsTool() mcpToolSpec {
 		},
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
 			return mcpCommand(req, "tasks", "lists", "list").
-				num("max", "--max", 50, 1, 100).done()
+				num("max", "--max", 50, 100).done()
 		},
 	}
 }
@@ -290,7 +290,7 @@ func mcpTasksListTool() mcpToolSpec {
 			}
 			return mcpCommand(req, "tasks", "list").
 				flag("show_completed", "--show-completed").
-				num("max", "--max", 50, 1, 100).done(tasklistID)
+				num("max", "--max", 50, 100).done(tasklistID)
 		},
 	}
 }
@@ -469,7 +469,7 @@ func mcpChatListSpacesTool() mcpToolSpec {
 		},
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
 			return mcpCommand(req, "chat", "spaces", "list").
-				num("max", "--max", 50, 1, 100).done()
+				num("max", "--max", 50, 100).done()
 		},
 	}
 }
@@ -492,7 +492,7 @@ func mcpChatFindSpacesTool() mcpToolSpec {
 			}
 			return mcpCommand(req, "chat", "spaces", "find").
 				flag("exact", "--exact").
-				num("max", "--max", 25, 1, 100).done(displayName)
+				num("max", "--max", 25, 100).done(displayName)
 		},
 	}
 }
@@ -513,7 +513,7 @@ func mcpChatListMessagesTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "chat", "messages", "list").
-				num("max", "--max", 50, 1, 100).done(space)
+				num("max", "--max", 50, 100).done(space)
 		},
 	}
 }
@@ -534,7 +534,7 @@ func mcpChatListThreadsTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "chat", "threads", "list").
-				num("max", "--max", 50, 1, 100).done(space)
+				num("max", "--max", 50, 100).done(space)
 		},
 	}
 }
@@ -612,7 +612,7 @@ func mcpKeepListTool() mcpToolSpec {
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
 			return mcpCommand(req, "keep", "list").
 				str("filter", "--filter").
-				num("max", "--max", 50, 1, 100).done()
+				num("max", "--max", 50, 100).done()
 		},
 	}
 }
@@ -652,7 +652,7 @@ func mcpKeepSearchTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "keep", "search").
-				num("max", "--max", 25, 1, 100).done(query)
+				num("max", "--max", 25, 100).done(query)
 		},
 	}
 }
@@ -723,7 +723,7 @@ func mcpMeetHistoryTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "meet", "history").
-				num("max", "--max", 25, 1, 100).done(code)
+				num("max", "--max", 25, 100).done(code)
 		},
 	}
 }
@@ -744,7 +744,7 @@ func mcpMeetParticipantsTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "meet", "participants").
-				num("max", "--max", 50, 1, 100).done(code)
+				num("max", "--max", 50, 100).done(code)
 		},
 	}
 }

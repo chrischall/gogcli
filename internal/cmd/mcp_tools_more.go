@@ -53,7 +53,7 @@ func mcpFormsListResponsesTool() mcpToolSpec {
 			}
 			return mcpCommand(req, "forms", "responses", "list").
 				str("filter", "--filter").
-				num("max", "--max", 50, 1, 200).done(formID)
+				num("max", "--max", 50, 200).done(formID)
 		},
 	}
 }
@@ -188,7 +188,7 @@ func mcpClassroomListCoursesTool() mcpToolSpec {
 				str("state", "--state").
 				str("teacher", "--teacher").
 				str("student", "--student").
-				num("max", "--max", 50, 1, 200).done()
+				num("max", "--max", 50, 200).done()
 		},
 	}
 }
@@ -230,7 +230,7 @@ func mcpClassroomListCourseworkTool() mcpToolSpec {
 			}
 			return mcpCommand(req, "classroom", "coursework", "list").
 				str("state", "--state").
-				num("max", "--max", 50, 1, 200).done(courseID)
+				num("max", "--max", 50, 200).done(courseID)
 		},
 	}
 }
@@ -275,7 +275,7 @@ func mcpClassroomListStudentsTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "classroom", "students", "list").
-				num("max", "--max", 50, 1, 200).done(courseID)
+				num("max", "--max", 50, 200).done(courseID)
 		},
 	}
 }
@@ -296,7 +296,7 @@ func mcpClassroomListTeachersTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "classroom", "teachers", "list").
-				num("max", "--max", 50, 1, 200).done(courseID)
+				num("max", "--max", 50, 200).done(courseID)
 		},
 	}
 }
@@ -317,7 +317,7 @@ func mcpClassroomRosterTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "classroom", "roster").
-				num("max", "--max", 100, 1, 400).done(courseID)
+				num("max", "--max", 100, 400).done(courseID)
 		},
 	}
 }
@@ -338,7 +338,7 @@ func mcpClassroomListAnnouncementsTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "classroom", "announcements", "list").
-				num("max", "--max", 50, 1, 200).done(courseID)
+				num("max", "--max", 50, 200).done(courseID)
 		},
 	}
 }
@@ -368,7 +368,7 @@ func mcpClassroomListSubmissionsTool() mcpToolSpec {
 			return mcpCommand(req, "classroom", "submissions", "list").
 				str("state", "--state").
 				str("user", "--user").
-				num("max", "--max", 50, 1, 200).done(courseID, courseworkID)
+				num("max", "--max", 50, 200).done(courseID, courseworkID)
 		},
 	}
 }
@@ -389,7 +389,7 @@ func mcpClassroomListTopicsTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "classroom", "topics", "list").
-				num("max", "--max", 50, 1, 200).done(courseID)
+				num("max", "--max", 50, 200).done(courseID)
 		},
 	}
 }
@@ -414,7 +414,7 @@ func mcpPhotosListTool() mcpToolSpec {
 		},
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
 			return mcpCommand(req, "photos", "list").
-				num("max", "--max", 50, 1, 100).done()
+				num("max", "--max", 50, 100).done()
 		},
 	}
 }
@@ -457,7 +457,7 @@ func mcpPhotosSearchTool() mcpToolSpec {
 				str("from", "--from").
 				str("to", "--to").
 				str("media_type", "--media-type").
-				num("max", "--max", 50, 1, 100).done()
+				num("max", "--max", 50, 100).done()
 		},
 	}
 }
@@ -655,7 +655,7 @@ func mcpYouTubeSearchTool() mcpToolSpec {
 				str("type", "--type").
 				str("order", "--order").
 				str("channel_id", "--channel-id").
-				num("max", "--max", 25, 1, 50).done(query)
+				num("max", "--max", 25, 50).done(query)
 		},
 	}
 }
@@ -677,7 +677,7 @@ func mcpYouTubeListVideosTool() mcpToolSpec {
 				str("id", "--id").
 				str("chart", "--chart").
 				str("region", "--region").
-				num("max", "--max", 25, 1, 50).done()
+				num("max", "--max", 25, 50).done()
 		},
 	}
 }
@@ -697,7 +697,7 @@ func mcpYouTubeListChannelsTool() mcpToolSpec {
 			return mcpCommand(req, "youtube", "channels", "list").
 				str("id", "--id").
 				flag("mine", "--mine").
-				num("max", "--max", 25, 1, 50).done()
+				num("max", "--max", 25, 50).done()
 		},
 	}
 }
@@ -717,7 +717,7 @@ func mcpYouTubeListPlaylistsTool() mcpToolSpec {
 			return mcpCommand(req, "youtube", "playlists", "list").
 				str("channel_id", "--channel-id").
 				flag("mine", "--mine").
-				num("max", "--max", 25, 1, 50).done()
+				num("max", "--max", 25, 50).done()
 		},
 	}
 }
@@ -738,7 +738,7 @@ func mcpYouTubeListPlaylistItemsTool() mcpToolSpec {
 				return nil, err
 			}
 			return mcpCommand(req, "youtube", "playlists", "items", "list", "--playlist-id", playlistID).
-				num("max", "--max", 25, 1, 50).done()
+				num("max", "--max", 25, 50).done()
 		},
 	}
 }
@@ -758,7 +758,7 @@ func mcpYouTubeListCommentsTool() mcpToolSpec {
 			return mcpCommand(req, "youtube", "comments", "list").
 				str("video_id", "--video-id").
 				str("channel_id", "--channel-id").
-				num("max", "--max", 25, 1, 50).done()
+				num("max", "--max", 25, 50).done()
 		},
 	}
 }
@@ -855,7 +855,7 @@ func mcpSearchConsoleQueryTool() mcpToolSpec {
 				str("from", "--from").
 				str("to", "--to").
 				str("dimensions", "--dimensions").
-				num("max", "--max", 50, 1, 1000).done(siteURL)
+				num("max", "--max", 50, 1000).done(siteURL)
 		},
 	}
 }
