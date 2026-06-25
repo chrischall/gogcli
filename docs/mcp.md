@@ -12,15 +12,18 @@ or arbitrary `gog` command bridge.
 The server registers a comprehensive set of typed tools such as `gmail_search`,
 `docs_get`, and `sheets_read_range`, spanning every major Google Workspace area:
 Gmail, Drive, Docs, Sheets, Slides, Calendar, Contacts, People, Tasks, Chat,
-Keep, Meet, Forms, Classroom, Photos, Maps, YouTube, and Search Console. Each
+Keep, Meet, Forms, Classroom, Photos, Maps, YouTube, Search Console, Admin
+(Directory), Cloud Identity Groups, Apps Script, and the Discovery API. Each
 tool has a fixed schema, maps to one specific `gog` operation, and returns a
 structured result containing the tool name, service, risk level, exit code,
 parsed stdout, and stderr.
 
 The surface is gated by area: every tool carries a `service` (such as `gmail`,
-`slides`, or `sheets`), and `--allow-tool` selectors filter on it. Start a
-server scoped to just the areas an agent needs, and add `--allow-write` only
-when write tools should be exposed.
+`slides`, or `sheets`), and `--allow-tool` selectors filter on it. For
+role-oriented bundles that span several services, `--tool-suite` selects curated
+suites like `developer`, `admin`, or `workspace`. Start a server scoped to just
+what an agent needs, and add `--allow-write` only when write tools should be
+exposed.
 
 ## Quick start
 
@@ -113,6 +116,50 @@ gog mcp --allow-tool calendar,sheets
 gog mcp --allow-write --allow-tool write
 ```
 
+## Tool suites
+
+`--tool-suite` (alias `--suite`) exposes curated, cross-service bundles in one
+flag, so a client can request a whole role's worth of tools without naming each
+service. Values are comma-separated or repeated.
+
+| Suite | Services |
+| --- | --- |
+| `workspace` | gmail, calendar, drive, docs, sheets, slides, contacts, people, tasks, chat, keep, meet, forms |
+| `developer` | appscript, api |
+| `admin` | admin, groups |
+| `education` | classroom |
+| `media` | photos, youtube |
+| `insights` | searchconsole |
+
+```bash
+# Developer suite, read-only.
+gog mcp --tool-suite developer
+
+# Admin suite with writes (Directory API needs domain-wide delegation).
+gog mcp --tool-suite admin --allow-write
+
+# Multiple suites at once.
+gog mcp --tool-suite developer,admin
+
+# Print the suite-to-service map and exit.
+gog mcp --list-suites
+```
+
+A suite acts as a service-level filter. It composes with the other flags by
+intersection: `--allow-write` still gates write tools, and `--allow-tool`
+narrows further *within* the suite. An unknown suite name fails at startup.
+
+```bash
+# Within the workspace suite, only Slides tools.
+gog mcp --tool-suite workspace --allow-tool slides
+```
+
+Every service is still independently selectable with `--allow-tool` regardless
+of suite membership; suites are a convenience layer, not a separate permission
+system. `--tool-suite admin` and `--tool-suite developer` expose the Admin
+(Directory), Cloud Identity Groups, Apps Script, and Discovery API tools, which
+are not part of the default read-only surface unless selected.
+
 ## Tools by area
 
 Tools are grouped by service area. Read tools are registered by default; write
@@ -140,6 +187,10 @@ set with full schemas.
 | `maps` | `maps_geocode`, `maps_reverse_geocode`, `maps_directions`, `maps_distance`, `maps_places_search`, `maps_place_details` | — |
 | `youtube` | `youtube_search`, `youtube_list_videos`, `youtube_list_channels`, `youtube_list_playlists`, `youtube_list_playlist_items`, `youtube_list_comments` | `youtube_create_playlist`, `youtube_add_to_playlist` |
 | `searchconsole` | `searchconsole_list_sites`, `searchconsole_query`, `searchconsole_list_sitemaps` | — |
+| `admin` | `admin_list_users`, `admin_get_user`, `admin_list_groups`, `admin_list_group_members`, `admin_list_orgunits`, `admin_get_orgunit` | `admin_add_group_member`, `admin_remove_group_member`, `admin_suspend_user` |
+| `groups` | `groups_list`, `groups_members` | — |
+| `appscript` | `appscript_get`, `appscript_content` | `appscript_create`, `appscript_run` |
+| `api` | `api_list`, `api_describe` | `api_call` |
 
 Select a whole area with `--allow-tool <area>` (for example `--allow-tool
 slides` or `--allow-tool 'docs.*'`), or list individual tool names. `gmail_send`,

@@ -33,6 +33,7 @@ gog mcp [flags]
 | `-h`<br>`--help` | `kong.helpFlag` |  | Show context-sensitive help. |
 | `--home` | `string` |  | Override gogcli config/data/state/cache root (equivalent to GOG_HOME) |
 | `-j`<br>`--json`<br>`--machine` | `bool` | false | Output JSON to stdout (best for scripting) |
+| `--list-suites` | `bool` |  | Print available tool suites and their services as JSON and exit |
 | `--list-tools` | `bool` |  | Print enabled MCP tools as JSON and exit |
 | `--max-output-bytes` | `int` | 102400 | Max stdout/stderr bytes captured per tool call |
 | `--no-input`<br>`--non-interactive`<br>`--noninteractive` | `bool` |  | Never prompt; fail instead (useful for CI) |
@@ -41,6 +42,7 @@ gog mcp [flags]
 | `--results-only` | `bool` |  | In JSON mode, emit only the primary result (drops envelope fields like nextPageToken) |
 | `--select`<br>`--pick`<br>`--project` | `string` |  | In JSON mode, select comma-separated fields (best-effort; supports dot paths). Desire path: use --fields for most commands. |
 | `--timeout-seconds` | `int` | 60 | Per-tool subprocess timeout |
+| `--tool-suite`<br>`--suite` | `[]string` |  | Expose curated cross-service suites (comma-separated). Examples: developer,admin,workspace,media,education,insights |
 | `-v`<br>`--verbose` | `bool` |  | Enable verbose logging |
 | `--version` | `kong.VersionFlag` |  | Print version and exit |
 | `--wrap-untrusted` | `bool` | false | In JSON/raw output, wrap fetched text fields in external untrusted-content markers |

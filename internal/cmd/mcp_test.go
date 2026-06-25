@@ -39,6 +39,80 @@ func TestMCPEnabledToolsAllowWriteAndFilter(t *testing.T) {
 	}
 }
 
+func TestMCPToolSuiteSelectsServices(t *testing.T) {
+	tools := mcpEnabledTools(McpCmd{ToolSuite: []string{"developer"}})
+	if len(tools) == 0 {
+		t.Fatal("expected developer suite tools")
+	}
+	for _, tool := range tools {
+		if tool.Service != "appscript" && tool.Service != "api" {
+			t.Fatalf("developer suite leaked service %s via %s", tool.Service, tool.Name)
+		}
+		if tool.Risk != mcpRiskRead {
+			t.Fatalf("write tool %s exposed without --allow-write", tool.Name)
+		}
+	}
+	if !hasMCPTool(tools, "appscript_get") || !hasMCPTool(tools, "api_list") {
+		t.Fatalf("developer suite missing expected tools: %#v", toolNames(tools))
+	}
+}
+
+func TestMCPToolSuiteComposesWithAllowTool(t *testing.T) {
+	tools := mcpEnabledTools(McpCmd{ToolSuite: []string{"workspace"}, AllowTool: []string{"slides"}})
+	if len(tools) == 0 {
+		t.Fatal("expected slides tools from workspace suite")
+	}
+	for _, tool := range tools {
+		if tool.Service != "slides" {
+			t.Fatalf("suite+allow-tool intersection leaked service %s via %s", tool.Service, tool.Name)
+		}
+	}
+	// A service outside the suite must not appear even if allow-tool names it.
+	none := mcpEnabledTools(McpCmd{ToolSuite: []string{"developer"}, AllowTool: []string{"slides"}})
+	if len(none) != 0 {
+		t.Fatalf("allow-tool escaped the suite filter: %#v", toolNames(none))
+	}
+}
+
+func TestMCPResolveSuitesValidates(t *testing.T) {
+	if _, err := mcpResolveSuites([]string{"developer", "admin"}); err != nil {
+		t.Fatalf("valid suites errored: %v", err)
+	}
+	_, err := mcpResolveSuites([]string{"bogus"})
+	if err == nil || !strings.Contains(err.Error(), "unknown suite") {
+		t.Fatalf("expected unknown suite error, got %v", err)
+	}
+}
+
+func TestMCPSuiteServicesHaveTools(t *testing.T) {
+	services := map[string]bool{}
+	for _, tool := range mcpAllTools() {
+		services[tool.Service] = true
+	}
+	for suite, members := range mcpSuites() {
+		for _, svc := range members {
+			if !services[svc] {
+				t.Fatalf("suite %q references service %q with no registered tools", suite, svc)
+			}
+		}
+	}
+}
+
+func TestMCPListSuitesUsesRuntimeStdout(t *testing.T) {
+	var output bytes.Buffer
+	err := (&McpCmd{
+		ListSuites:     true,
+		TimeoutSeconds: 60,
+		MaxOutputBytes: 1024,
+	}).Run(newCmdRuntimeOutputContext(t, &output, io.Discard), &RootFlags{})
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if got := output.String(); !strings.Contains(got, `"suites"`) || !strings.Contains(got, `"developer"`) {
+		t.Fatalf("unexpected suite list: %s", got)
+	}
+}
+
 func TestMCPListToolsUsesRuntimeStdout(t *testing.T) {
 	var output bytes.Buffer
 	err := (&McpCmd{

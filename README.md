@@ -611,8 +611,10 @@ See [docs/safety-profiles.md](docs/safety-profiles.md).
 comprehensive set of specific Google tools such as `gmail_search`, `docs_get`,
 and `sheets_read_range`, covering Gmail, Drive, Docs, Sheets, Slides, Calendar,
 Contacts, People, Tasks, Chat, Keep, Meet, Forms, Classroom, Photos, Maps,
-YouTube, and Search Console. The surface is gated by area, read-only by default,
-and does not expose a generic `gog_exec` or arbitrary command bridge.
+YouTube, Search Console, Admin (Directory), Groups, Apps Script, and the
+Discovery API. The surface is gated by area, read-only by default, and does not
+expose a generic `gog_exec` or arbitrary command bridge. `--tool-suite` selects
+curated cross-service bundles (`developer`, `admin`, `workspace`, ...).
 
 ```bash
 # Read-only server.
@@ -624,6 +626,9 @@ gog --account you@gmail.com \
   mcp \
   --allow-write \
   --allow-tool 'docs.*'
+
+# A whole role's worth of tools via a suite.
+gog --account you@gmail.com mcp --tool-suite developer
 ```
 
 See [docs/mcp.md](docs/mcp.md) for client config, tool selection, safety

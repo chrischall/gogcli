@@ -35,6 +35,10 @@ func mcpAllTools() []mcpToolSpec {
 		mcpMapsTools(),
 		mcpYouTubeTools(),
 		mcpSearchConsoleTools(),
+		mcpAdminTools(),
+		mcpGroupsTools(),
+		mcpAppScriptTools(),
+		mcpAPITools(),
 	}
 	var all []mcpToolSpec
 	for _, group := range groups {

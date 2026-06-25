@@ -3,6 +3,7 @@
 ## 0.31.1 - Unreleased
 
 - MCP: expand the typed `gog mcp` server to comprehensive, area-gated coverage across Gmail, Drive, Docs, Sheets, Slides, Calendar, Contacts, People, Tasks, Chat, Keep, Meet, Forms, Classroom, Photos, Maps, YouTube, and Search Console (135 tools). Each tool keeps a fixed schema and maps to one specific `gog` operation; read tools stay default-on, write tools remain hidden until `--allow-write`, and `--allow-tool` selectors gate whole areas (e.g. `slides`, `docs.*`).
+- MCP: add `--tool-suite` (alias `--suite`) for curated cross-service bundles (`workspace`, `developer`, `admin`, `education`, `media`, `insights`), plus `--list-suites`. Suites compose with `--allow-tool` (intersection) and `--allow-write`, and unknown names fail at startup. Add Admin (Directory), Cloud Identity Groups, Apps Script, and Discovery API tool areas so the `admin` and `developer` suites are substantive (now 153 tools across 22 services).
 
 ## 0.31.0 - 2026-06-24
 
