@@ -832,6 +832,7 @@ func mcpSearchConsoleListSitesTool() mcpToolSpec {
 	}
 }
 
+//nolint:dupl // coincidental structural twin of calendar_search; unrelated domains, no shared helper warranted
 func mcpSearchConsoleQueryTool() mcpToolSpec {
 	return mcpToolSpec{
 		Name:        "searchconsole_query",

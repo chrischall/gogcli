@@ -73,27 +73,9 @@ func (a *mcpArgs) flag(key, name string) *mcpArgs {
 	return a
 }
 
-// num appends "--flag N" using the request value (or def), clamped to [min,max].
-func (a *mcpArgs) num(key, flag string, def, min, max int) *mcpArgs {
-	a.out = append(a.out, flag, strconv.Itoa(clampMCPInt(a.req.GetInt(key, def), min, max)))
-	return a
-}
-
-// optNum appends "--flag N" only when the named int arg was supplied and is > 0.
-func (a *mcpArgs) optNum(key, flag string, min, max int) *mcpArgs {
-	if _, ok := a.req.GetArguments()[key]; ok {
-		if v := a.req.GetInt(key, 0); v > 0 {
-			a.out = append(a.out, flag, strconv.Itoa(clampMCPInt(v, min, max)))
-		}
-	}
-	return a
-}
-
-// fail records the first error so callers can chain and check once at done().
-func (a *mcpArgs) fail(err error) *mcpArgs {
-	if a.err == nil {
-		a.err = err
-	}
+// num appends "--flag N" using the request value (or def), clamped to [lo,hi].
+func (a *mcpArgs) num(key, flag string, def, lo, hi int) *mcpArgs {
+	a.out = append(a.out, flag, strconv.Itoa(clampMCPInt(a.req.GetInt(key, def), lo, hi)))
 	return a
 }
 
@@ -415,25 +397,31 @@ func mcpSheetsUpdateRangeTool() mcpToolSpec {
 			mcp.WithString("input", mcp.Description("Value input option"), mcp.Enum("RAW", "USER_ENTERED"), mcp.DefaultString("USER_ENTERED")),
 		},
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
-			spreadsheetID, err := requireMCPString(req, "spreadsheet_id")
-			if err != nil {
-				return nil, err
-			}
-			rangeSpec, err := requireMCPString(req, "range")
-			if err != nil {
-				return nil, err
-			}
-			valuesJSON, err := requireMCPLiteralValuesJSON(req, "values_json")
-			if err != nil {
-				return nil, err
-			}
-			input := strings.TrimSpace(req.GetString("input", "USER_ENTERED"))
-			if input == "" {
-				input = "USER_ENTERED"
-			}
-			return []string{"sheets", "update", "--values-json", valuesJSON, "--input", input, "--", spreadsheetID, rangeSpec}, nil
+			return mcpSheetsValuesArgs(req, "update")
 		},
 	}
+}
+
+// mcpSheetsValuesArgs builds argv for the Sheets value-write verbs (update,
+// append) that share spreadsheet_id, range, values_json, and input arguments.
+func mcpSheetsValuesArgs(req mcp.CallToolRequest, verb string) ([]string, error) {
+	spreadsheetID, err := requireMCPString(req, "spreadsheet_id")
+	if err != nil {
+		return nil, err
+	}
+	rangeSpec, err := requireMCPString(req, "range")
+	if err != nil {
+		return nil, err
+	}
+	valuesJSON, err := requireMCPLiteralValuesJSON(req, "values_json")
+	if err != nil {
+		return nil, err
+	}
+	input := strings.TrimSpace(req.GetString("input", "USER_ENTERED"))
+	if input == "" {
+		input = "USER_ENTERED"
+	}
+	return []string{"sheets", verb, "--values-json", valuesJSON, "--input", input, "--", spreadsheetID, rangeSpec}, nil
 }
 
 func requireMCPText(req mcp.CallToolRequest, key string) (string, error) {

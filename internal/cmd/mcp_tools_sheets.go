@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"strings"
-
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
@@ -91,23 +89,7 @@ func mcpSheetsAppendTool() mcpToolSpec {
 			mcp.WithString("input", mcp.Description("Value input option"), mcp.Enum("RAW", "USER_ENTERED"), mcp.DefaultString("USER_ENTERED")),
 		},
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
-			spreadsheetID, err := requireMCPString(req, "spreadsheet_id")
-			if err != nil {
-				return nil, err
-			}
-			rangeSpec, err := requireMCPString(req, "range")
-			if err != nil {
-				return nil, err
-			}
-			valuesJSON, err := requireMCPLiteralValuesJSON(req, "values_json")
-			if err != nil {
-				return nil, err
-			}
-			input := strings.TrimSpace(req.GetString("input", "USER_ENTERED"))
-			if input == "" {
-				input = "USER_ENTERED"
-			}
-			return []string{"sheets", "append", "--values-json", valuesJSON, "--input", input, "--", spreadsheetID, rangeSpec}, nil
+			return mcpSheetsValuesArgs(req, "append")
 		},
 	}
 }
