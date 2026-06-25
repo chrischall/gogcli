@@ -607,10 +607,12 @@ See [docs/safety-profiles.md](docs/safety-profiles.md).
 
 ### MCP server
 
-`gog mcp` exposes a typed MCP stdio server for agent clients. It registers
-specific Google tools such as `gmail_search`, `docs_get`, and
-`sheets_read_range`; it does not expose a generic `gog_exec` or arbitrary
-command bridge.
+`gog mcp` exposes a typed MCP stdio server for agent clients. It registers a
+comprehensive set of specific Google tools such as `gmail_search`, `docs_get`,
+and `sheets_read_range`, covering Gmail, Drive, Docs, Sheets, Slides, Calendar,
+Contacts, People, Tasks, Chat, Keep, Meet, Forms, Classroom, Photos, Maps,
+YouTube, and Search Console. The surface is gated by area, read-only by default,
+and does not expose a generic `gog_exec` or arbitrary command bridge.
 
 ```bash
 # Read-only server.

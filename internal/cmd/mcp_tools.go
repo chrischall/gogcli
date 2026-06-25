@@ -11,19 +11,103 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
+// mcpAllTools returns every typed MCP tool, grouped by service area. Each area
+// contributes its own slice so the surface stays "gated by area": --allow-tool
+// selectors such as gmail, drive.*, or calendar map directly onto these groups,
+// and --allow-write hides the write tools within each area until requested.
 func mcpAllTools() []mcpToolSpec {
-	return []mcpToolSpec{
-		mcpGmailSearchTool(),
-		mcpGmailGetMessageTool(),
-		mcpGmailGetThreadTool(),
-		mcpDriveSearchTool(),
-		mcpDriveGetTool(),
-		mcpDocsGetTool(),
-		mcpSheetsReadRangeTool(),
-		mcpCalendarEventsTool(),
-		mcpDocsWriteTool(),
-		mcpSheetsUpdateRangeTool(),
+	groups := [][]mcpToolSpec{
+		mcpGmailTools(),
+		mcpDriveTools(),
+		mcpDocsTools(),
+		mcpSheetsTools(),
+		mcpSlidesTools(),
+		mcpCalendarTools(),
+		mcpContactsTools(),
+		mcpPeopleTools(),
+		mcpTasksTools(),
+		mcpChatTools(),
+		mcpKeepTools(),
+		mcpMeetTools(),
+		mcpFormsTools(),
+		mcpClassroomTools(),
+		mcpPhotosTools(),
+		mcpMapsTools(),
+		mcpYouTubeTools(),
+		mcpSearchConsoleTools(),
 	}
+	var all []mcpToolSpec
+	for _, group := range groups {
+		all = append(all, group...)
+	}
+	return all
+}
+
+// mcpArgs is a small fluent helper for assembling a child gog command's argv
+// from a typed MCP request. Optional flags are only appended when present, and
+// positional arguments are emitted after a `--` separator so model-supplied
+// values can never be parsed as flags.
+type mcpArgs struct {
+	req mcp.CallToolRequest
+	out []string
+	err error
+}
+
+func mcpCommand(req mcp.CallToolRequest, sub ...string) *mcpArgs {
+	return &mcpArgs{req: req, out: append([]string{}, sub...)}
+}
+
+// str appends "--flag value" when the named string arg is present and non-empty.
+func (a *mcpArgs) str(key, flag string) *mcpArgs {
+	if v := strings.TrimSpace(a.req.GetString(key, "")); v != "" {
+		a.out = append(a.out, flag, v)
+	}
+	return a
+}
+
+// flag appends a bare "--flag" when the named boolean arg is true.
+func (a *mcpArgs) flag(key, name string) *mcpArgs {
+	if a.req.GetBool(key, false) {
+		a.out = append(a.out, name)
+	}
+	return a
+}
+
+// num appends "--flag N" using the request value (or def), clamped to [min,max].
+func (a *mcpArgs) num(key, flag string, def, min, max int) *mcpArgs {
+	a.out = append(a.out, flag, strconv.Itoa(clampMCPInt(a.req.GetInt(key, def), min, max)))
+	return a
+}
+
+// optNum appends "--flag N" only when the named int arg was supplied and is > 0.
+func (a *mcpArgs) optNum(key, flag string, min, max int) *mcpArgs {
+	if _, ok := a.req.GetArguments()[key]; ok {
+		if v := a.req.GetInt(key, 0); v > 0 {
+			a.out = append(a.out, flag, strconv.Itoa(clampMCPInt(v, min, max)))
+		}
+	}
+	return a
+}
+
+// fail records the first error so callers can chain and check once at done().
+func (a *mcpArgs) fail(err error) *mcpArgs {
+	if a.err == nil {
+		a.err = err
+	}
+	return a
+}
+
+// done finalizes the argv, appending positional arguments after `--`.
+func (a *mcpArgs) done(pos ...string) ([]string, error) {
+	if a.err != nil {
+		return nil, a.err
+	}
+	out := a.out
+	if len(pos) > 0 {
+		out = append(out, "--")
+		out = append(out, pos...)
+	}
+	return out, nil
 }
 
 func mcpGmailSearchTool() mcpToolSpec {
