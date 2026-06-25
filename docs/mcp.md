@@ -9,10 +9,18 @@ description: "Expose typed, allowlisted gog tools to MCP clients without a gener
 clients that need Google Workspace tools but should not receive a generic shell
 or arbitrary `gog` command bridge.
 
-The server registers a small set of typed tools such as `gmail_search`,
-`docs_get`, and `sheets_read_range`. Each tool has a fixed schema, maps to one
-specific `gog` operation, and returns a structured result containing the tool
-name, service, risk level, exit code, parsed stdout, and stderr.
+The server registers a comprehensive set of typed tools such as `gmail_search`,
+`docs_get`, and `sheets_read_range`, spanning every major Google Workspace area:
+Gmail, Drive, Docs, Sheets, Slides, Calendar, Contacts, People, Tasks, Chat,
+Keep, Meet, Forms, Classroom, Photos, Maps, YouTube, and Search Console. Each
+tool has a fixed schema, maps to one specific `gog` operation, and returns a
+structured result containing the tool name, service, risk level, exit code,
+parsed stdout, and stderr.
+
+The surface is gated by area: every tool carries a `service` (such as `gmail`,
+`slides`, or `sheets`), and `--allow-tool` selectors filter on it. Start a
+server scoped to just the areas an agent needs, and add `--allow-write` only
+when write tools should be exposed.
 
 ## Quick start
 
@@ -105,27 +113,38 @@ gog mcp --allow-tool calendar,sheets
 gog mcp --allow-write --allow-tool write
 ```
 
-## Initial tools
+## Tools by area
 
-Read tools:
+Tools are grouped by service area. Read tools are registered by default; write
+tools (marked _write_) are hidden unless `--allow-write` is also set. This list
+is a summary; run `gog mcp --allow-write --list-tools` for the authoritative
+set with full schemas.
 
-| Tool | Purpose |
-| --- | --- |
-| `gmail_search` | Search Gmail messages with Gmail query syntax. |
-| `gmail_get_message` | Read one Gmail message by ID. Sanitized content is on by default. |
-| `gmail_get_thread` | Read one Gmail thread by ID. Sanitized content is on by default. |
-| `drive_search` | Search Drive files by text or Drive query language. |
-| `drive_get` | Read Drive file metadata by ID. |
-| `docs_get` | Read a Google Doc as wrapped text, optionally one tab or all tabs. |
-| `sheets_read_range` | Read values from a Sheets range. |
-| `calendar_events` | List Calendar events. |
+| Area | Read tools | Write tools |
+| --- | --- | --- |
+| `gmail` | `gmail_search`, `gmail_search_threads`, `gmail_get_message`, `gmail_get_thread`, `gmail_list_labels`, `gmail_get_label`, `gmail_list_drafts`, `gmail_get_draft`, `gmail_history` | `gmail_send`, `gmail_reply`, `gmail_forward`, `gmail_create_draft`, `gmail_send_draft`, `gmail_modify_message`, `gmail_modify_thread`, `gmail_trash`, `gmail_create_label` |
+| `drive` | `drive_search`, `drive_get`, `drive_list`, `drive_list_drives`, `drive_permissions`, `drive_list_comments`, `drive_list_revisions`, `drive_tree` | `drive_create_folder`, `drive_copy`, `drive_move`, `drive_rename`, `drive_trash`, `drive_share`, `drive_create_comment` |
+| `docs` | `docs_get`, `docs_info`, `docs_list_tabs`, `docs_list_comments` | `docs_write`, `docs_create`, `docs_find_replace`, `docs_add_comment` |
+| `sheets` | `sheets_read_range`, `sheets_metadata`, `sheets_list_tables`, `sheets_list_named_ranges` | `sheets_update_range`, `sheets_append`, `sheets_clear`, `sheets_create`, `sheets_add_tab` |
+| `slides` | `slides_info`, `slides_list_slides`, `slides_read_slide` | `slides_create`, `slides_create_from_markdown`, `slides_replace_text`, `slides_duplicate_slide`, `slides_delete_slide` |
+| `calendar` | `calendar_events`, `calendar_list_calendars`, `calendar_get_event`, `calendar_search`, `calendar_freebusy` | `calendar_create_event`, `calendar_update_event`, `calendar_delete_event`, `calendar_respond` |
+| `contacts` | `contacts_list`, `contacts_get`, `contacts_search`, `contacts_directory_search` | `contacts_create`, `contacts_update`, `contacts_delete` |
+| `people` | `people_me`, `people_get`, `people_search` | — |
+| `tasks` | `tasks_lists`, `tasks_list`, `tasks_get` | `tasks_add`, `tasks_complete`, `tasks_update`, `tasks_delete`, `tasks_create_list` |
+| `chat` | `chat_list_spaces`, `chat_find_spaces`, `chat_list_messages`, `chat_list_threads` | `chat_send_message`, `chat_send_dm` |
+| `keep` | `keep_list`, `keep_get`, `keep_search` | `keep_create` |
+| `meet` | `meet_get`, `meet_history`, `meet_participants` | `meet_create` |
+| `forms` | `forms_get`, `forms_list_responses`, `forms_get_response` | `forms_create`, `forms_update`, `forms_add_question` |
+| `classroom` | `classroom_list_courses`, `classroom_get_course`, `classroom_list_coursework`, `classroom_get_coursework`, `classroom_list_students`, `classroom_list_teachers`, `classroom_roster`, `classroom_list_announcements`, `classroom_list_submissions`, `classroom_list_topics` | — |
+| `photos` | `photos_list`, `photos_get`, `photos_search` | — |
+| `maps` | `maps_geocode`, `maps_reverse_geocode`, `maps_directions`, `maps_distance`, `maps_places_search`, `maps_place_details` | — |
+| `youtube` | `youtube_search`, `youtube_list_videos`, `youtube_list_channels`, `youtube_list_playlists`, `youtube_list_playlist_items`, `youtube_list_comments` | `youtube_create_playlist`, `youtube_add_to_playlist` |
+| `searchconsole` | `searchconsole_list_sites`, `searchconsole_query`, `searchconsole_list_sitemaps` | — |
 
-Write tools, hidden unless `--allow-write`:
-
-| Tool | Purpose |
-| --- | --- |
-| `docs_write` | Append or replace Google Docs text, optionally as Markdown. |
-| `sheets_update_range` | Update values in a Sheets range from a literal JSON 2D array. |
+Select a whole area with `--allow-tool <area>` (for example `--allow-tool
+slides` or `--allow-tool 'docs.*'`), or list individual tool names. `gmail_send`,
+`gmail_reply`, `gmail_forward`, and `gmail_send_draft` are additionally blocked
+by `--gmail-no-send`.
 
 The generated command reference for the server itself is
 [`gog mcp`](commands/gog-mcp.md).

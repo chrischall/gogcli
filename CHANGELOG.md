@@ -2,6 +2,8 @@
 
 ## 0.31.1 - Unreleased
 
+- MCP: expand the typed `gog mcp` server to comprehensive, area-gated coverage across Gmail, Drive, Docs, Sheets, Slides, Calendar, Contacts, People, Tasks, Chat, Keep, Meet, Forms, Classroom, Photos, Maps, YouTube, and Search Console (135 tools). Each tool keeps a fixed schema and maps to one specific `gog` operation; read tools stay default-on, write tools remain hidden until `--allow-write`, and `--allow-tool` selectors gate whole areas (e.g. `slides`, `docs.*`).
+
 ## 0.31.0 - 2026-06-24
 
 - Gmail: preserve HTML fragments from `--signature-file` instead of escaping their markup, without broadening HTML detection for message display or reply quoting. (#879) — thanks @kesslerio.

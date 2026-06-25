@@ -11,19 +11,85 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
+// mcpAllTools returns every typed MCP tool, grouped by service area. Each area
+// contributes its own slice so the surface stays "gated by area": --allow-tool
+// selectors such as gmail, drive.*, or calendar map directly onto these groups,
+// and --allow-write hides the write tools within each area until requested.
 func mcpAllTools() []mcpToolSpec {
-	return []mcpToolSpec{
-		mcpGmailSearchTool(),
-		mcpGmailGetMessageTool(),
-		mcpGmailGetThreadTool(),
-		mcpDriveSearchTool(),
-		mcpDriveGetTool(),
-		mcpDocsGetTool(),
-		mcpSheetsReadRangeTool(),
-		mcpCalendarEventsTool(),
-		mcpDocsWriteTool(),
-		mcpSheetsUpdateRangeTool(),
+	groups := [][]mcpToolSpec{
+		mcpGmailTools(),
+		mcpDriveTools(),
+		mcpDocsTools(),
+		mcpSheetsTools(),
+		mcpSlidesTools(),
+		mcpCalendarTools(),
+		mcpContactsTools(),
+		mcpPeopleTools(),
+		mcpTasksTools(),
+		mcpChatTools(),
+		mcpKeepTools(),
+		mcpMeetTools(),
+		mcpFormsTools(),
+		mcpClassroomTools(),
+		mcpPhotosTools(),
+		mcpMapsTools(),
+		mcpYouTubeTools(),
+		mcpSearchConsoleTools(),
 	}
+	var all []mcpToolSpec
+	for _, group := range groups {
+		all = append(all, group...)
+	}
+	return all
+}
+
+// mcpArgs is a small fluent helper for assembling a child gog command's argv
+// from a typed MCP request. Optional flags are only appended when present, and
+// positional arguments are emitted after a `--` separator so model-supplied
+// values can never be parsed as flags.
+type mcpArgs struct {
+	req mcp.CallToolRequest
+	out []string
+	err error
+}
+
+func mcpCommand(req mcp.CallToolRequest, sub ...string) *mcpArgs {
+	return &mcpArgs{req: req, out: append([]string{}, sub...)}
+}
+
+// str appends "--flag value" when the named string arg is present and non-empty.
+func (a *mcpArgs) str(key, flag string) *mcpArgs {
+	if v := strings.TrimSpace(a.req.GetString(key, "")); v != "" {
+		a.out = append(a.out, flag, v)
+	}
+	return a
+}
+
+// flag appends a bare "--flag" when the named boolean arg is true.
+func (a *mcpArgs) flag(key, name string) *mcpArgs {
+	if a.req.GetBool(key, false) {
+		a.out = append(a.out, name)
+	}
+	return a
+}
+
+// num appends "--flag N" using the request value (or def), clamped to [1,hi].
+func (a *mcpArgs) num(key, flag string, def, hi int) *mcpArgs {
+	a.out = append(a.out, flag, strconv.Itoa(clampMCPInt(a.req.GetInt(key, def), 1, hi)))
+	return a
+}
+
+// done finalizes the argv, appending positional arguments after `--`.
+func (a *mcpArgs) done(pos ...string) ([]string, error) {
+	if a.err != nil {
+		return nil, a.err
+	}
+	out := a.out
+	if len(pos) > 0 {
+		out = append(out, "--")
+		out = append(out, pos...)
+	}
+	return out, nil
 }
 
 func mcpGmailSearchTool() mcpToolSpec {
@@ -331,25 +397,31 @@ func mcpSheetsUpdateRangeTool() mcpToolSpec {
 			mcp.WithString("input", mcp.Description("Value input option"), mcp.Enum("RAW", "USER_ENTERED"), mcp.DefaultString("USER_ENTERED")),
 		},
 		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
-			spreadsheetID, err := requireMCPString(req, "spreadsheet_id")
-			if err != nil {
-				return nil, err
-			}
-			rangeSpec, err := requireMCPString(req, "range")
-			if err != nil {
-				return nil, err
-			}
-			valuesJSON, err := requireMCPLiteralValuesJSON(req, "values_json")
-			if err != nil {
-				return nil, err
-			}
-			input := strings.TrimSpace(req.GetString("input", "USER_ENTERED"))
-			if input == "" {
-				input = "USER_ENTERED"
-			}
-			return []string{"sheets", "update", "--values-json", valuesJSON, "--input", input, "--", spreadsheetID, rangeSpec}, nil
+			return mcpSheetsValuesArgs(req, "update")
 		},
 	}
+}
+
+// mcpSheetsValuesArgs builds argv for the Sheets value-write verbs (update,
+// append) that share spreadsheet_id, range, values_json, and input arguments.
+func mcpSheetsValuesArgs(req mcp.CallToolRequest, verb string) ([]string, error) {
+	spreadsheetID, err := requireMCPString(req, "spreadsheet_id")
+	if err != nil {
+		return nil, err
+	}
+	rangeSpec, err := requireMCPString(req, "range")
+	if err != nil {
+		return nil, err
+	}
+	valuesJSON, err := requireMCPLiteralValuesJSON(req, "values_json")
+	if err != nil {
+		return nil, err
+	}
+	input := strings.TrimSpace(req.GetString("input", "USER_ENTERED"))
+	if input == "" {
+		input = "USER_ENTERED"
+	}
+	return []string{"sheets", verb, "--values-json", valuesJSON, "--input", input, "--", spreadsheetID, rangeSpec}, nil
 }
 
 func requireMCPText(req mcp.CallToolRequest, key string) (string, error) {
