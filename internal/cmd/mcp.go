@@ -19,8 +19,10 @@ import (
 
 type McpCmd struct {
 	AllowTool      []string `name:"allow-tool" aliases:"tool" sep:"," help:"Tool or service allowlist (default: all read-only tools). Examples: gmail.*,docs_get,sheets"`
+	ToolSuite      []string `name:"tool-suite" aliases:"suite" sep:"," help:"Expose curated cross-service suites (comma-separated). Examples: developer,admin,workspace,media,education,insights"`
 	AllowWrite     bool     `name:"allow-write" help:"Expose write tools. Write tools must also match --allow-tool when that flag is set."`
 	ListTools      bool     `name:"list-tools" help:"Print enabled MCP tools as JSON and exit"`
+	ListSuites     bool     `name:"list-suites" help:"Print available tool suites and their services as JSON and exit"`
 	TimeoutSeconds int      `name:"timeout-seconds" help:"Per-tool subprocess timeout" default:"60"`
 	MaxOutputBytes int      `name:"max-output-bytes" help:"Max stdout/stderr bytes captured per tool call" default:"102400"`
 }
@@ -60,6 +62,12 @@ func (c *McpCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 	if c.MaxOutputBytes <= 0 {
 		return usage("--max-output-bytes must be greater than zero")
+	}
+	if _, suiteErr := mcpResolveSuites(c.ToolSuite); suiteErr != nil {
+		return usage(suiteErr.Error())
+	}
+	if c.ListSuites {
+		return mcpPrintSuites(stdoutWriter(ctx))
 	}
 
 	tools := mcpEnabledTools(*c)
@@ -245,9 +253,13 @@ func mcpParentSafetyArgs(flags *RootFlags) []string {
 func mcpEnabledTools(cmd McpCmd) []mcpToolSpec {
 	all := mcpAllTools()
 	allow := splitCommaValues(cmd.AllowTool)
+	suiteServices := mcpSuiteServiceSet(cmd.ToolSuite)
 	out := make([]mcpToolSpec, 0, len(all))
 	for _, tool := range all {
 		if tool.Risk == mcpRiskWrite && !cmd.AllowWrite {
+			continue
+		}
+		if len(suiteServices) > 0 && !suiteServices[tool.Service] {
 			continue
 		}
 		if len(allow) > 0 && !mcpToolAllowed(tool, allow) {
