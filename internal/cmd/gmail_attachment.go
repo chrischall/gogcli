@@ -135,7 +135,7 @@ func (c *GmailAttachmentCmd) Run(ctx context.Context, flags *RootFlags) error {
 		if info != nil {
 			filename, mimeType = info.Filename, info.MimeType
 		}
-		addTextContent(payload, path, bytes, filename, mimeType)
+		addTextContent(ctx, payload, path, bytes, filename, mimeType)
 	}
 	return printAttachmentDownloadResult(ctx, u, payload)
 }

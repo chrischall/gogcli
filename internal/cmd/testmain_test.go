@@ -1,14 +1,32 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	_ "github.com/steipete/gogcli/internal/tzembed" // Embed IANA timezone database for Windows test support
 )
 
 func TestMain(m *testing.M) {
+	// Isolated PDF extraction re-execs the current binary; under `go test`
+	// that is this test binary, so dispatch to the child logic instead of
+	// recursively running the suite.
+	if os.Getenv("GOG_PDF_EXTRACT_CHILD") == "1" {
+		if os.Getenv("GOG_TEST_PDF_EXTRACT_SLEEP") == "1" {
+			time.Sleep(time.Hour)
+		}
+		text, err := pdfExtractChild(os.Stdin)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		fmt.Print(text)
+		os.Exit(0)
+	}
+
 	contactsSearchWarmupDelay = 0
 
 	root, err := os.MkdirTemp("", "gogcli-tests-*")
