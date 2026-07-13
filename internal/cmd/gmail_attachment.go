@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"google.golang.org/api/gmail/v1"
@@ -40,10 +41,21 @@ func printAttachmentDownloadResult(ctx context.Context, u *ui.UI, payload map[st
 	u.Out().Linef("bytes\t%d", payload["bytes"])
 	for _, key := range []string{"filename", "mimeType", "contentBase64", "text", "note", "reason"} {
 		if v, ok := payload[key]; ok {
-			u.Out().Linef("%s\t%v", key, v)
+			u.Out().Linef("%s\t%s", key, tsvSafeValue(v))
 		}
 	}
 	return nil
+}
+
+// tsvSafeValue keeps plain output a stable one-record-per-line TSV: values
+// containing tabs or newlines (e.g. extracted attachment text) are emitted as
+// a single Go-quoted field.
+func tsvSafeValue(v any) string {
+	s := fmt.Sprintf("%v", v)
+	if strings.ContainsAny(s, "\t\n\r") {
+		return strconv.Quote(s)
+	}
+	return s
 }
 
 func (c *GmailAttachmentCmd) Run(ctx context.Context, flags *RootFlags) error {

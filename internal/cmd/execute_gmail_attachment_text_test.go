@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -188,5 +189,59 @@ func TestExecute_GmailAttachment_Text_NoMetadata_SniffsPlainText(t *testing.T) {
 
 	if parsed["text"] != content {
 		t.Fatalf("text=%#v (reason=%v)", parsed["text"], parsed["reason"])
+	}
+}
+
+// --plain output is documented as stable TSV; multiline/tabbed extracted text
+// must be escaped into a single field, not printed verbatim.
+func TestExecute_GmailAttachment_Text_PlainOutput_EscapesMultiline(t *testing.T) {
+	content := "line one\nline two\twith tab"
+	svc := newGmailAttachmentTestService(t, []byte(content), "notes.txt", "text/plain")
+
+	result := executeWithGmailTestService(t, []string{
+		"--plain", "--account", "a@b.com",
+		"gmail", "attachment", "m1", "a1",
+		"--out", tempFilePath(t, "notes.txt"), "--text",
+	}, svc)
+	if result.err != nil {
+		t.Fatalf("Execute: %v\nstderr=%q", result.err, result.stderr)
+	}
+
+	lines := strings.Split(strings.TrimRight(result.stdout, "\n"), "\n")
+	if len(lines) != 6 { // path, cached, bytes, filename, mimeType, text
+		t.Fatalf("expected 6 TSV rows, got %d: %q", len(lines), result.stdout)
+	}
+	var textLine string
+	for _, line := range lines {
+		key, value, ok := strings.Cut(line, "\t")
+		if !ok || strings.ContainsAny(value, "\t\n") {
+			t.Fatalf("row is not a stable 2-field TSV record: %q", line)
+		}
+		if key == "text" {
+			textLine = value
+		}
+	}
+	unquoted, err := strconv.Unquote(textLine)
+	if err != nil || unquoted != content {
+		t.Fatalf("text field must round-trip via quoting: value=%q err=%v", textLine, err)
+	}
+}
+
+func TestExecute_GmailAttachment_Text_CorruptPDF_ReturnsReason(t *testing.T) {
+	data := []byte("%PDF-1.4\nthis is not a parseable pdf body")
+	svc := newGmailAttachmentTestService(t, data, "broken.pdf", "application/pdf")
+
+	parsed := executeGmailAttachmentJSON(t, svc,
+		"--json", "--account", "a@b.com",
+		"gmail", "attachment", "m1", "a1",
+		"--out", tempFilePath(t, "broken.pdf"), "--text",
+	)
+
+	if _, ok := parsed["text"]; ok {
+		t.Fatalf("corrupt PDF must not yield text: %#v", parsed)
+	}
+	reason, _ := parsed["reason"].(string)
+	if !strings.Contains(reason, "pdf text extraction failed") {
+		t.Fatalf("reason=%q", reason)
 	}
 }

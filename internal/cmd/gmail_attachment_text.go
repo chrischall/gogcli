@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/ledongthuc/pdf"
 
@@ -36,7 +37,9 @@ func addTextContent(payload map[string]any, path string, size int64, filename, m
 
 	switch {
 	case isPDFAttachment(data, filename, mimeType):
-		text, err := extractPDFText(data)
+		text, err := runPDFExtractionWithTimeout(func() (string, error) {
+			return extractPDFText(data)
+		}, pdfExtractTimeout)
 		if err != nil {
 			payload["reason"] = fmt.Sprintf("pdf text extraction failed: %v; use --inline or --out for the raw bytes", err)
 			return
@@ -83,6 +86,31 @@ func isTextAttachment(mimeType string) bool {
 		return true
 	}
 	return false
+}
+
+// pdfExtractTimeout bounds how long parsing an (attacker-controlled) PDF may
+// run; the input size is already capped by maxInlineAttachmentBytes.
+const pdfExtractTimeout = 10 * time.Second
+
+// runPDFExtractionWithTimeout runs fn and gives up after the timeout, so a
+// pathological PDF cannot hang the command (or a long-lived MCP server)
+// indefinitely. On timeout the extraction goroutine is abandoned.
+func runPDFExtractionWithTimeout(fn func() (string, error), timeout time.Duration) (string, error) {
+	type result struct {
+		text string
+		err  error
+	}
+	ch := make(chan result, 1)
+	go func() {
+		text, err := fn()
+		ch <- result{text: text, err: err}
+	}()
+	select {
+	case r := <-ch:
+		return r.text, r.err
+	case <-time.After(timeout):
+		return "", fmt.Errorf("timed out after %s", timeout)
+	}
 }
 
 // extractPDFText pulls the plain text out of a PDF. The pdf library panics on
