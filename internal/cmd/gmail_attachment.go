@@ -21,17 +21,28 @@ type GmailAttachmentCmd struct {
 	AttachmentID string         `arg:"" name:"attachmentId" help:"Attachment ID"`
 	Output       OutputPathFlag `embed:""`
 	Name         string         `name:"name" help:"Filename (used when --out is empty or points to a directory)"`
+	Inline       bool           `name:"inline" help:"Also return the attachment content base64-encoded (contentBase64) in the response; attachments over the inline size limit fall back to the file path with an explanatory reason"`
+	Text         bool           `name:"text" help:"Also return the attachment content as extracted text (PDF, HTML, plain text) in the response"`
 }
 
 const defaultGmailAttachmentFilename = "attachment.bin"
 
-func printAttachmentDownloadResult(ctx context.Context, u *ui.UI, path string, cached bool, bytes int64) error {
+// maxInlineAttachmentBytes caps how much raw attachment content --inline and
+// --text will embed in the command output.
+const maxInlineAttachmentBytes = 3 << 20
+
+func printAttachmentDownloadResult(ctx context.Context, u *ui.UI, payload map[string]any) error {
 	if outfmt.IsJSON(ctx) {
-		return outfmt.WriteJSON(ctx, stdoutWriter(ctx), map[string]any{"path": path, "cached": cached, "bytes": bytes})
+		return outfmt.WriteJSON(ctx, stdoutWriter(ctx), payload)
 	}
-	u.Out().Linef("path\t%s", path)
-	u.Out().Linef("cached\t%t", cached)
-	u.Out().Linef("bytes\t%d", bytes)
+	u.Out().Linef("path\t%s", payload["path"])
+	u.Out().Linef("cached\t%t", payload["cached"])
+	u.Out().Linef("bytes\t%d", payload["bytes"])
+	for _, key := range []string{"filename", "mimeType", "contentBase64", "text", "note", "reason"} {
+		if v, ok := payload[key]; ok {
+			u.Out().Linef("%s\t%v", key, v)
+		}
+	}
 	return nil
 }
 
@@ -41,6 +52,9 @@ func (c *GmailAttachmentCmd) Run(ctx context.Context, flags *RootFlags) error {
 	attachmentID := strings.TrimSpace(c.AttachmentID)
 	if messageID == "" || attachmentID == "" {
 		return usage("messageId/attachmentId required")
+	}
+	if c.Inline && c.Text {
+		return usage("--inline and --text are mutually exclusive")
 	}
 
 	defaultDir := ""
@@ -76,7 +90,15 @@ func (c *GmailAttachmentCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 
 	expectedSize := int64(-1)
-	if st, statErr := os.Stat(dest); statErr == nil && st.Mode().IsRegular() {
+	var info *attachmentInfo
+	if c.Inline || c.Text {
+		// Content modes need the part metadata (filename/mimeType); its size
+		// doubles as the cache-check estimate.
+		info = lookupAttachmentPartInfo(ctx, svc, messageID, attachmentID)
+		if info != nil {
+			expectedSize = info.Size
+		}
+	} else if st, statErr := os.Stat(dest); statErr == nil && st.Mode().IsRegular() {
 		// Only hit messages.get when we might have a cache-hit candidate.
 		expectedSize = lookupAttachmentSizeEstimate(ctx, svc, messageID, attachmentID)
 	}
@@ -84,7 +106,41 @@ func (c *GmailAttachmentCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	return printAttachmentDownloadResult(ctx, u, path, cached, bytes)
+	payload := map[string]any{"path": path, "cached": cached, "bytes": bytes}
+	if info != nil {
+		if info.Filename != "" {
+			payload["filename"] = info.Filename
+		}
+		if info.MimeType != "" {
+			payload["mimeType"] = info.MimeType
+		}
+	}
+	if c.Inline {
+		addInlineContent(payload, path, bytes)
+	}
+	if c.Text {
+		filename, mimeType := "", ""
+		if info != nil {
+			filename, mimeType = info.Filename, info.MimeType
+		}
+		addTextContent(payload, path, bytes, filename, mimeType)
+	}
+	return printAttachmentDownloadResult(ctx, u, payload)
+}
+
+// addInlineContent embeds the downloaded file base64-encoded, or a reason when
+// it exceeds the inline size limit.
+func addInlineContent(payload map[string]any, path string, size int64) {
+	if size > maxInlineAttachmentBytes {
+		payload["reason"] = fmt.Sprintf("attachment size %d bytes exceeds inline size limit (%d bytes); content written to path only", size, maxInlineAttachmentBytes)
+		return
+	}
+	data, err := os.ReadFile(path) // #nosec G304 -- path is the attachment destination this command just wrote.
+	if err != nil {
+		payload["reason"] = fmt.Sprintf("failed to read downloaded attachment for inlining: %v", err)
+		return
+	}
+	payload["contentBase64"] = base64.StdEncoding.EncodeToString(data)
 }
 
 func resolveAttachmentDest(messageID, attachmentID, outPathFlag, name, defaultDir string) (string, error) {
@@ -145,19 +201,36 @@ func sanitizeAttachmentFilename(name, fallback string) string {
 }
 
 func lookupAttachmentSizeEstimate(ctx context.Context, svc *gmail.Service, messageID, attachmentID string) int64 {
-	if svc == nil {
+	info := lookupAttachmentPartInfo(ctx, svc, messageID, attachmentID)
+	if info == nil || info.Size <= 0 {
 		return -1
+	}
+	return info.Size
+}
+
+// lookupAttachmentPartInfo fetches the message payload to resolve the part
+// metadata (filename, mimeType, size) for an attachment ID. Best-effort: nil
+// when the lookup fails or the attachment is not found.
+func lookupAttachmentPartInfo(ctx context.Context, svc *gmail.Service, messageID, attachmentID string) *attachmentInfo {
+	if svc == nil {
+		return nil
 	}
 	msg, err := svc.Users.Messages.Get("me", messageID).Format("full").Fields("payload").Context(ctx).Do()
 	if err != nil || msg == nil {
-		return -1
+		return nil
 	}
-	for _, a := range collectAttachments(msg.Payload) {
-		if a.AttachmentID == attachmentID && a.Size > 0 {
-			return a.Size
+	attachments := collectAttachments(msg.Payload)
+	for _, a := range attachments {
+		if a.AttachmentID == attachmentID {
+			return &a
 		}
 	}
-	return -1
+	// Gmail attachment IDs are not stable across API responses, so an exact
+	// match can miss; with a single attachment it is unambiguous anyway.
+	if len(attachments) == 1 {
+		return &attachments[0]
+	}
+	return nil
 }
 
 func downloadAttachmentToPath(
