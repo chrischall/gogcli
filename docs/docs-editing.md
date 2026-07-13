@@ -77,11 +77,13 @@ gog docs format <docId> --match "Action item" --no-bullets
 ```
 
 Paragraph layout controls use points and accept explicit zero values. Boolean
-keep controls have matching `--no-...` forms:
+keep controls have matching `--no-...` forms. `--spacing-mode` accepts the
+Docs API values `NEVER_COLLAPSE` and `COLLAPSE_LISTS` case-insensitively:
 
 ```bash
 gog docs format <docId> --match "Summary" --indent-start 24 --indent-first-line 12
 gog docs format <docId> --match "Summary" --space-above 6 --space-below 12 --keep-with-next
+gog docs format <docId> --match "Action item" --space-below 6 --spacing-mode NEVER_COLLAPSE
 gog docs format <docId> --match "Summary" --no-keep-with-next --keep-lines-together
 ```
 
@@ -498,3 +500,24 @@ gog docs raw <docId> --all-tabs --json
 default response. `--all-tabs` returns the canonical recursive `tabs` tree.
 
 See [Raw API Dumps](raw-api.md) for lossless-output safety notes.
+
+## Pending Text Suggestions
+
+List pending suggested insertions and deletions without changing the document:
+
+```bash
+gog docs suggestions list <docId>
+gog docs suggestions list <docId> --tab "Review" --json
+```
+
+The command requests Google's inline suggestions view and reports each
+suggestion ID, insertion/deletion kind, UTF-16 range, text, and document
+segment. Contiguous runs for the same suggestion are combined, and structural
+suggestions on tables, rows, cells, and tables of contents are carried into
+their nested text. The current surface intentionally excludes style-only
+suggestions and accept/reject mutation. Google Docs API responses do not expose
+suggestion authors.
+
+Command page:
+
+- [`gog docs suggestions list`](commands/gog-docs-suggestions-list.md)

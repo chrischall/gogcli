@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"testing"
+	"time"
 
 	"google.golang.org/api/calendar/v3"
 )
@@ -151,15 +152,18 @@ func TestParseAttendee(t *testing.T) {
 		input    string
 		email    string
 		optional bool
+		resource bool
 		comment  string
 		isNil    bool
 	}{
-		{"alice@example.com", "alice@example.com", false, "", false},
-		{"bob@example.com;optional", "bob@example.com", true, "", false},
-		{"carol@example.com;comment=FYI only", "carol@example.com", false, "FYI only", false},
-		{"dave@example.com;OPTIONAL;comment=Hi", "dave@example.com", true, "Hi", false},
-		{";optional", "", false, "", true},
-		{"", "", false, "", true},
+		{"alice@example.com", "alice@example.com", false, false, "", false},
+		{"bob@example.com;optional", "bob@example.com", true, false, "", false},
+		{"carol@example.com;comment=FYI only", "carol@example.com", false, false, "FYI only", false},
+		{"dave@example.com;OPTIONAL;comment=Hi", "dave@example.com", true, false, "Hi", false},
+		{"room@example.com;RESOURCE", "room@example.com", false, true, "", false},
+		{"room@example.com;resource;optional;comment=Project room", "room@example.com", true, true, "Project room", false},
+		{";optional", "", false, false, "", true},
+		{"", "", false, false, "", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
@@ -174,7 +178,7 @@ func TestParseAttendee(t *testing.T) {
 				t.Fatalf("expected attendee, got nil")
 				return
 			}
-			if got.Email != tt.email || got.Optional != tt.optional || got.Comment != tt.comment {
+			if got.Email != tt.email || got.Optional != tt.optional || got.Resource != tt.resource || got.Comment != tt.comment {
 				t.Fatalf("unexpected attendee: %#v", got)
 			}
 		})
@@ -390,4 +394,110 @@ func hasStringValue(values []string, value string) bool {
 		}
 	}
 	return false
+}
+
+func TestWrapEventWithDaysPrefersEventTimezone(t *testing.T) {
+	t.Parallel()
+
+	event := &calendar.Event{
+		Start: &calendar.EventDateTime{
+			DateTime: "2026-07-07T07:30:00+08:00",
+			TimeZone: "Asia/Seoul",
+		},
+		End: &calendar.EventDateTime{
+			DateTime: "2026-07-07T08:30:00+08:00",
+			TimeZone: "Asia/Seoul",
+		},
+	}
+
+	wrapped := wrapEventWithDaysWithTimezone(event, "Asia/Hong_Kong", nil)
+	if wrapped == nil {
+		t.Fatal("expected wrapped event")
+	}
+	if wrapped.Timezone != "Asia/Seoul" {
+		t.Fatalf("Timezone = %q, want Asia/Seoul", wrapped.Timezone)
+	}
+	if wrapped.EventTimezone != "" {
+		t.Fatalf("EventTimezone = %q, want empty when it matches display timezone", wrapped.EventTimezone)
+	}
+	if wrapped.StartLocal != "2026-07-07T08:30:00+09:00" {
+		t.Fatalf("StartLocal = %q, want Seoul local time", wrapped.StartLocal)
+	}
+	if wrapped.EndLocal != "2026-07-07T09:30:00+09:00" {
+		t.Fatalf("EndLocal = %q, want Seoul local time", wrapped.EndLocal)
+	}
+}
+
+func TestWrapEventWithDaysFallsBackFromInvalidEventTimezone(t *testing.T) {
+	t.Parallel()
+
+	event := &calendar.Event{
+		Start: &calendar.EventDateTime{
+			DateTime: "2026-07-07T07:30:00+08:00",
+			TimeZone: "Not/AZone",
+		},
+		End: &calendar.EventDateTime{
+			DateTime: "2026-07-07T08:30:00+08:00",
+			TimeZone: "Not/AZone",
+		},
+	}
+
+	calendarLoc, err := time.LoadLocation("Asia/Hong_Kong")
+	if err != nil {
+		t.Fatalf("LoadLocation: %v", err)
+	}
+	wrapped := wrapEventWithDaysWithTimezone(event, "Asia/Hong_Kong", calendarLoc)
+	if wrapped.Timezone != "Asia/Hong_Kong" || wrapped.EventTimezone != "Not/AZone" {
+		t.Fatalf("unexpected timezone fields: timezone=%q eventTimezone=%q", wrapped.Timezone, wrapped.EventTimezone)
+	}
+	if wrapped.StartLocal != "2026-07-07T07:30:00+08:00" || wrapped.EndLocal != "2026-07-07T08:30:00+08:00" {
+		t.Fatalf("unexpected calendar-local fields: start=%q end=%q", wrapped.StartLocal, wrapped.EndLocal)
+	}
+}
+
+func TestWrapEventWithDaysResolvesEndpointTimezonesIndependently(t *testing.T) {
+	t.Parallel()
+
+	event := &calendar.Event{
+		Start: &calendar.EventDateTime{
+			DateTime: "2026-07-07T10:00:00+02:00",
+			TimeZone: "Europe/Rome",
+		},
+		End: &calendar.EventDateTime{
+			DateTime: "2026-07-07T12:00:00-04:00",
+			TimeZone: "America/New_York",
+		},
+	}
+
+	wrapped := wrapEventWithDaysWithTimezone(event, "UTC", time.UTC)
+	if wrapped.StartLocal != "2026-07-07T10:00:00+02:00" || wrapped.EndLocal != "2026-07-07T12:00:00-04:00" {
+		t.Fatalf("unexpected endpoint-local fields: start=%q end=%q", wrapped.StartLocal, wrapped.EndLocal)
+	}
+	if wrapped.StartDayOfWeek != "Tuesday" || wrapped.EndDayOfWeek != "Tuesday" {
+		t.Fatalf("unexpected endpoint-local weekdays: start=%q end=%q", wrapped.StartDayOfWeek, wrapped.EndDayOfWeek)
+	}
+}
+
+func TestWrapEventWithDaysExplicitTimezoneOverrideWins(t *testing.T) {
+	t.Parallel()
+
+	event := &calendar.Event{
+		Start: &calendar.EventDateTime{DateTime: "2026-07-08T02:00:00Z", TimeZone: "Asia/Seoul"},
+		End:   &calendar.EventDateTime{DateTime: "2026-07-08T03:00:00Z", TimeZone: "Asia/Seoul"},
+	}
+	override, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		t.Fatalf("LoadLocation: %v", err)
+	}
+
+	wrapped := wrapEventWithDaysWithTimezoneOverride(event, "America/New_York", override, true)
+	if wrapped.Timezone != "America/New_York" || wrapped.EventTimezone != "Asia/Seoul" {
+		t.Fatalf("unexpected timezone fields: timezone=%q eventTimezone=%q", wrapped.Timezone, wrapped.EventTimezone)
+	}
+	if wrapped.StartLocal != "2026-07-07T22:00:00-04:00" || wrapped.EndLocal != "2026-07-07T23:00:00-04:00" {
+		t.Fatalf("unexpected override-local fields: start=%q end=%q", wrapped.StartLocal, wrapped.EndLocal)
+	}
+	if wrapped.StartDayOfWeek != "Tuesday" || wrapped.EndDayOfWeek != "Tuesday" {
+		t.Fatalf("unexpected override-local weekdays: start=%q end=%q", wrapped.StartDayOfWeek, wrapped.EndDayOfWeek)
+	}
 }

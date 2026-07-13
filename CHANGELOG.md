@@ -1,6 +1,35 @@
 # Changelog
 
-## 0.31.1 - Unreleased
+## 0.34.1 - Unreleased
+
+- Gmail: enforce per-account no-send guards before dry-run exits for first-class and Discovery send paths while preserving no-guard keyring avoidance. (#915, #916) — thanks @veteranbv.
+- MCP: add optional global and per-account capability ceilings in `config.json`, with narrow persistent write authorization, runtime-only restriction, and fail-closed selector validation. (#913) — thanks @mcaldas.
+
+## 0.34.0 - 2026-07-11
+
+- Calendar: add `--timezone` / `--tz` display overrides to `calendar events` and `calendar event`, including uniform multi-calendar output without changing range parsing. (#908) — thanks @bxxd.
+- Calendar: render event-local fields in the event's own timezone when present, falling back to the containing calendar timezone. (#905) — thanks @Hilo-Hilo.
+- Docs: add opt-in smart-chip rendering to `docs cat --chips` and structured person, date, and rich-link metadata to JSON output while preserving default text output. (#907, #909) — thanks @TurboTheTurtle.
+- Release: sign and notarize macOS artifacts locally with the OpenClaw Foundation Developer ID while preserving the existing `com.steipete.gogcli.gog` identifier; ordinary builds and GitHub CI remain credential-free.
+
+## 0.33.0 - 2026-07-06
+
+- Sheets: add `sheets filter set` for creating basic filters, with guarded replacement of an existing sheet filter. (#902)
+- Sheets: add gradient conditional formats through `--gradient-rule-json`, with strict nested color validation and rejection of unsupported alpha. (#901)
+- Auth: trust Developer-ID-signed release binaries when creating macOS Keychain items so upgrades read tokens without repeated permission prompts and preserve credential removal, while leaving ad-hoc/source builds unchanged and allowing `GOG_KEYCHAIN_TRUST_APPLICATION` overrides.
+
+## 0.32.0 - 2026-07-03
+
+- Docs: add `docs suggestions list` for read-only pending text insertions and deletions, including exact UTF-16 ranges, segment context, and tab selection. (#876)
+- Auth: retry one replayable Google API request after an `insufficient scopes` 403 by refreshing stored OAuth credentials, while preserving ordinary permission failures and non-replayable requests. (#889) — thanks @ortonom.
+- CLI: add read-only `update status` / `update check` release metadata, platform asset, checksum, and install-method reporting. (#882) — thanks @titus7490.
+- YouTube: add opt-in `videos list --parts all` full metadata while preserving the existing compact default and explicit owner-only part requests. (#871) — thanks @coeur-de-loup.
+- Docs: add `docs format --spacing-mode` for setting paragraph spacing collapse behavior alongside `--space-above` and `--space-below`. (#885) — thanks @odyssey4me.
+
+## 0.31.1 - 2026-06-26
+
+- Calendar: add `calendar changed` for listing recently modified events, including cancellations, across one or more calendars. (#875) — thanks @sorenisanerd.
+- Calendar: add a `;resource` attendee modifier for event create, attendee replacement, and additive attendee updates. (#881) — thanks @titus7490.
 
 - MCP: expand the typed `gog mcp` server to comprehensive, area-gated coverage across Gmail, Drive, Docs, Sheets, Slides, Calendar, Contacts, People, Tasks, Chat, Keep, Meet, Forms, Classroom, Photos, Maps, YouTube, and Search Console (135 tools). Each tool keeps a fixed schema and maps to one specific `gog` operation; read tools stay default-on, write tools remain hidden until `--allow-write`, and `--allow-tool` selectors gate whole areas (e.g. `slides`, `docs.*`).
 - MCP: add `--tool-suite` (alias `--suite`) for curated cross-service bundles (`workspace`, `developer`, `admin`, `education`, `media`, `insights`), plus `--list-suites`. Suites compose with `--allow-tool` (intersection) and `--allow-write`, and unknown names fail at startup. Add Admin (Directory), Cloud Identity Groups, Apps Script, and Discovery API tool areas so the `admin` and `developer` suites are substantive (now 153 tools across 22 services).

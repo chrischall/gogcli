@@ -2,7 +2,7 @@
 
 Every `gog` command has a generated docs page. The source of truth is the live CLI schema; run `make docs-commands` after changing command names, flags, help text, aliases, or arguments.
 
-Generated pages: 699.
+Generated pages: 706.
 
 ## Top-level Commands
 
@@ -46,6 +46,7 @@ Generated pages: 699.
 - [gog status](gog-status.md) - Show auth/config status (alias for 'auth status')
 - [gog tasks](gog-tasks.md) - Google Tasks
 - [gog time](gog-time.md) - Local time utilities
+- [gog update](gog-update.md) - Check gogcli release status
 - [gog upload](gog-upload.md) - Upload a file to Drive (alias for 'drive upload')
 - [gog version](gog-version.md) - Print version
 - [gog whoami](gog-whoami.md) - Show your profile (alias for 'people me')
@@ -138,6 +139,7 @@ Generated pages: 699.
       - [gog calendar alias set](gog-calendar-alias-set.md) - Set a calendar alias
       - [gog calendar alias unset](gog-calendar-alias-unset.md) - Remove a calendar alias
     - [gog calendar calendars](gog-calendar-calendars.md) - List calendars
+    - [gog calendar changed](gog-calendar-changed.md) - List most recently changed events (including deletions)
     - [gog calendar colors](gog-calendar-colors.md) - Show calendar colors
     - [gog calendar conflicts](gog-calendar-conflicts.md) - Find busy-time overlaps across calendars
     - [gog calendar create](gog-calendar-create.md) - Create an event
@@ -342,6 +344,8 @@ Generated pages: 699.
     - [gog docs section-columns](gog-docs-section-columns.md) - Set the column count for a document section
     - [gog docs sed](gog-docs-sed.md) - Regex find/replace (sed-style: s/pattern/replacement/g)
     - [gog docs structure](gog-docs-structure.md) - Show document structure with numbered paragraphs
+    - [gog docs suggestions](gog-docs-suggestions.md) - List pending text suggestions
+      - [gog docs suggestions list](gog-docs-suggestions-list.md) - List pending text insertions and deletions
     - [gog docs table-column](gog-docs-table-column.md) - Insert or delete native table columns
       - [gog docs table-column delete](gog-docs-table-column-delete.md) - Delete a native table column
       - [gog docs table-column insert](gog-docs-table-column-insert.md) - Insert a native table column
@@ -613,6 +617,8 @@ Generated pages: 699.
     - [gog sheets delete-dimension](gog-sheets-delete-dimension.md) - Delete rows or columns while preserving intersecting tables
     - [gog sheets delete-tab](gog-sheets-delete-tab.md) - Delete a tab/sheet from a spreadsheet (use --force to skip confirmation)
     - [gog sheets export](gog-sheets-export.md) - Export a Google Sheet (pdf|xlsx|csv) via Drive
+    - [gog sheets filter](gog-sheets-filter.md) - Manage basic filters
+      - [gog sheets filter set](gog-sheets-filter-set.md) - Set a basic filter on a range; replacing an existing filter requires confirmation (or --force)
     - [gog sheets find-replace](gog-sheets-find-replace.md) - Find and replace text across a spreadsheet
     - [gog sheets format](gog-sheets-format.md) - Apply cell formatting to a range
     - [gog sheets freeze](gog-sheets-freeze.md) - Freeze rows and columns on a sheet
@@ -723,6 +729,8 @@ Generated pages: 699.
     - [gog tasks update](gog-tasks-update.md) - Update a task
   - [gog time](gog-time.md) - Local time utilities
     - [gog time now](gog-time-now.md) - Show current time
+  - [gog update](gog-update.md) - Check gogcli release status
+    - [gog update status](gog-update-status.md) - Show installed and latest gogcli release status
   - [gog upload](gog-upload.md) - Upload a file to Drive (alias for 'drive upload')
   - [gog version](gog-version.md) - Print version
   - [gog whoami](gog-whoami.md) - Show your profile (alias for 'people me')

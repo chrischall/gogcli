@@ -3,7 +3,7 @@ SHELL := /bin/bash
 # `make` should build the binary by default.
 .DEFAULT_GOAL := build
 
-.PHONY: build build-safe gog gogcli gog-help gogcli-help help fmt fmt-check lint deadcode test ci tools pnpm-gate docs-commands docs-site docs-check agent-skills agent-skills-check
+.PHONY: build build-safe gog gogcli gog-help gogcli-help help fmt fmt-check lint deadcode test ci tools pnpm-gate docker-version-check docs-commands docs-site docs-check agent-skills agent-skills-check
 .PHONY: worker-ci eval-gws eval-gws-agents eval-gws-test
 
 BIN_DIR := $(CURDIR)/bin
@@ -25,7 +25,7 @@ GOIMPORTS := $(TOOLS_DIR)/goimports
 GOLANGCI_LINT := $(TOOLS_DIR)/golangci-lint
 DEADCODE := $(TOOLS_DIR)/deadcode
 TOOLS_STAMP := $(TOOLS_DIR)/.versions
-TOOLS_VERSION := gofumpt=v0.9.2;goimports=v0.44.0;golangci-lint=v2.11.4;deadcode=v0.45.0
+TOOLS_VERSION := gofumpt=v0.9.2;goimports=v0.47.0;golangci-lint=v2.11.4;deadcode=v0.47.0
 
 # Allow passing CLI args as extra "targets":
 #   make gogcli -- --help
@@ -91,9 +91,9 @@ tools:
 	else \
 		set -e; \
 		GOBIN=$(TOOLS_DIR) go install mvdan.cc/gofumpt@v0.9.2; \
-		GOBIN=$(TOOLS_DIR) go install golang.org/x/tools/cmd/goimports@v0.44.0; \
+		GOBIN=$(TOOLS_DIR) go install golang.org/x/tools/cmd/goimports@v0.47.0; \
 		GOBIN=$(TOOLS_DIR) go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.4; \
-		GOBIN=$(TOOLS_DIR) go install golang.org/x/tools/cmd/deadcode@v0.45.0; \
+		GOBIN=$(TOOLS_DIR) go install golang.org/x/tools/cmd/deadcode@v0.47.0; \
 		printf '%s\n' "$(TOOLS_VERSION)" > "$(TOOLS_STAMP)"; \
 	fi
 
@@ -136,6 +136,15 @@ pnpm-gate:
 		echo "pnpm gate skipped (no package.json)"; \
 	fi
 
+docker-version-check:
+	@set -e; \
+	go_version="$$(awk '$$1 == "go" { print $$2; exit }' go.mod)"; \
+	docker_version="$$(sed -n 's/^ARG GO_VERSION=//p' Dockerfile)"; \
+	if [ -z "$$go_version" ] || [ -z "$$docker_version" ] || [ "$$docker_version" != "$$go_version" ]; then \
+		printf 'Docker Go version %s must match go.mod version %s\n' "$$docker_version" "$$go_version" >&2; \
+		exit 1; \
+	fi
+
 test:
 	@go test $(GO_TEST_FLAGS) $(TEST_FLAGS) $(TEST_PKGS)
 	@node --test scripts/eval-gws.test.mjs scripts/eval-gws-agents.test.mjs
@@ -149,7 +158,7 @@ eval-gws-agents: build
 eval-gws-test:
 	@node --test scripts/eval-gws.test.mjs scripts/eval-gws-agents.test.mjs
 
-ci: pnpm-gate fmt-check lint deadcode test docs-check agent-skills-check
+ci: pnpm-gate docker-version-check fmt-check lint deadcode test docs-check agent-skills-check
 
 worker-ci:
 	@pnpm -C internal/tracking/worker lint

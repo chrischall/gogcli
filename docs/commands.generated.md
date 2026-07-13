@@ -86,13 +86,14 @@ Generated from `gog schema --json`.
       - [`gog calendar (cal) alias set <alias> <calendarId>`](commands/gog-calendar-alias-set.md) - Set a calendar alias
       - [`gog calendar (cal) alias unset <alias>`](commands/gog-calendar-alias-unset.md) - Remove a calendar alias
     - [`gog calendar (cal) calendars [flags]`](commands/gog-calendar-calendars.md) - List calendars
+    - [`gog calendar (cal) changed [<calendarId>] [flags]`](commands/gog-calendar-changed.md) - List most recently changed events (including deletions)
     - [`gog calendar (cal) colors`](commands/gog-calendar-colors.md) - Show calendar colors
     - [`gog calendar (cal) conflicts [flags]`](commands/gog-calendar-conflicts.md) - Find busy-time overlaps across calendars
     - [`gog calendar (cal) create (add,new) <calendarId> [flags]`](commands/gog-calendar-create.md) - Create an event
     - [`gog calendar (cal) create-calendar (new-calendar) <summary> [flags]`](commands/gog-calendar-create-calendar.md) - Create a new secondary calendar
     - [`gog calendar (cal) delete (rm,del,remove) <calendarId> <eventId> [flags]`](commands/gog-calendar-delete.md) - Delete an event
     - [`gog calendar (cal) delete-calendar <calendarId>`](commands/gog-calendar-delete-calendar.md) - Delete an owned secondary calendar
-    - [`gog calendar (cal) event (get,info,show) <calendarId> <eventId>`](commands/gog-calendar-event.md) - Get event
+    - [`gog calendar (cal) event (get,info,show) <calendarId> <eventId> [flags]`](commands/gog-calendar-event.md) - Get event
     - [`gog calendar (cal) events (list,ls) [<calendarId> ...] [flags]`](commands/gog-calendar-events.md) - List events from a calendar or all calendars
     - [`gog calendar (cal) focus-time (focus) --from=STRING --to=STRING [<calendarId>] [flags]`](commands/gog-calendar-focus-time.md) - Create a Focus Time block
     - [`gog calendar (cal) freebusy [<calendarIds>] [flags]`](commands/gog-calendar-freebusy.md) - Get free/busy
@@ -290,6 +291,8 @@ Generated from `gog schema --json`.
     - [`gog docs (doc) section-columns --count=INT <docId> [flags]`](commands/gog-docs-section-columns.md) - Set the column count for a document section
     - [`gog docs (doc) sed <docId> [<expression>] [flags]`](commands/gog-docs-sed.md) - Regex find/replace (sed-style: s/pattern/replacement/g)
     - [`gog docs (doc) structure (struct) <docId> [flags]`](commands/gog-docs-structure.md) - Show document structure with numbered paragraphs
+    - [`gog docs (doc) suggestions <command>`](commands/gog-docs-suggestions.md) - List pending text suggestions
+      - [`gog docs (doc) suggestions list (ls) <docId> [flags]`](commands/gog-docs-suggestions-list.md) - List pending text insertions and deletions
     - [`gog docs (doc) table-column <command>`](commands/gog-docs-table-column.md) - Insert or delete native table columns
       - [`gog docs (doc) table-column delete (rm,remove,del) --col=INT <docId> [flags]`](commands/gog-docs-table-column-delete.md) - Delete a native table column
       - [`gog docs (doc) table-column insert (add,append) <docId> [flags]`](commands/gog-docs-table-column-insert.md) - Insert a native table column
@@ -552,7 +555,7 @@ Generated from `gog schema --json`.
       - [`gog sheets (sheet) chart (charts) update (edit,set) --spec-json=STRING <spreadsheetId> <chartId>`](commands/gog-sheets-chart-update.md) - Update a chart spec
     - [`gog sheets (sheet) clear <spreadsheetId> <range>`](commands/gog-sheets-clear.md) - Clear values in a range
     - [`gog sheets (sheet) conditional-format (cf,conditional-formats) <command>`](commands/gog-sheets-conditional-format.md) - Manage conditional formatting rules
-      - [`gog sheets (sheet) conditional-format (cf,conditional-formats) add (create,new) --type=STRING --format-json=STRING <spreadsheetId> <range> [flags]`](commands/gog-sheets-conditional-format-add.md) - Add a conditional formatting rule
+      - [`gog sheets (sheet) conditional-format (cf,conditional-formats) add (create,new) <spreadsheetId> <range> [flags]`](commands/gog-sheets-conditional-format-add.md) - Add a conditional formatting rule
       - [`gog sheets (sheet) conditional-format (cf,conditional-formats) clear (delete,rm,remove) --sheet=STRING <spreadsheetId> [flags]`](commands/gog-sheets-conditional-format-clear.md) - Remove conditional formatting rules
       - [`gog sheets (sheet) conditional-format (cf,conditional-formats) list <spreadsheetId> [flags]`](commands/gog-sheets-conditional-format-list.md) - List conditional formatting rules
     - [`gog sheets (sheet) copy (cp,duplicate) <spreadsheetId> <title> [flags]`](commands/gog-sheets-copy.md) - Copy a Google Sheet
@@ -561,6 +564,8 @@ Generated from `gog schema --json`.
     - [`gog sheets (sheet) delete-dimension (delete-dim) --dimension=STRING <spreadsheetId> <rangeOrSheet> [flags]`](commands/gog-sheets-delete-dimension.md) - Delete rows or columns while preserving intersecting tables
     - [`gog sheets (sheet) delete-tab (delete-sheet) <spreadsheetId> <tabName>`](commands/gog-sheets-delete-tab.md) - Delete a tab/sheet from a spreadsheet (use --force to skip confirmation)
     - [`gog sheets (sheet) export (download,dl) <spreadsheetId> [flags]`](commands/gog-sheets-export.md) - Export a Google Sheet (pdf|xlsx|csv) via Drive
+    - [`gog sheets (sheet) filter (filters,basic-filter,basic-filters) <command>`](commands/gog-sheets-filter.md) - Manage basic filters
+      - [`gog sheets (sheet) filter (filters,basic-filter,basic-filters) set (create,add) <spreadsheetId> <range>`](commands/gog-sheets-filter-set.md) - Set a basic filter on a range; replacing an existing filter requires confirmation (or --force)
     - [`gog sheets (sheet) find-replace <spreadsheetId> <find> <replace> [flags]`](commands/gog-sheets-find-replace.md) - Find and replace text across a spreadsheet
     - [`gog sheets (sheet) format <spreadsheetId> <range> [flags]`](commands/gog-sheets-format.md) - Apply cell formatting to a range
     - [`gog sheets (sheet) freeze <spreadsheetId> [flags]`](commands/gog-sheets-freeze.md) - Freeze rows and columns on a sheet
@@ -671,6 +676,8 @@ Generated from `gog schema --json`.
     - [`gog tasks (task) update (edit,set) <tasklistId> <taskId> [flags]`](commands/gog-tasks-update.md) - Update a task
   - [`gog time <command> [flags]`](commands/gog-time.md) - Local time utilities
     - [`gog time now [flags]`](commands/gog-time-now.md) - Show current time
+  - [`gog update <command> [flags]`](commands/gog-update.md) - Check gogcli release status
+    - [`gog update status (check) [flags]`](commands/gog-update-status.md) - Show installed and latest gogcli release status
   - [`gog upload (up,put) <localPath> [flags]`](commands/gog-upload.md) - Upload a file to Drive (alias for 'drive upload')
   - [`gog version [flags]`](commands/gog-version.md) - Print version
   - [`gog whoami (who-am-i) [flags]`](commands/gog-whoami.md) - Show your profile (alias for 'people me')

@@ -13,10 +13,11 @@ import (
 )
 
 const (
-	keyringPasswordEnv    = "GOG_KEYRING_PASSWORD" //nolint:gosec // env var name, not a credential
-	keyringBackendEnv     = "GOG_KEYRING_BACKEND"  //nolint:gosec // env var name, not a credential
-	keyringServiceNameEnv = "GOG_KEYRING_SERVICE_NAME"
-	keyringOpenTimeoutEnv = "GOG_KEYRING_OPEN_TIMEOUT"
+	keyringPasswordEnv          = "GOG_KEYRING_PASSWORD" //nolint:gosec // env var name, not a credential
+	keyringBackendEnv           = "GOG_KEYRING_BACKEND"  //nolint:gosec // env var name, not a credential
+	keyringServiceNameEnv       = "GOG_KEYRING_SERVICE_NAME"
+	keyringOpenTimeoutEnv       = "GOG_KEYRING_OPEN_TIMEOUT"
+	keychainTrustApplicationEnv = "GOG_KEYCHAIN_TRUST_APPLICATION"
 )
 
 var (
@@ -32,18 +33,20 @@ type KeyringBackendInfo struct {
 }
 
 type OpenOptions struct {
-	Layout        config.Layout
-	Config        *config.ConfigStore
-	Backend       string
-	Password      string
-	PasswordSet   bool
-	ServiceName   string
-	GOOS          string
-	DBusAddress   string
-	IsTTY         bool
-	OpenTimeout   time.Duration
-	LockTimeout   time.Duration
-	openKeyringFn func(keyring.Config) (keyring.Keyring, error)
+	Layout                   config.Layout
+	Config                   *config.ConfigStore
+	Backend                  string
+	Password                 string
+	PasswordSet              bool
+	ServiceName              string
+	GOOS                     string
+	DBusAddress              string
+	IsTTY                    bool
+	OpenTimeout              time.Duration
+	LockTimeout              time.Duration
+	KeychainTrustApplication string
+	openKeyringFn            func(keyring.Config) (keyring.Keyring, error)
+	codesignRunner           func(string) ([]byte, error)
 }
 
 const (
@@ -71,19 +74,21 @@ func OpenOptionsFromLookup(
 	dbusAddress, _ := lookup("DBUS_SESSION_BUS_ADDRESS")
 	openTimeoutRaw, _ := lookup(keyringOpenTimeoutEnv)
 	lockTimeoutRaw, _ := lookup(keyringLockTimeoutEnv)
+	keychainTrustApplication, _ := lookup(keychainTrustApplicationEnv)
 
 	return OpenOptions{
-		Layout:      layout,
-		Config:      store,
-		Backend:     backend,
-		Password:    password,
-		PasswordSet: passwordSet,
-		ServiceName: strings.TrimSpace(serviceName),
-		GOOS:        goos,
-		DBusAddress: dbusAddress,
-		IsTTY:       isTTY,
-		OpenTimeout: parseKeyringOpenTimeout(openTimeoutRaw, goos),
-		LockTimeout: parseKeyringLockTimeout(lockTimeoutRaw),
+		Layout:                   layout,
+		Config:                   store,
+		Backend:                  backend,
+		Password:                 password,
+		PasswordSet:              passwordSet,
+		ServiceName:              strings.TrimSpace(serviceName),
+		GOOS:                     goos,
+		DBusAddress:              dbusAddress,
+		IsTTY:                    isTTY,
+		OpenTimeout:              parseKeyringOpenTimeout(openTimeoutRaw, goos),
+		LockTimeout:              parseKeyringLockTimeout(lockTimeoutRaw),
+		KeychainTrustApplication: keychainTrustApplication,
 	}
 }
 
@@ -261,17 +266,16 @@ func openKeyringWithOptions(options OpenOptions) (keyring.Keyring, error) {
 
 	cfg := keyring.Config{
 		ServiceName: serviceNameFor(options),
-		// KeychainTrustApplication is intentionally false to support Homebrew upgrades.
-		// When true, macOS Keychain ties access control to the specific binary hash.
-		// Homebrew upgrades install a new binary with a different hash, causing the
-		// new binary to lose access to existing keychain items. With false, users may
-		// see a one-time keychain prompt after upgrade (click "Always Allow"), but
-		// tokens survive across upgrades. See: https://github.com/steipete/gogcli/issues/86
-		KeychainTrustApplication: false,
+		// Trust application access only for binaries with a stable signing identity,
+		// so Developer-ID releases keep access across upgrades. Ad-hoc/source builds
+		// retain false because their designated requirement changes each build, the
+		// Homebrew upgrade failure mode documented in issue #86.
+		KeychainTrustApplication: ResolveKeychainTrustApplication(options, backendInfo).Enabled,
 		AllowedBackends:          backends,
 		FileDir:                  keyringDir,
 		FilePasswordFunc:         fileKeyringPasswordFuncFrom(options.Password, options.PasswordSet, options.IsTTY),
 	}
+	keychainTrustApplication := cfg.KeychainTrustApplication
 
 	openTimeout := options.OpenTimeout
 	if openTimeout <= 0 {
@@ -297,7 +301,7 @@ func openKeyringWithOptions(options OpenOptions) (keyring.Keyring, error) {
 			return nil, timeoutErr
 		}
 
-		return prepareKeyring(timeoutRing, backendInfo, wrapFileKeys, options), nil
+		return prepareKeyring(timeoutRing, backendInfo, wrapFileKeys, keychainTrustApplication, options), nil
 	}
 
 	ring, err := open(cfg)
@@ -305,13 +309,14 @@ func openKeyringWithOptions(options OpenOptions) (keyring.Keyring, error) {
 		return nil, fmt.Errorf("open keyring: %w", err)
 	}
 
-	return prepareKeyring(ring, backendInfo, wrapFileKeys, options), nil
+	return prepareKeyring(ring, backendInfo, wrapFileKeys, keychainTrustApplication, options), nil
 }
 
 func prepareKeyring(
 	ring keyring.Keyring,
 	backendInfo KeyringBackendInfo,
 	wrapFileKeys bool,
+	keychainTrustApplication bool,
 	options OpenOptions,
 ) keyring.Keyring {
 	if wrapFileKeys || isFileKeyring(ring) {
@@ -324,6 +329,10 @@ func prepareKeyring(
 			timeout = defaultKeyringOpenTimeout(options.GOOS)
 		}
 		ring = newTimeoutKeyring(ring, timeout, keyringTimeoutHint(options.GOOS))
+	}
+
+	if options.GOOS == goosDarwin && keychainTrustApplication {
+		ring = newKeychainOwnerRemoveFallback(ring, serviceNameFor(options), nativeKeychainOwnerRemove)
 	}
 
 	return ring

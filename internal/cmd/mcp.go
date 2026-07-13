@@ -70,7 +70,13 @@ func (c *McpCmd) Run(ctx context.Context, flags *RootFlags) error {
 		return mcpPrintSuites(stdoutWriter(ctx))
 	}
 
-	tools := mcpEnabledTools(*c)
+	tools, resolvedAccount, err := mcpEnabledToolsForRun(ctx, *c, flags)
+	if err != nil {
+		return err
+	}
+	if resolvedAccount != "" && flags != nil {
+		flags.Account = resolvedAccount
+	}
 	if len(tools) == 0 {
 		return usage("no MCP tools enabled")
 	}
