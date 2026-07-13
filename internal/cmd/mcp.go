@@ -63,6 +63,9 @@ func (c *McpCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if c.MaxOutputBytes <= 0 {
 		return usage("--max-output-bytes must be greater than zero")
 	}
+	if _, genErr := mcpGeneratedTools(); genErr != nil {
+		return genErr
+	}
 	if _, suiteErr := mcpResolveSuites(c.ToolSuite); suiteErr != nil {
 		return usage(suiteErr.Error())
 	}

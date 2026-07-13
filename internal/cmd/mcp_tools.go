@@ -16,6 +16,12 @@ import (
 // selectors such as gmail, drive.*, or calendar map directly onto these groups,
 // and --allow-write hides the write tools within each area until requested.
 func mcpAllTools() []mcpToolSpec {
+	generated, err := mcpGeneratedTools()
+	if err != nil {
+		// Annotation mistakes are programmer errors caught by tests; a broken
+		// grammar must never serve a partial tool surface.
+		panic(fmt.Sprintf("invalid mcp annotations: %v", err))
+	}
 	groups := [][]mcpToolSpec{
 		mcpGmailTools(),
 		mcpDriveTools(),
@@ -39,6 +45,8 @@ func mcpAllTools() []mcpToolSpec {
 		mcpGroupsTools(),
 		mcpAppScriptTools(),
 		mcpAPITools(),
+		mcpCustomTools(),
+		generated,
 	}
 	var all []mcpToolSpec
 	for _, group := range groups {
