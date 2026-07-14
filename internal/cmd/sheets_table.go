@@ -14,7 +14,7 @@ import (
 )
 
 type SheetsTableCmd struct {
-	List   SheetsTableListCmd   `cmd:"" default:"withargs" help:"List tables in a spreadsheet"`
+	List   SheetsTableListCmd   `cmd:"" default:"withargs" help:"List tables in a spreadsheet" mcp:"sheets_list_tables,read" mcpdesc:"List tables defined in a spreadsheet."`
 	Get    SheetsTableGetCmd    `cmd:"" name:"get" aliases:"show,info" help:"Get a table"`
 	Create SheetsTableCreateCmd `cmd:"" name:"create" aliases:"add,new" help:"Create a table"`
 	Append SheetsTableAppendCmd `cmd:"" name:"append" aliases:"add-row,add-rows" help:"Append rows to a table"`
@@ -23,7 +23,7 @@ type SheetsTableCmd struct {
 }
 
 type SheetsTableListCmd struct {
-	SpreadsheetID string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID"`
+	SpreadsheetID string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID" mcp:"spreadsheet_id" mcpdesc:"Google Sheets spreadsheet ID"`
 }
 
 func (c *SheetsTableListCmd) Run(ctx context.Context, flags *RootFlags) error {

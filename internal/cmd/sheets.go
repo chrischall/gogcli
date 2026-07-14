@@ -31,13 +31,13 @@ func cleanRange(r string) string {
 }
 
 type SheetsCmd struct {
-	Get           SheetsGetCmd             `cmd:"" name:"get" aliases:"read,show" help:"Get values from a range"`
-	Update        SheetsUpdateCmd          `cmd:"" name:"update" aliases:"edit,set" help:"Update values in a range"`
+	Get           SheetsGetCmd             `cmd:"" name:"get" aliases:"read,show" help:"Get values from a range" mcp:"sheets_read_range,read" mcpdesc:"Read values from a Google Sheets range."`
+	Update        SheetsUpdateCmd          `cmd:"" name:"update" aliases:"edit,set" help:"Update values in a range" mcp:"sheets_update_range,write" mcpdesc:"Update values in a Google Sheets range. Requires --allow-write on the MCP server."`
 	BatchUpdate   SheetsBatchUpdateCmd     `cmd:"" name:"batch-update" aliases:"batch" help:"Update values in multiple ranges with one API request"`
-	Append        SheetsAppendCmd          `cmd:"" name:"append" aliases:"add" help:"Append values to a range"`
+	Append        SheetsAppendCmd          `cmd:"" name:"append" aliases:"add" help:"Append values to a range" mcp:"sheets_append,write" mcpdesc:"Append rows to a Google Sheets range from a literal JSON 2D array. Requires --allow-write."`
 	Insert        SheetsInsertCmd          `cmd:"" name:"insert" help:"Insert empty rows or columns into a sheet"`
 	DeleteDim     SheetsDeleteDimensionCmd `cmd:"" name:"delete-dimension" aliases:"delete-dim" help:"Delete rows or columns while preserving intersecting tables"`
-	Clear         SheetsClearCmd           `cmd:"" name:"clear" help:"Clear values in a range"`
+	Clear         SheetsClearCmd           `cmd:"" name:"clear" help:"Clear values in a range" mcp:"sheets_clear,write" mcpdesc:"Clear values in a Google Sheets range. Requires --allow-write."`
 	Format        SheetsFormatCmd          `cmd:"" name:"format" help:"Apply cell formatting to a range"`
 	Conditional   SheetsConditionalCmd     `cmd:"" name:"conditional-format" aliases:"cf,conditional-formats" help:"Manage conditional formatting rules"`
 	Validation    SheetsValidationCmd      `cmd:"" name:"validation" aliases:"data-validation,validations" help:"Manage cell data validation rules"`
@@ -57,13 +57,13 @@ type SheetsCmd struct {
 	Links         SheetsLinksCmd           `cmd:"" name:"links" aliases:"hyperlinks" help:"Get or set cell hyperlinks"`
 	Named         SheetsNamedRangesCmd     `cmd:"" name:"named-ranges" aliases:"namedranges,nr" help:"Manage named ranges"`
 	Table         SheetsTableCmd           `cmd:"" name:"table" aliases:"tables" help:"Manage Google Sheets tables"`
-	Metadata      SheetsMetadataCmd        `cmd:"" name:"metadata" aliases:"info" help:"Get spreadsheet metadata"`
+	Metadata      SheetsMetadataCmd        `cmd:"" name:"metadata" aliases:"info" help:"Get spreadsheet metadata" mcp:"sheets_metadata,read" mcpdesc:"Get spreadsheet metadata (sheets, titles, dimensions)."`
 	Raw           SheetsRawCmd             `cmd:"" name:"raw" help:"Dump raw Google Sheets API response as JSON (Spreadsheets.Get; lossless; for scripting and LLM consumption)"`
-	Create        SheetsCreateCmd          `cmd:"" name:"create" aliases:"new" help:"Create a new spreadsheet"`
+	Create        SheetsCreateCmd          `cmd:"" name:"create" aliases:"new" help:"Create a new spreadsheet" mcp:"sheets_create,write" mcpdesc:"Create a new spreadsheet. Requires --allow-write."`
 	Copy          SheetsCopyCmd            `cmd:"" name:"copy" aliases:"cp,duplicate" help:"Copy a Google Sheet"`
 	Export        SheetsExportCmd          `cmd:"" name:"export" aliases:"download,dl" help:"Export a Google Sheet (pdf|xlsx|csv) via Drive"`
 	Chart         SheetsChartCmd           `cmd:"" name:"chart" aliases:"charts" help:"Manage spreadsheet charts"`
-	AddTab        SheetsAddTabCmd          `cmd:"" name:"add-tab" aliases:"add-sheet" help:"Add a new tab/sheet to a spreadsheet"`
+	AddTab        SheetsAddTabCmd          `cmd:"" name:"add-tab" aliases:"add-sheet" help:"Add a new tab/sheet to a spreadsheet" mcp:"sheets_add_tab,write" mcpdesc:"Add a new tab/sheet to a spreadsheet. Requires --allow-write."`
 	RenameTab     SheetsRenameTabCmd       `cmd:"" name:"rename-tab" aliases:"rename-sheet" help:"Rename a tab/sheet in a spreadsheet"`
 	DeleteTab     SheetsDeleteTabCmd       `cmd:"" name:"delete-tab" aliases:"delete-sheet" help:"Delete a tab/sheet from a spreadsheet (use --force to skip confirmation)"`
 	ReorderTab    SheetsReorderTabCmd      `cmd:"" name:"reorder-tab" aliases:"move-tab,reorder-sheet,move-sheet" help:"Move a tab/sheet to a specific 0-based position in the spreadsheet"`
@@ -103,10 +103,10 @@ func (c *SheetsCopyCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type SheetsGetCmd struct {
-	SpreadsheetID     string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID"`
-	Range             string `arg:"" name:"range" help:"Range (A1 notation or named range name; e.g. Sheet1!A1:B10 or MyNamedRange)"`
+	SpreadsheetID     string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID" mcp:"spreadsheet_id" mcpdesc:"Google Sheets spreadsheet ID"`
+	Range             string `arg:"" name:"range" help:"Range (A1 notation or named range name; e.g. Sheet1!A1:B10 or MyNamedRange)" mcp:"range" mcpdesc:"A1 notation or named range"`
 	MajorDimension    string `name:"dimension" help:"Major dimension: ROWS or COLUMNS"`
-	ValueRenderOption string `name:"render" help:"Value render option: FORMATTED_VALUE, UNFORMATTED_VALUE, or FORMULA"`
+	ValueRenderOption string `name:"render" help:"Value render option: FORMATTED_VALUE, UNFORMATTED_VALUE, or FORMULA" mcp:"render,enum=FORMATTED_VALUE|UNFORMATTED_VALUE|FORMULA" mcpdesc:"Value render option"`
 }
 
 func (c *SheetsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -172,11 +172,11 @@ func (c *SheetsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type SheetsUpdateCmd struct {
-	SpreadsheetID      string   `arg:"" name:"spreadsheetId" help:"Spreadsheet ID"`
-	Range              string   `arg:"" name:"range" help:"Range (A1 notation or named range name; e.g. Sheet1!A1:B2 or MyNamedRange)"`
+	SpreadsheetID      string   `arg:"" name:"spreadsheetId" help:"Spreadsheet ID" mcp:"spreadsheet_id" mcpdesc:"Google Sheets spreadsheet ID"`
+	Range              string   `arg:"" name:"range" help:"Range (A1 notation or named range name; e.g. Sheet1!A1:B2 or MyNamedRange)" mcp:"range" mcpdesc:"A1 notation or named range"`
 	Values             []string `arg:"" optional:"" name:"values" help:"Values (comma-separated rows, pipe-separated cells)"`
-	ValueInput         string   `name:"input" help:"Value input option: RAW or USER_ENTERED" default:"USER_ENTERED"`
-	ValuesJSON         string   `name:"values-json" help:"Values as a JSON 2D array, @file, or @- for stdin"`
+	ValueInput         string   `name:"input" help:"Value input option: RAW or USER_ENTERED" default:"USER_ENTERED" mcp:"input,default=USER_ENTERED,enum=RAW|USER_ENTERED" mcpdesc:"Value input option"`
+	ValuesJSON         string   `name:"values-json" help:"Values as a JSON 2D array, @file, or @- for stdin" mcp:"values_json,required,json2d" mcpdesc:"JSON 2D array of values"`
 	CopyValidationFrom string   `name:"copy-validation-from" help:"Copy data validation from an A1 range or named range (e.g. 'Sheet1!A2:D2' or MyNamedRange) to the updated cells"`
 	FailOnFormulaError bool     `name:"fail-on-formula-error" help:"Read back the updated range and fail if any cell has a Sheets formula error"`
 }
@@ -458,12 +458,12 @@ func parseSheetsBatchUpdateData(dataJSON string, input io.Reader) ([]*sheets.Val
 }
 
 type SheetsAppendCmd struct {
-	SpreadsheetID      string   `arg:"" name:"spreadsheetId" help:"Spreadsheet ID"`
-	Range              string   `arg:"" name:"range" help:"Range (A1 notation or named range name; e.g. Sheet1!A:C or MyNamedRange)"`
+	SpreadsheetID      string   `arg:"" name:"spreadsheetId" help:"Spreadsheet ID" mcp:"spreadsheet_id" mcpdesc:"Google Sheets spreadsheet ID"`
+	Range              string   `arg:"" name:"range" help:"Range (A1 notation or named range name; e.g. Sheet1!A:C or MyNamedRange)" mcp:"range" mcpdesc:"A1 notation or named range"`
 	Values             []string `arg:"" optional:"" name:"values" help:"Values (comma-separated rows, pipe-separated cells)"`
-	ValueInput         string   `name:"input" help:"Value input option: RAW or USER_ENTERED" default:"USER_ENTERED"`
+	ValueInput         string   `name:"input" help:"Value input option: RAW or USER_ENTERED" default:"USER_ENTERED" mcp:"input,default=USER_ENTERED,enum=RAW|USER_ENTERED" mcpdesc:"Value input option"`
 	Insert             string   `name:"insert" help:"Insert data option: OVERWRITE or INSERT_ROWS"`
-	ValuesJSON         string   `name:"values-json" help:"Values as JSON 2D array"`
+	ValuesJSON         string   `name:"values-json" help:"Values as JSON 2D array" mcp:"values_json,required,json2d" mcpdesc:"JSON 2D array of values"`
 	CopyValidationFrom string   `name:"copy-validation-from" help:"Copy data validation from an A1 range or named range (e.g. 'Sheet1!A2:D2' or MyNamedRange) to the appended cells"`
 }
 
@@ -563,8 +563,8 @@ func (c *SheetsAppendCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type SheetsClearCmd struct {
-	SpreadsheetID string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID"`
-	Range         string `arg:"" name:"range" help:"Range (A1 notation or named range name; e.g. Sheet1!A1:B2 or MyNamedRange)"`
+	SpreadsheetID string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID" mcp:"spreadsheet_id" mcpdesc:"Google Sheets spreadsheet ID"`
+	Range         string `arg:"" name:"range" help:"Range (A1 notation or named range name; e.g. Sheet1!A1:B2 or MyNamedRange)" mcp:"range" mcpdesc:"A1 notation or named range"`
 }
 
 func (c *SheetsClearCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -658,7 +658,7 @@ func (c *SheetsRawCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type SheetsMetadataCmd struct {
-	SpreadsheetID string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID"`
+	SpreadsheetID string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID" mcp:"spreadsheet_id" mcpdesc:"Google Sheets spreadsheet ID"`
 }
 
 func (c *SheetsMetadataCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -705,9 +705,9 @@ func (c *SheetsMetadataCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type SheetsCreateCmd struct {
-	Title  string `arg:"" name:"title" help:"Spreadsheet title"`
+	Title  string `arg:"" name:"title" help:"Spreadsheet title" mcp:"title" mcpdesc:"Spreadsheet title"`
 	Sheets string `name:"sheets" help:"Comma-separated sheet names to create"`
-	Parent string `name:"parent" help:"Destination folder ID"`
+	Parent string `name:"parent" help:"Destination folder ID" mcp:"parent" mcpdesc:"Parent folder ID"`
 }
 
 func (c *SheetsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {

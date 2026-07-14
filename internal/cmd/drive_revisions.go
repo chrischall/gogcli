@@ -19,13 +19,13 @@ const (
 )
 
 type DriveRevisionsCmd struct {
-	List DriveRevisionsListCmd `cmd:"" name:"list" aliases:"ls" help:"List revisions for a file"`
+	List DriveRevisionsListCmd `cmd:"" name:"list" aliases:"ls" help:"List revisions for a file" mcp:"drive_list_revisions,read" mcpdesc:"List revisions for a Drive file."`
 	Get  DriveRevisionsGetCmd  `cmd:"" name:"get" help:"Get revision metadata"`
 }
 
 type DriveRevisionsListCmd struct {
-	FileID    string `arg:"" name:"fileId" help:"File ID"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"200"`
+	FileID    string `arg:"" name:"fileId" help:"File ID" mcp:"file_id" mcpdesc:"Drive file ID"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"200" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no revisions"`

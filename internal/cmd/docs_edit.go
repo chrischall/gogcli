@@ -1282,13 +1282,13 @@ func (c *DocsClearCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type DocsFindReplaceCmd struct {
-	DocID       string `arg:"" name:"docId" help:"Doc ID"`
-	Find        string `arg:"" name:"find" help:"Text to find"`
-	ReplaceText string `arg:"" optional:"" name:"replace" help:"Replacement text (omit when using --content-file)"`
+	DocID       string `arg:"" name:"docId" help:"Doc ID" mcp:"document_id" mcpdesc:"Google Docs document ID"`
+	Find        string `arg:"" name:"find" help:"Text to find" mcp:"find,text" mcpdesc:"Text to find"`
+	ReplaceText string `arg:"" optional:"" name:"replace" help:"Replacement text (omit when using --content-file)" mcp:"replace,required,text" mcpdesc:"Replacement text"`
 	ContentFile string `name:"content-file" help:"Read replacement from a file instead of the positional argument."`
-	MatchCase   bool   `name:"match-case" help:"Case-sensitive matching"`
+	MatchCase   bool   `name:"match-case" help:"Case-sensitive matching" mcp:"match_case" mcpdesc:"Case-sensitive match"`
 	Format      string `name:"format" help:"Replacement format: plain|markdown. Markdown converts formatting, tables, and inline images from public HTTPS URLs." default:"plain" enum:"plain,markdown"`
-	First       bool   `name:"first" help:"Replace only the first occurrence instead of all."`
+	First       bool   `name:"first" help:"Replace only the first occurrence instead of all." mcp:"first" mcpdesc:"Replace only the first occurrence"`
 	Tab         string `name:"tab" help:"Target a specific tab by title or ID (see docs list-tabs)"`
 	TabID       string `name:"tab-id" hidden:"" help:"(deprecated) Use --tab"`
 }

@@ -113,8 +113,8 @@ func (c *SlidesNewSlideCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type SlidesDuplicateSlideCmd struct {
-	PresentationID string `arg:"" name:"presentationId" help:"Presentation ID"`
-	SlideID        string `arg:"" name:"slideId" help:"Slide object ID to duplicate (use 'slides list-slides' to find IDs)"`
+	PresentationID string `arg:"" name:"presentationId" help:"Presentation ID" mcp:"presentation_id" mcpdesc:"Google Slides presentation ID"`
+	SlideID        string `arg:"" name:"slideId" help:"Slide object ID to duplicate (use 'slides list-slides' to find IDs)" mcp:"slide_id" mcpdesc:"Slide object ID"`
 	ToIndex        *int64 `name:"to-index" help:"Zero-based insertion index for the duplicated slide"`
 }
 

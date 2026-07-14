@@ -12,8 +12,8 @@ import (
 )
 
 type SlidesDeleteSlideCmd struct {
-	PresentationID string `arg:"" name:"presentationId" help:"Presentation ID"`
-	SlideID        string `arg:"" name:"slideId" help:"Slide object ID to delete (use 'slides list-slides' to find IDs)"`
+	PresentationID string `arg:"" name:"presentationId" help:"Presentation ID" mcp:"presentation_id" mcpdesc:"Google Slides presentation ID"`
+	SlideID        string `arg:"" name:"slideId" help:"Slide object ID to delete (use 'slides list-slides' to find IDs)" mcp:"slide_id" mcpdesc:"Slide object ID"`
 }
 
 func (c *SlidesDeleteSlideCmd) Run(ctx context.Context, flags *RootFlags) error {

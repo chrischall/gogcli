@@ -14,7 +14,7 @@ import (
 )
 
 type SheetsNamedRangesCmd struct {
-	List   SheetsNamedRangesListCmd   `cmd:"" default:"withargs" help:"List named ranges"`
+	List   SheetsNamedRangesListCmd   `cmd:"" default:"withargs" help:"List named ranges" mcp:"sheets_list_named_ranges,read" mcpdesc:"List named ranges in a spreadsheet."`
 	Get    SheetsNamedRangesGetCmd    `cmd:"" name:"get" aliases:"show,info" help:"Get a named range"`
 	Add    SheetsNamedRangesAddCmd    `cmd:"" name:"add" aliases:"create,new" help:"Add a named range"`
 	Update SheetsNamedRangesUpdateCmd `cmd:"" name:"update" aliases:"edit,set" help:"Update a named range"`
@@ -22,7 +22,7 @@ type SheetsNamedRangesCmd struct {
 }
 
 type SheetsNamedRangesListCmd struct {
-	SpreadsheetID string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID"`
+	SpreadsheetID string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID" mcp:"spreadsheet_id" mcpdesc:"Google Sheets spreadsheet ID"`
 }
 
 func (c *SheetsNamedRangesListCmd) Run(ctx context.Context, flags *RootFlags) error {

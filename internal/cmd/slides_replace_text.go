@@ -15,10 +15,10 @@ import (
 // It is a thin wrapper around presentations.batchUpdate with a single
 // ReplaceAllTextRequest.
 type SlidesReplaceTextCmd struct {
-	PresentationID string   `arg:"" name:"presentationId" help:"Presentation ID"`
-	Find           string   `arg:"" name:"find" help:"Substring to find"`
-	Replacement    string   `arg:"" name:"replacement" help:"Replacement text"`
-	MatchCase      bool     `name:"match-case" help:"Case-sensitive match (default: false)"`
+	PresentationID string   `arg:"" name:"presentationId" help:"Presentation ID" mcp:"presentation_id" mcpdesc:"Google Slides presentation ID"`
+	Find           string   `arg:"" name:"find" help:"Substring to find" mcp:"find,text" mcpdesc:"Text to find"`
+	Replacement    string   `arg:"" name:"replacement" help:"Replacement text" mcp:"replacement,text" mcpdesc:"Replacement text"`
+	MatchCase      bool     `name:"match-case" help:"Case-sensitive match (default: false)" mcp:"match_case" mcpdesc:"Case-sensitive match"`
 	Pages          []string `name:"page" help:"Restrict replacement to specific slide object IDs (repeatable)"`
 	ObjectID       string   `name:"object" help:"Restrict replacement to a single shape text object ID"`
 	All            bool     `name:"all" help:"Replace matching text across the entire presentation"`

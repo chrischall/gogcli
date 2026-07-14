@@ -17,8 +17,8 @@ import (
 
 type DocsCmd struct {
 	Export           DocsExportCmd           `cmd:"" name:"export" aliases:"download,dl" help:"Export a Google Doc (pdf|docx|txt|md|html)"`
-	Info             DocsInfoCmd             `cmd:"" name:"info" aliases:"get,show" help:"Get Google Doc metadata"`
-	Create           DocsCreateCmd           `cmd:"" name:"create" aliases:"add,new" help:"Create a Google Doc"`
+	Info             DocsInfoCmd             `cmd:"" name:"info" aliases:"get,show" help:"Get Google Doc metadata" mcp:"docs_info,read" mcpdesc:"Get Google Doc metadata (title, revision, tabs)."`
+	Create           DocsCreateCmd           `cmd:"" name:"create" aliases:"add,new" help:"Create a Google Doc" mcp:"docs_create,write" mcpdesc:"Create a new Google Doc. Requires --allow-write."`
 	Copy             DocsCopyCmd             `cmd:"" name:"copy" aliases:"cp,duplicate" help:"Copy a Google Doc"`
 	Cat              DocsCatCmd              `cmd:"" name:"cat" aliases:"text,read" help:"Print a Google Doc as plain text"`
 	Comments         DocsCommentsCmd         `cmd:"" name:"comments" help:"Manage comments on files"`
@@ -28,7 +28,7 @@ type DocsCmd struct {
 	AddTab           DocsAddTabCmd           `cmd:"" name:"add-tab" help:"Add a tab to a Google Doc"`
 	RenameTab        DocsRenameTabCmd        `cmd:"" name:"rename-tab" help:"Rename a tab in a Google Doc"`
 	DeleteTab        DocsDeleteTabCmd        `cmd:"" name:"delete-tab" help:"Delete a tab from a Google Doc"`
-	ListTabs         DocsListTabsCmd         `cmd:"" name:"list-tabs" help:"List all tabs in a Google Doc"`
+	ListTabs         DocsListTabsCmd         `cmd:"" name:"list-tabs" help:"List all tabs in a Google Doc" mcp:"docs_list_tabs,read" mcpdesc:"List all tabs in a Google Doc with their IDs."`
 	Write            DocsWriteCmd            `cmd:"" name:"write" help:"Write content to a Google Doc"`
 	Insert           DocsInsertCmd           `cmd:"" name:"insert" help:"Insert text at a specific position"`
 	InsertTable      DocsInsertTableCmd      `cmd:"" name:"insert-table" help:"Insert a native table at a specific position (or end-of-doc with --at-end), optionally populated via --values-json"`
@@ -51,7 +51,7 @@ type DocsCmd struct {
 	SectionColumns   DocsSectionColumnsCmd   `cmd:"" name:"section-columns" help:"Set the column count for a document section"`
 	Delete           DocsDeleteCmd           `cmd:"" name:"delete" help:"Delete text range from document"`
 	FindRange        DocsFindRangeCmd        `cmd:"" name:"find-range" help:"Find text and print Docs API UTF-16 index ranges"`
-	FindReplace      DocsFindReplaceCmd      `cmd:"" name:"find-replace" help:"Find and replace text. Supports plain text or markdown with images; use --first for a single occurrence."`
+	FindReplace      DocsFindReplaceCmd      `cmd:"" name:"find-replace" help:"Find and replace text. Supports plain text or markdown with images; use --first for a single occurrence." mcp:"docs_find_replace,write" mcpdesc:"Find and replace text in a Google Doc. Requires --allow-write."`
 	Update           DocsUpdateCmd           `cmd:"" name:"update" help:"Insert or replace text at a specific index or range in a Google Doc"`
 	Edit             DocsEditCmd             `cmd:"" name:"edit" help:"Find and replace text in a Google Doc"`
 	Format           DocsFormatCmd           `cmd:"" name:"format" help:"Apply text or paragraph formatting to a Google Doc"`
@@ -186,7 +186,7 @@ func (c *DocsExportCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type DocsInfoCmd struct {
-	DocID string `arg:"" name:"docId" help:"Doc ID"`
+	DocID string `arg:"" name:"docId" help:"Doc ID" mcp:"document_id" mcpdesc:"Google Docs document ID"`
 }
 
 func (c *DocsInfoCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -244,8 +244,8 @@ func (c *DocsInfoCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type DocsCreateCmd struct {
-	Title    string `arg:"" name:"title" help:"Doc title"`
-	Parent   string `name:"parent" help:"Destination folder ID"`
+	Title    string `arg:"" name:"title" help:"Doc title" mcp:"title" mcpdesc:"Document title"`
+	Parent   string `name:"parent" help:"Destination folder ID" mcp:"parent" mcpdesc:"Parent folder ID"`
 	File     string `name:"file" help:"Markdown file to import. Supports inline images from public HTTPS URLs via ![alt](url); append {width=N height=N} to control size in points." type:"existingfile"`
 	Pageless bool   `name:"pageless" help:"Set document to pageless mode"`
 }

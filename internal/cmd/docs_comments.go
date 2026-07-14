@@ -11,10 +11,10 @@ import (
 
 // DocsCommentsCmd is the parent command for comment operations on a Google Doc.
 type DocsCommentsCmd struct {
-	List    DocsCommentsListCmd    `cmd:"" name:"list" aliases:"ls" help:"List comments on a Google Doc"`
+	List    DocsCommentsListCmd    `cmd:"" name:"list" aliases:"ls" help:"List comments on a Google Doc" mcp:"docs_list_comments,read" mcpdesc:"List comments on a Google Doc."`
 	Poll    DocsCommentsPollCmd    `cmd:"" name:"poll" help:"Poll new and modified comments with persisted state"`
 	Get     DocsCommentsGetCmd     `cmd:"" name:"get" aliases:"info,show" help:"Get a comment by ID"`
-	Add     DocsCommentsAddCmd     `cmd:"" name:"add" aliases:"create,new" help:"Add a comment to a Google Doc"`
+	Add     DocsCommentsAddCmd     `cmd:"" name:"add" aliases:"create,new" help:"Add a comment to a Google Doc" mcp:"docs_add_comment,write" mcpdesc:"Add a comment to a Google Doc. Requires --allow-write."`
 	Locate  DocsCommentsLocateCmd  `cmd:"" name:"locate" help:"Resolve a comment quote to Docs API index ranges"`
 	Reply   DocsCommentsReplyCmd   `cmd:"" name:"reply" aliases:"respond" help:"Reply to a comment"`
 	Resolve DocsCommentsResolveCmd `cmd:"" name:"resolve" help:"Resolve a comment (mark as done)"`
@@ -24,9 +24,9 @@ type DocsCommentsCmd struct {
 
 // DocsCommentsListCmd lists comments on a Google Doc.
 type DocsCommentsListCmd struct {
-	DocID           string `arg:"" name:"docId" help:"Google Doc ID or URL"`
-	IncludeResolved bool   `name:"include-resolved" aliases:"resolved" help:"Include resolved comments (default: open only)"`
-	Max             int64  `name:"max" aliases:"limit" help:"Max results per page" default:"100"`
+	DocID           string `arg:"" name:"docId" help:"Google Doc ID or URL" mcp:"document_id" mcpdesc:"Google Docs document ID"`
+	IncludeResolved bool   `name:"include-resolved" aliases:"resolved" help:"Include resolved comments (default: open only)" mcp:"include_resolved" mcpdesc:"Include resolved comments"`
+	Max             int64  `name:"max" aliases:"limit" help:"Max results per page" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page            string `name:"page" aliases:"cursor" help:"Page token for pagination"`
 	All             bool   `name:"all" aliases:"all-pages" help:"Fetch all pages"`
 	FailEmpty       bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -107,9 +107,9 @@ func (c *DocsCommentsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 
 // DocsCommentsAddCmd creates a comment on a Google Doc.
 type DocsCommentsAddCmd struct {
-	DocID   string `arg:"" name:"docId" help:"Google Doc ID or URL"`
-	Content string `arg:"" name:"content" help:"Comment text"`
-	Quoted  string `name:"quoted" help:"Quoted text to attach to the comment (shown in UIs when available)"`
+	DocID   string `arg:"" name:"docId" help:"Google Doc ID or URL" mcp:"document_id" mcpdesc:"Google Docs document ID"`
+	Content string `arg:"" name:"content" help:"Comment text" mcp:"content,text" mcpdesc:"Comment content"`
+	Quoted  string `name:"quoted" help:"Quoted text to attach to the comment (shown in UIs when available)" mcp:"quoted" mcpdesc:"Optional quoted text the comment anchors to"`
 	Anchor  string `name:"anchor" help:"Anchor JSON string (advanced; editor UIs may still treat as unanchored)"`
 }
 

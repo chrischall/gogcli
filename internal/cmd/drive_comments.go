@@ -10,9 +10,9 @@ import (
 
 // DriveCommentsCmd is the parent command for comments subcommands
 type DriveCommentsCmd struct {
-	List    DriveCommentsListCmd    `cmd:"" name:"list" aliases:"ls" help:"List comments on a file"`
+	List    DriveCommentsListCmd    `cmd:"" name:"list" aliases:"ls" help:"List comments on a file" mcp:"drive_list_comments,read" mcpdesc:"List comments on a Drive file."`
 	Get     DriveCommentsGetCmd     `cmd:"" name:"get" aliases:"info,show" help:"Get a comment by ID"`
-	Create  DriveCommentsCreateCmd  `cmd:"" name:"create" aliases:"add,new" help:"Create a comment on a file"`
+	Create  DriveCommentsCreateCmd  `cmd:"" name:"create" aliases:"add,new" help:"Create a comment on a file" mcp:"drive_create_comment,write" mcpdesc:"Create a comment on a Drive file. Requires --allow-write."`
 	Update  DriveCommentsUpdateCmd  `cmd:"" name:"update" aliases:"edit,set" help:"Update a comment"`
 	Delete  DriveCommentsDeleteCmd  `cmd:"" name:"delete" aliases:"rm,del,remove" help:"Delete a comment"`
 	Reply   DriveCommentReplyCmd    `cmd:"" name:"reply" aliases:"respond" help:"Reply to a comment"`
@@ -21,12 +21,12 @@ type DriveCommentsCmd struct {
 }
 
 type DriveCommentsListCmd struct {
-	FileID        string `arg:"" name:"fileId" help:"File ID"`
-	Max           int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	FileID        string `arg:"" name:"fileId" help:"File ID" mcp:"file_id" mcpdesc:"Drive file ID"`
+	Max           int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page          string `name:"page" aliases:"cursor" help:"Page token"`
 	All           bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty     bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
-	IncludeQuoted bool   `name:"include-quoted" help:"Include the quoted content the comment is anchored to"`
+	IncludeQuoted bool   `name:"include-quoted" help:"Include the quoted content the comment is anchored to" mcp:"include_quoted" mcpdesc:"Include quoted file content"`
 	Since         string `name:"since" help:"Only return comments modified at or after this RFC3339 timestamp"`
 }
 
@@ -102,9 +102,9 @@ func (c *DriveCommentsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type DriveCommentsCreateCmd struct {
-	FileID  string `arg:"" name:"fileId" help:"File ID"`
-	Content string `arg:"" name:"content" help:"Comment text"`
-	Quoted  string `name:"quoted" help:"Text to anchor the comment to (for Google Docs)"`
+	FileID  string `arg:"" name:"fileId" help:"File ID" mcp:"file_id" mcpdesc:"Drive file ID"`
+	Content string `arg:"" name:"content" help:"Comment text" mcp:"content,text" mcpdesc:"Comment content"`
+	Quoted  string `name:"quoted" help:"Text to anchor the comment to (for Google Docs)" mcp:"quoted" mcpdesc:"Optional quoted text the comment anchors to"`
 }
 
 func (c *DriveCommentsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {

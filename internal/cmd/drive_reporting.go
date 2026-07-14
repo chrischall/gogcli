@@ -16,9 +16,9 @@ import (
 const driveDefaultPageSize = 1000
 
 type DriveTreeCmd struct {
-	Parent    string `name:"parent" help:"Folder ID to start from (default: root)"`
-	Depth     int    `name:"depth" help:"Max depth (0 = unlimited)" default:"2"`
-	Max       int    `name:"max" help:"Max items to return (0 = unlimited)" default:"0"`
+	Parent    string `name:"parent" help:"Folder ID to start from (default: root)" mcp:"parent" mcpdesc:"Parent folder ID (default: root)"`
+	Depth     int    `name:"depth" help:"Max depth (0 = unlimited)" default:"2" mcp:"depth,default=3,min=1,max=20" mcpdesc:"Maximum depth"`
+	Max       int    `name:"max" help:"Max items to return (0 = unlimited)" default:"0" mcp:"max,default=200,min=1,max=2000" mcpdesc:"Maximum entries"`
 	AllDrives bool   `name:"all-drives" help:"Include shared drives (default: true; use --no-all-drives for My Drive only)" default:"true" negatable:"_"`
 }
 

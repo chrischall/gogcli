@@ -173,7 +173,7 @@ func (c *DocsCatCmd) runWithTabs(ctx context.Context, svc *docs.Service, id stri
 }
 
 type DocsListTabsCmd struct {
-	DocID string `arg:"" name:"docId" help:"Doc ID"`
+	DocID string `arg:"" name:"docId" help:"Doc ID" mcp:"document_id" mcpdesc:"Google Docs document ID"`
 }
 
 func (c *DocsListTabsCmd) Run(ctx context.Context, flags *RootFlags) error {

@@ -25,14 +25,14 @@ const (
 )
 
 type DriveShareCmd struct {
-	FileID       string `arg:"" name:"fileId" help:"File ID"`
+	FileID       string `arg:"" name:"fileId" help:"File ID" mcp:"file_id" mcpdesc:"File ID to share"`
 	To           string `name:"to" help:"Share target: anyone|user|domain"`
 	Anyone       bool   `name:"anyone" hidden:"" help:"(deprecated) Use --to=anyone"`
-	Email        string `name:"email" help:"User email (for --to=user)"`
-	Domain       string `name:"domain" help:"Domain (for --to=domain; e.g. example.com)"`
-	Role         string `name:"role" help:"Permission: reader|writer|commenter" default:"reader"`
+	Email        string `name:"email" help:"User email (for --to=user)" mcp:"email" mcpdesc:"User or group email to share with"`
+	Domain       string `name:"domain" help:"Domain (for --to=domain; e.g. example.com)" mcp:"domain" mcpdesc:"Domain to share with"`
+	Role         string `name:"role" help:"Permission: reader|writer|commenter" default:"reader" mcp:"role,enum=reader|commenter|writer|fileOrganizer|organizer|owner" mcpdesc:"Permission role"`
 	Discoverable bool   `name:"discoverable" help:"Allow file discovery in search (anyone/domain only)"`
-	Notify       bool   `name:"notify" help:"Send Drive invitation email for user/domain shares"`
+	Notify       bool   `name:"notify" help:"Send Drive invitation email for user/domain shares" mcp:"notify" mcpdesc:"Send notification email"`
 }
 
 type driveShareTarget struct {
@@ -282,7 +282,7 @@ func (c *DriveUnshareCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type DrivePermissionsCmd struct {
-	FileID string `arg:"" name:"fileId" help:"File ID"`
+	FileID string `arg:"" name:"fileId" help:"File ID" mcp:"file_id" mcpdesc:"Drive file ID"`
 	Max    int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
 	Page   string `name:"page" aliases:"cursor" help:"Page token"`
 }

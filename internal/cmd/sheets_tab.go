@@ -12,8 +12,8 @@ import (
 )
 
 type SheetsAddTabCmd struct {
-	SpreadsheetID string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID"`
-	TabName       string `arg:"" name:"tabName" help:"Name for the new tab/sheet"`
+	SpreadsheetID string `arg:"" name:"spreadsheetId" help:"Spreadsheet ID" mcp:"spreadsheet_id" mcpdesc:"Google Sheets spreadsheet ID"`
+	TabName       string `arg:"" name:"tabName" help:"Name for the new tab/sheet" mcp:"tab_name" mcpdesc:"New tab name"`
 	Index         *int64 `name:"index" help:"Zero-based tab index for the new tab"`
 }
 

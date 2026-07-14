@@ -11,7 +11,7 @@ import (
 )
 
 type SlidesListSlidesCmd struct {
-	PresentationID string `arg:"" name:"presentationId" help:"Presentation ID"`
+	PresentationID string `arg:"" name:"presentationId" help:"Presentation ID" mcp:"presentation_id" mcpdesc:"Google Slides presentation ID"`
 }
 
 func (c *SlidesListSlidesCmd) Run(ctx context.Context, flags *RootFlags) error {

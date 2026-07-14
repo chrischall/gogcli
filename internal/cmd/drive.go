@@ -55,29 +55,29 @@ const (
 )
 
 type DriveCmd struct {
-	Ls          DriveLsCmd          `cmd:"" name:"ls" help:"List files in a folder (default: root)"`
-	Search      DriveSearchCmd      `cmd:"" name:"search" help:"Full-text search across Drive"`
-	Tree        DriveTreeCmd        `cmd:"" name:"tree" help:"Print a read-only folder tree"`
+	Ls          DriveLsCmd          `cmd:"" name:"ls" help:"List files in a folder (default: root)" mcp:"drive_list,read" mcpdesc:"List files in a Drive folder (default: root)."`
+	Search      DriveSearchCmd      `cmd:"" name:"search" help:"Full-text search across Drive" mcp:"drive_search,read" mcpdesc:"Search Google Drive files using text search or Drive query language."`
+	Tree        DriveTreeCmd        `cmd:"" name:"tree" help:"Print a read-only folder tree" mcp:"drive_tree,read" mcpdesc:"Print a read-only Drive folder tree."`
 	Du          DriveDuCmd          `cmd:"" name:"du" help:"Summarize Drive folder sizes"`
 	Inventory   DriveInventoryCmd   `cmd:"" name:"inventory" help:"Export a read-only Drive inventory"`
-	Get         DriveGetCmd         `cmd:"" name:"get" help:"Get file metadata"`
+	Get         DriveGetCmd         `cmd:"" name:"get" help:"Get file metadata" mcp:"drive_get,read" mcpdesc:"Get Google Drive file metadata by ID."`
 	Download    DriveDownloadCmd    `cmd:"" name:"download" help:"Download a file (exports Google Docs formats)"`
-	Copy        DriveCopyCmd        `cmd:"" name:"copy" help:"Copy a file"`
+	Copy        DriveCopyCmd        `cmd:"" name:"copy" help:"Copy a file" mcp:"drive_copy,write" mcpdesc:"Copy a Drive file. Requires --allow-write."`
 	Upload      DriveUploadCmd      `cmd:"" name:"upload" help:"Upload a file"`
-	Mkdir       DriveMkdirCmd       `cmd:"" name:"mkdir" help:"Create a folder"`
-	Delete      DriveDeleteCmd      `cmd:"" name:"delete" help:"Move a file to trash (use --permanent to delete forever)" aliases:"rm,del"`
-	Move        DriveMoveCmd        `cmd:"" name:"move" help:"Move a file to a different folder"`
-	Rename      DriveRenameCmd      `cmd:"" name:"rename" help:"Rename a file or folder"`
+	Mkdir       DriveMkdirCmd       `cmd:"" name:"mkdir" help:"Create a folder" mcp:"drive_create_folder,write" mcpdesc:"Create a Drive folder. Requires --allow-write."`
+	Delete      DriveDeleteCmd      `cmd:"" name:"delete" help:"Move a file to trash (use --permanent to delete forever)" aliases:"rm,del" mcp:"drive_trash,write" mcpdesc:"Move a Drive file to Trash (reversible; never permanently deletes). Requires --allow-write."`
+	Move        DriveMoveCmd        `cmd:"" name:"move" help:"Move a file to a different folder" mcp:"drive_move,write" mcpdesc:"Move a Drive file to another folder. Requires --allow-write."`
+	Rename      DriveRenameCmd      `cmd:"" name:"rename" help:"Rename a file or folder" mcp:"drive_rename,write" mcpdesc:"Rename a Drive file or folder. Requires --allow-write."`
 	Shortcut    DriveShortcutCmd    `cmd:"" name:"shortcut" aliases:"shortcuts" help:"Manage shortcuts to Drive files and folders"`
-	Share       DriveShareCmd       `cmd:"" name:"share" help:"Share a file or folder"`
+	Share       DriveShareCmd       `cmd:"" name:"share" help:"Share a file or folder" mcp:"drive_share,write" mcpdesc:"Share a Drive file or folder with a user or domain. Requires --allow-write."`
 	Unshare     DriveUnshareCmd     `cmd:"" name:"unshare" help:"Remove a permission from a file"`
-	Permissions DrivePermissionsCmd `cmd:"" name:"permissions" help:"List permissions on a file"`
+	Permissions DrivePermissionsCmd `cmd:"" name:"permissions" help:"List permissions on a file" mcp:"drive_permissions,read" mcpdesc:"List permissions on a Drive file or folder."`
 	Audit       DriveAuditCmd       `cmd:"" name:"audit" help:"Audit Drive sharing without mutation"`
 	Bulk        DriveBulkCmd        `cmd:"" name:"bulk" help:"Bulk Drive permission operations"`
 	Labels      DriveLabelsCmd      `cmd:"" name:"labels" aliases:"label" help:"Read and modify Drive labels"`
 	URL         DriveURLCmd         `cmd:"" name:"url" help:"Print web URLs for files"`
 	Comments    DriveCommentsCmd    `cmd:"" name:"comments" help:"Manage comments on files"`
-	Drives      DriveDrivesCmd      `cmd:"" name:"drives" help:"List shared drives (Team Drives)"`
+	Drives      DriveDrivesCmd      `cmd:"" name:"drives" help:"List shared drives (Team Drives)" mcp:"drive_list_drives,read" mcpdesc:"List shared drives (Team Drives)."`
 	Revisions   DriveRevisionsCmd   `cmd:"" name:"revisions" aliases:"revision" help:"List and inspect file revisions"`
 	Changes     DriveChangesCmd     `cmd:"" name:"changes" help:"Track Drive changes for sync and automation"`
 	Activity    DriveActivityCmd    `cmd:"" name:"activity" help:"Query Drive Activity audit events"`
@@ -85,28 +85,28 @@ type DriveCmd struct {
 }
 
 type DriveLsCmd struct {
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"20"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"20" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
-	Query     string `name:"query" help:"Drive query filter"`
-	Parent    string `name:"parent" help:"Folder ID to list (default: root)"`
+	Query     string `name:"query" help:"Drive query filter" mcp:"query" mcpdesc:"Optional Drive query filter"`
+	Parent    string `name:"parent" help:"Folder ID to list (default: root)" mcp:"parent" mcpdesc:"Parent folder or shared drive ID"`
 	All       bool   `name:"all" aliases:"global" help:"List all accessible files (mutually exclusive with --parent)"`
 	AllDrives bool   `name:"all-drives" help:"Include shared drives (default: true; use --no-all-drives for My Drive only)" default:"true" negatable:"_"`
 	Fields    string `name:"fields" help:"Drive API field mask (overrides the default set; e.g. 'files(id,name,thumbnailLink),nextPageToken')"`
 }
 
 type DriveSearchCmd struct {
-	Query     []string `arg:"" name:"query" help:"Search query"`
-	RawQuery  bool     `name:"raw-query" aliases:"raw" help:"Treat query as Drive query language (pass through; may error if invalid)"`
-	Max       int64    `name:"max" aliases:"limit" help:"Max results" default:"20"`
+	Query     []string `arg:"" name:"query" help:"Search query" mcp:"query" mcpdesc:"Search text or Drive query"`
+	RawQuery  bool     `name:"raw-query" aliases:"raw" help:"Treat query as Drive query language (pass through; may error if invalid)" mcp:"raw_query" mcpdesc:"Treat query as Drive query language"`
+	Max       int64    `name:"max" aliases:"limit" help:"Max results" default:"20" mcp:"max,default=20,min=1,max=100" mcpdesc:"Maximum results"`
 	Page      string   `name:"page" aliases:"cursor" help:"Page token"`
 	AllDrives bool     `name:"all-drives" help:"Include shared drives (default: true; use --no-all-drives for My Drive only)" default:"true" negatable:"_"`
 	Drive     string   `name:"drive" aliases:"drive-id" help:"Scope search to a specific shared drive (uses corpora=drive with driveId). Mutually exclusive with --no-all-drives. Pass the driveId from 'gog drive drives'."`
-	Parent    string   `name:"parent" help:"Scope search to direct children of a specific folder or shared drive. Wraps the query with \"'<parentId>' in parents\"."`
+	Parent    string   `name:"parent" help:"Scope search to direct children of a specific folder or shared drive. Wraps the query with \"'<parentId>' in parents\"." mcp:"parent" mcpdesc:"Optional parent folder/shared drive ID"`
 }
 
 type DriveGetCmd struct {
-	FileID string `arg:"" name:"fileId" help:"File ID"`
-	Fields string `name:"fields" help:"Drive API field mask (overrides the default set; e.g. 'id,name,thumbnailLink')"`
+	FileID string `arg:"" name:"fileId" help:"File ID" mcp:"file_id" mcpdesc:"Drive file ID"`
+	Fields string `name:"fields" help:"Drive API field mask (overrides the default set; e.g. 'id,name,thumbnailLink')" mcp:"fields" mcpdesc:"Optional Drive API field mask"`
 }
 
 func (c *DriveGetCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -163,9 +163,9 @@ func (c *DriveGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type DriveCopyCmd struct {
-	FileID string `arg:"" name:"fileId" help:"File ID"`
-	Name   string `arg:"" name:"name" help:"New file name"`
-	Parent string `name:"parent" help:"Destination folder ID"`
+	FileID string `arg:"" name:"fileId" help:"File ID" mcp:"file_id" mcpdesc:"Source file ID"`
+	Name   string `arg:"" name:"name" help:"New file name" mcp:"name" mcpdesc:"Name for the copy"`
+	Parent string `name:"parent" help:"Destination folder ID" mcp:"parent" mcpdesc:"Destination folder ID"`
 }
 
 func (c *DriveCopyCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -175,8 +175,8 @@ func (c *DriveCopyCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type DriveMkdirCmd struct {
-	Name   string `arg:"" name:"name" help:"Folder name"`
-	Parent string `name:"parent" help:"Parent folder ID"`
+	Name   string `arg:"" name:"name" help:"Folder name" mcp:"name" mcpdesc:"Folder name"`
+	Parent string `name:"parent" help:"Parent folder ID" mcp:"parent" mcpdesc:"Parent folder ID"`
 }
 
 func (c *DriveMkdirCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -234,7 +234,7 @@ func (c *DriveMkdirCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type DriveDeleteCmd struct {
-	FileID    string `arg:"" name:"fileId" help:"File ID"`
+	FileID    string `arg:"" name:"fileId" help:"File ID" mcp:"file_id" mcpdesc:"File ID to trash"`
 	Permanent bool   `name:"permanent" help:"Permanently delete instead of moving to trash" default:"false"`
 }
 
@@ -291,8 +291,8 @@ func (c *DriveDeleteCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type DriveMoveCmd struct {
-	FileID string `arg:"" name:"fileId" help:"File ID"`
-	Parent string `name:"parent" help:"New parent folder ID (required)"`
+	FileID string `arg:"" name:"fileId" help:"File ID" mcp:"file_id" mcpdesc:"File ID to move"`
+	Parent string `name:"parent" help:"New parent folder ID (required)" mcp:"parent,required" mcpdesc:"Destination folder ID"`
 }
 
 func (c *DriveMoveCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -354,8 +354,8 @@ func (c *DriveMoveCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type DriveRenameCmd struct {
-	FileID  string `arg:"" name:"fileId" help:"File ID"`
-	NewName string `arg:"" name:"newName" help:"New name"`
+	FileID  string `arg:"" name:"fileId" help:"File ID" mcp:"file_id" mcpdesc:"File ID"`
+	NewName string `arg:"" name:"newName" help:"New name" mcp:"new_name" mcpdesc:"New name"`
 }
 
 func (c *DriveRenameCmd) Run(ctx context.Context, flags *RootFlags) error {

@@ -11,9 +11,9 @@ import (
 )
 
 type SlidesReadSlideCmd struct {
-	PresentationID string `arg:"" name:"presentationId" help:"Presentation ID"`
-	SlideID        string `arg:"" name:"slideId" help:"Slide object ID (use 'slides list-slides' to find IDs)"`
-	Detail         bool   `name:"detail" help:"Include normalized element geometry, text runs/styles, paragraphs, and table cells"`
+	PresentationID string `arg:"" name:"presentationId" help:"Presentation ID" mcp:"presentation_id" mcpdesc:"Google Slides presentation ID"`
+	SlideID        string `arg:"" name:"slideId" help:"Slide object ID (use 'slides list-slides' to find IDs)" mcp:"slide_id" mcpdesc:"Slide object ID"`
+	Detail         bool   `name:"detail" help:"Include normalized element geometry, text runs/styles, paragraphs, and table cells" mcp:"detail" mcpdesc:"Include element-level detail"`
 }
 
 func (c *SlidesReadSlideCmd) Run(ctx context.Context, flags *RootFlags) error {

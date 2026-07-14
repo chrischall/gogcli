@@ -308,7 +308,10 @@ func TestMCPToolBuildArgsTypedOnly(t *testing.T) {
 	if strings.Contains(got, "drive delete") {
 		t.Fatalf("generic args leaked into typed tool argv: %#v", args)
 	}
-	want := []string{"sheets", "update", "--values-json", "[[1,2]]", "--input", "RAW", "--", "sheet1", "Sheet1!A1:B1"}
+	// Flags are emitted in the command struct's field-declaration order
+	// (--input precedes --values-json in SheetsUpdateCmd); ordering is not
+	// part of the tool contract.
+	want := []string{"sheets", "update", "--input", "RAW", "--values-json", "[[1,2]]", "--", "sheet1", "Sheet1!A1:B1"}
 	if strings.Join(args, "\x00") != strings.Join(want, "\x00") {
 		t.Fatalf("args = %#v, want %#v", args, want)
 	}

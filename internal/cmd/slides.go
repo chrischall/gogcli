@@ -16,18 +16,18 @@ import (
 
 type SlidesCmd struct {
 	Export             SlidesExportCmd             `cmd:"" name:"export" aliases:"download,dl" help:"Export a Google Slides deck (pdf|pptx)"`
-	Info               SlidesInfoCmd               `cmd:"" name:"info" aliases:"get,show" help:"Get Google Slides presentation metadata"`
-	Create             SlidesCreateCmd             `cmd:"" name:"create" aliases:"add,new" help:"Create a Google Slides presentation"`
-	CreateFromMarkdown SlidesCreateFromMarkdownCmd `cmd:"" name:"create-from-markdown" help:"Create a Google Slides presentation from markdown"`
+	Info               SlidesInfoCmd               `cmd:"" name:"info" aliases:"get,show" help:"Get Google Slides presentation metadata" mcp:"slides_info,read" mcpdesc:"Get Google Slides presentation metadata."`
+	Create             SlidesCreateCmd             `cmd:"" name:"create" aliases:"add,new" help:"Create a Google Slides presentation" mcp:"slides_create,write" mcpdesc:"Create a Google Slides presentation. Requires --allow-write."`
+	CreateFromMarkdown SlidesCreateFromMarkdownCmd `cmd:"" name:"create-from-markdown" help:"Create a Google Slides presentation from markdown" mcp:"slides_create_from_markdown,write" mcpdesc:"Create a Google Slides presentation from markdown content. Requires --allow-write."`
 	CreateFromTemplate SlidesCreateFromTemplateCmd `cmd:"" name:"create-from-template" help:"Create a presentation from template with text replacements"`
 	Copy               SlidesCopyCmd               `cmd:"" name:"copy" aliases:"cp,duplicate" help:"Copy a Google Slides presentation"`
 	AddSlide           SlidesAddSlideCmd           `cmd:"" name:"add-slide" help:"Add a slide with a full-bleed image and optional speaker notes"`
 	NewSlide           SlidesNewSlideCmd           `cmd:"" name:"new-slide" help:"Create a native themed slide"`
-	DuplicateSlide     SlidesDuplicateSlideCmd     `cmd:"" name:"duplicate-slide" help:"Duplicate a slide by object ID"`
+	DuplicateSlide     SlidesDuplicateSlideCmd     `cmd:"" name:"duplicate-slide" help:"Duplicate a slide by object ID" mcp:"slides_duplicate_slide,write" mcpdesc:"Duplicate a slide by object ID. Requires --allow-write."`
 	MoveSlide          SlidesMoveSlideCmd          `cmd:"" name:"move-slide" help:"Move a slide to a zero-based insertion index"`
-	ListSlides         SlidesListSlidesCmd         `cmd:"" name:"list-slides" help:"List all slides with their object IDs"`
-	DeleteSlide        SlidesDeleteSlideCmd        `cmd:"" name:"delete-slide" help:"Delete a slide by object ID"`
-	ReadSlide          SlidesReadSlideCmd          `cmd:"" name:"read-slide" help:"Read slide content: speaker notes, text elements, and images"`
+	ListSlides         SlidesListSlidesCmd         `cmd:"" name:"list-slides" help:"List all slides with their object IDs" mcp:"slides_list_slides,read" mcpdesc:"List all slides in a presentation with their object IDs."`
+	DeleteSlide        SlidesDeleteSlideCmd        `cmd:"" name:"delete-slide" help:"Delete a slide by object ID" mcp:"slides_delete_slide,write" mcpdesc:"Delete a slide by object ID. Requires --allow-write."`
+	ReadSlide          SlidesReadSlideCmd          `cmd:"" name:"read-slide" help:"Read slide content: speaker notes, text elements, and images" mcp:"slides_read_slide,read" mcpdesc:"Read a slide's text, speaker notes, and images."`
 	Locate             SlidesLocateCmd             `cmd:"" name:"locate" aliases:"find-element" help:"Locate text in shapes and table cells with object IDs and UTF-16 ranges"`
 	Thumbnail          SlidesThumbnailCmd          `cmd:"" name:"thumbnail" aliases:"thumb" help:"Get or download a rendered thumbnail for a slide"`
 	UpdateNotes        SlidesUpdateNotesCmd        `cmd:"" name:"update-notes" help:"Update speaker notes on an existing slide"`
@@ -39,7 +39,7 @@ type SlidesCmd struct {
 	StyleText          SlidesStyleTextCmd          `cmd:"" name:"style-text" help:"Apply range-scoped text styling to one page element"`
 	Link               SlidesLinkCmd               `cmd:"" name:"link" help:"Apply a hyperlink to a text range in one page element"`
 	Bullets            SlidesBulletsCmd            `cmd:"" name:"bullets" help:"Turn paragraph bullets on or off in one page element"`
-	ReplaceText        SlidesReplaceTextCmd        `cmd:"" name:"replace-text" help:"Find-and-replace text in an explicit object, slide, or presentation scope"`
+	ReplaceText        SlidesReplaceTextCmd        `cmd:"" name:"replace-text" help:"Find-and-replace text in an explicit object, slide, or presentation scope" mcp:"slides_replace_text,write" mcpdesc:"Find and replace text across a presentation. Requires --allow-write."`
 	Raw                SlidesRawCmd                `cmd:"" name:"raw" help:"Dump raw Google Slides API response as JSON (Presentations.Get; lossless; for scripting and LLM consumption)"`
 }
 
@@ -99,13 +99,13 @@ func (c *SlidesExportCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type SlidesInfoCmd struct {
-	PresentationID string `arg:"" name:"presentationId" help:"Presentation ID"`
+	PresentationID string `arg:"" name:"presentationId" help:"Presentation ID" mcp:"presentation_id" mcpdesc:"Google Slides presentation ID"`
 }
 
 type SlidesCreateCmd struct {
-	Title    string `arg:"" name:"title" help:"Presentation title"`
-	Parent   string `name:"parent" help:"Destination folder ID"`
-	Template string `name:"template" help:"Template presentation ID to copy from"`
+	Title    string `arg:"" name:"title" help:"Presentation title" mcp:"title" mcpdesc:"Presentation title"`
+	Parent   string `name:"parent" help:"Destination folder ID" mcp:"parent" mcpdesc:"Parent folder ID"`
+	Template string `name:"template" help:"Template presentation ID to copy from" mcp:"template" mcpdesc:"Template presentation ID to base on"`
 }
 
 func (c *SlidesCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -190,16 +190,16 @@ func (c *SlidesCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type SlidesCreateFromMarkdownCmd struct {
-	Title          string `arg:"" name:"title" help:"Presentation title"`
-	Content        string `name:"content" help:"Markdown content (inline)"`
+	Title          string `arg:"" name:"title" help:"Presentation title" mcp:"title" mcpdesc:"Presentation title"`
+	Content        string `name:"content" help:"Markdown content (inline)" mcp:"content,required,text" mcpdesc:"Markdown content (slides separated by ---)"`
 	ContentFile    string `name:"content-file" help:"Read markdown content from file"`
-	Parent         string `name:"parent" help:"Destination folder ID"`
+	Parent         string `name:"parent" help:"Destination folder ID" mcp:"parent" mcpdesc:"Parent folder ID"`
 	Debug          bool   `name:"debug" help:"Show debug output"`
 	FAStyle        string `name:"fa-style" help:"Default Font Awesome style when shortcode has no prefix" default:"solid"`
 	MMDC           string `name:"mmdc" help:"Path to mermaid CLI (mmdc); empty disables diagram rendering" default:"mmdc"`
 	Strict         bool   `name:"strict" help:"Treat skipped FA/diagram assets as fatal"`
 	KeepTempImages bool   `name:"keep-temp-images" help:"Don't delete temporary Drive uploads after import"`
-	NoNotes        bool   `name:"no-notes" help:"Discard ## Notes sections instead of inserting as speaker notes"`
+	NoNotes        bool   `name:"no-notes" help:"Discard ## Notes sections instead of inserting as speaker notes" mcp:"no_notes" mcpdesc:"Do not generate speaker notes"`
 }
 
 func (c *SlidesCreateFromMarkdownCmd) Run(ctx context.Context, flags *RootFlags) error {
