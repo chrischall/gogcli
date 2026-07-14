@@ -1,0 +1,5614 @@
+{
+  "admin_add_group_member": {
+    "service": "admin",
+    "risk": "write",
+    "description": "Add a member to a Workspace group (Directory API). Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "group_email": {
+          "description": "Group email address",
+          "type": "string"
+        },
+        "member_email": {
+          "description": "Member email address",
+          "type": "string"
+        },
+        "role": {
+          "description": "Membership role",
+          "enum": [
+            "MANAGER",
+            "MEMBER",
+            "OWNER"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "group_email",
+        "member_email"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "admin",
+      "groups",
+      "members",
+      "add"
+    ],
+    "flags": {
+      "--role": "x"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "admin_get_orgunit": {
+    "service": "admin",
+    "risk": "read",
+    "description": "Get organizational unit details by path (Directory API).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "description": "Org unit path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "admin",
+      "orgunits",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "admin_get_user": {
+    "service": "admin",
+    "risk": "read",
+    "description": "Get Workspace user details by email (Directory API).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "user_email": {
+          "description": "User email address",
+          "type": "string"
+        }
+      },
+      "required": [
+        "user_email"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "admin",
+      "users",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "admin_list_group_members": {
+    "service": "admin",
+    "risk": "read",
+    "description": "List members of a Workspace group (Directory API).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "group_email": {
+          "description": "Group email address",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "group_email"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "admin",
+      "groups",
+      "members",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "admin_list_groups": {
+    "service": "admin",
+    "risk": "read",
+    "description": "List Workspace groups in a domain (Directory API).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "domain": {
+          "description": "Domain to list groups for",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "admin",
+      "groups",
+      "list"
+    ],
+    "flags": {
+      "--domain": "x",
+      "--max": "1"
+    },
+    "positionals": null
+  },
+  "admin_list_orgunits": {
+    "service": "admin",
+    "risk": "read",
+    "description": "List organizational units (Directory API).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "parent": {
+          "description": "Parent org unit path",
+          "type": "string"
+        },
+        "type": {
+          "description": "Org unit type filter",
+          "enum": [
+            "all",
+            "children"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "admin",
+      "orgunits",
+      "list"
+    ],
+    "flags": {
+      "--parent": "x",
+      "--type": "x"
+    },
+    "positionals": null
+  },
+  "admin_list_users": {
+    "service": "admin",
+    "risk": "read",
+    "description": "List Workspace users in a domain (Directory API; requires domain-wide delegation).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "domain": {
+          "description": "Domain to list users for",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "admin",
+      "users",
+      "list"
+    ],
+    "flags": {
+      "--domain": "x",
+      "--max": "1"
+    },
+    "positionals": null
+  },
+  "admin_remove_group_member": {
+    "service": "admin",
+    "risk": "write",
+    "description": "Remove a member from a Workspace group (Directory API). Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "group_email": {
+          "description": "Group email address",
+          "type": "string"
+        },
+        "member_email": {
+          "description": "Member email address",
+          "type": "string"
+        }
+      },
+      "required": [
+        "group_email",
+        "member_email"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "admin",
+      "groups",
+      "members",
+      "remove"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "admin_suspend_user": {
+    "service": "admin",
+    "risk": "write",
+    "description": "Suspend a Workspace user account (Directory API; reversible via the admin console). Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "user_email": {
+          "description": "User email address",
+          "type": "string"
+        }
+      },
+      "required": [
+        "user_email"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "admin",
+      "users",
+      "suspend"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "api_call": {
+    "service": "api",
+    "risk": "write",
+    "description": "Call a Discovery-described Google API method. Requires --allow-write; set write=true to permit mutating methods.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "api": {
+          "description": "API name, e.g. drive",
+          "type": "string"
+        },
+        "body": {
+          "description": "JSON request body for write methods",
+          "type": "string"
+        },
+        "method": {
+          "description": "Method ID, e.g. drive.files.list",
+          "type": "string"
+        },
+        "params": {
+          "description": "JSON object of method parameters",
+          "type": "string"
+        },
+        "scope": {
+          "description": "Override OAuth scope",
+          "type": "string"
+        },
+        "version": {
+          "description": "API version, e.g. v3",
+          "type": "string"
+        },
+        "write": {
+          "default": false,
+          "description": "Permit mutating (non-GET) methods",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "api",
+        "method",
+        "version"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "api",
+      "call"
+    ],
+    "flags": {
+      "--allow-write": "",
+      "--body": "x",
+      "--params": "x",
+      "--scope": "x"
+    },
+    "positionals": [
+      "x",
+      "x",
+      "x"
+    ]
+  },
+  "api_describe": {
+    "service": "api",
+    "risk": "read",
+    "description": "Describe a Discovery API or one of its methods.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "api": {
+          "description": "API name, e.g. drive",
+          "type": "string"
+        },
+        "method": {
+          "description": "Optional method ID, e.g. drive.files.list",
+          "type": "string"
+        },
+        "version": {
+          "description": "API version, e.g. v3",
+          "type": "string"
+        }
+      },
+      "required": [
+        "api",
+        "version"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "api",
+      "describe"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x",
+      "x"
+    ]
+  },
+  "api_list": {
+    "service": "api",
+    "risk": "read",
+    "description": "List Google Discovery APIs.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "all": {
+          "default": false,
+          "description": "Include preview and non-preferred versions",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "api",
+      "list"
+    ],
+    "flags": {
+      "--all": ""
+    },
+    "positionals": null
+  },
+  "appscript_content": {
+    "service": "appscript",
+    "risk": "read",
+    "description": "Get Apps Script project source content by script ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "script_id": {
+          "description": "Apps Script project ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "script_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "appscript",
+      "content"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "appscript_create": {
+    "service": "appscript",
+    "risk": "write",
+    "description": "Create an Apps Script project. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "parent_id": {
+          "description": "Parent Drive file ID to bind the script to",
+          "type": "string"
+        },
+        "title": {
+          "description": "Project title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "appscript",
+      "create"
+    ],
+    "flags": {
+      "--parent-id": "x",
+      "--title": "x"
+    },
+    "positionals": null
+  },
+  "appscript_get": {
+    "service": "appscript",
+    "risk": "read",
+    "description": "Get Apps Script project metadata by script ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "script_id": {
+          "description": "Apps Script project ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "script_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "appscript",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "appscript_run": {
+    "service": "appscript",
+    "risk": "write",
+    "description": "Run a deployed Apps Script function. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "dev_mode": {
+          "default": false,
+          "description": "Run the latest saved (dev) version",
+          "type": "boolean"
+        },
+        "function": {
+          "description": "Function name to run",
+          "type": "string"
+        },
+        "params": {
+          "description": "JSON array of function parameters",
+          "type": "string"
+        },
+        "script_id": {
+          "description": "Apps Script project ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "function",
+        "script_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "appscript",
+      "run"
+    ],
+    "flags": {
+      "--dev-mode": "",
+      "--params": "x"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "calendar_create_event": {
+    "service": "calendar",
+    "risk": "write",
+    "description": "Create a calendar event. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "all_day": {
+          "default": false,
+          "description": "All-day event",
+          "type": "boolean"
+        },
+        "attendees": {
+          "description": "Comma-separated attendee emails",
+          "type": "string"
+        },
+        "calendar_id": {
+          "description": "Calendar ID",
+          "type": "string"
+        },
+        "description": {
+          "description": "Event description",
+          "type": "string"
+        },
+        "from": {
+          "description": "Start time: RFC3339, date, or relative value",
+          "type": "string"
+        },
+        "location": {
+          "description": "Event location",
+          "type": "string"
+        },
+        "summary": {
+          "description": "Event title",
+          "type": "string"
+        },
+        "to": {
+          "description": "End time: RFC3339, date, or relative value",
+          "type": "string"
+        },
+        "with_meet": {
+          "default": false,
+          "description": "Attach a Google Meet conference",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "calendar_id",
+        "summary"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "calendar",
+      "create"
+    ],
+    "flags": {
+      "--all-day": "",
+      "--attendees": "x",
+      "--description": "x",
+      "--from": "x",
+      "--location": "x",
+      "--summary": "x",
+      "--to": "x",
+      "--with-meet": ""
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "calendar_delete_event": {
+    "service": "calendar",
+    "risk": "write",
+    "description": "Delete a calendar event. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "calendar_id": {
+          "description": "Calendar ID",
+          "type": "string"
+        },
+        "event_id": {
+          "description": "Event ID",
+          "type": "string"
+        },
+        "send_updates": {
+          "description": "Notify guests",
+          "enum": [
+            "all",
+            "externalOnly",
+            "none"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "calendar_id",
+        "event_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "calendar",
+      "delete"
+    ],
+    "flags": {
+      "--send-updates": "x"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "calendar_events": {
+    "service": "calendar",
+    "risk": "read",
+    "description": "List Google Calendar events from primary or selected calendars.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "calendar_id": {
+          "description": "Calendar ID or selector; default primary",
+          "type": "string"
+        },
+        "days": {
+          "default": 0,
+          "description": "Next N days",
+          "maximum": 31,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "from": {
+          "description": "Start time: RFC3339, date, or relative value",
+          "type": "string"
+        },
+        "max": {
+          "default": 10,
+          "description": "Maximum results",
+          "maximum": 250,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "query": {
+          "description": "Free text search",
+          "type": "string"
+        },
+        "to": {
+          "description": "End time: RFC3339, date, or relative value",
+          "type": "string"
+        },
+        "today": {
+          "default": false,
+          "description": "Today only",
+          "type": "boolean"
+        },
+        "tomorrow": {
+          "default": false,
+          "description": "Tomorrow only",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "calendar",
+      "events"
+    ],
+    "flags": {
+      "--days": "1",
+      "--from": "x",
+      "--max": "1",
+      "--query": "x",
+      "--to": "x",
+      "--today": "",
+      "--tomorrow": ""
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "calendar_freebusy": {
+    "service": "calendar",
+    "risk": "read",
+    "description": "Get free/busy information for one or more calendars.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "calendar_ids": {
+          "description": "Calendar ID (or space-separated IDs)",
+          "type": "string"
+        },
+        "from": {
+          "description": "Start time: RFC3339, date, or relative value",
+          "type": "string"
+        },
+        "to": {
+          "description": "End time: RFC3339, date, or relative value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "calendar_ids"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "calendar",
+      "freebusy"
+    ],
+    "flags": {
+      "--from": "x",
+      "--to": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "calendar_get_event": {
+    "service": "calendar",
+    "risk": "read",
+    "description": "Get a single calendar event by ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "calendar_id": {
+          "description": "Calendar ID",
+          "type": "string"
+        },
+        "event_id": {
+          "description": "Event ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "calendar_id",
+        "event_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "calendar",
+      "event"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "calendar_list_calendars": {
+    "service": "calendar",
+    "risk": "read",
+    "description": "List the calendars on the account.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 250,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "calendar",
+      "calendars"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": null
+  },
+  "calendar_respond": {
+    "service": "calendar",
+    "risk": "write",
+    "description": "Respond to a calendar event invitation. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "calendar_id": {
+          "description": "Calendar ID",
+          "type": "string"
+        },
+        "comment": {
+          "description": "Optional response comment",
+          "type": "string"
+        },
+        "event_id": {
+          "description": "Event ID",
+          "type": "string"
+        },
+        "status": {
+          "description": "Response status",
+          "enum": [
+            "accepted",
+            "declined",
+            "tentative"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "calendar_id",
+        "event_id",
+        "status"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "calendar",
+      "respond"
+    ],
+    "flags": {
+      "--comment": "x",
+      "--status": "x"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "calendar_search": {
+    "service": "calendar",
+    "risk": "read",
+    "description": "Search calendar events by free text.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "calendar": {
+          "description": "Calendar ID or selector; default primary",
+          "type": "string"
+        },
+        "from": {
+          "description": "Start time: RFC3339, date, or relative value",
+          "type": "string"
+        },
+        "max": {
+          "default": 20,
+          "description": "Maximum results",
+          "maximum": 250,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "query": {
+          "description": "Free-text search query",
+          "type": "string"
+        },
+        "to": {
+          "description": "End time: RFC3339, date, or relative value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "calendar",
+      "search"
+    ],
+    "flags": {
+      "--calendar": "x",
+      "--from": "x",
+      "--max": "1",
+      "--to": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "calendar_update_event": {
+    "service": "calendar",
+    "risk": "write",
+    "description": "Update a calendar event. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "add_attendee": {
+          "description": "Attendee email to add",
+          "type": "string"
+        },
+        "calendar_id": {
+          "description": "Calendar ID",
+          "type": "string"
+        },
+        "description": {
+          "description": "New description",
+          "type": "string"
+        },
+        "event_id": {
+          "description": "Event ID",
+          "type": "string"
+        },
+        "from": {
+          "description": "New start time",
+          "type": "string"
+        },
+        "location": {
+          "description": "New location",
+          "type": "string"
+        },
+        "summary": {
+          "description": "New event title",
+          "type": "string"
+        },
+        "to": {
+          "description": "New end time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "calendar_id",
+        "event_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "calendar",
+      "update"
+    ],
+    "flags": {
+      "--add-attendee": "x",
+      "--description": "x",
+      "--from": "x",
+      "--location": "x",
+      "--summary": "x",
+      "--to": "x"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "chat_find_spaces": {
+    "service": "chat",
+    "risk": "read",
+    "description": "Find Google Chat spaces by display name.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "display_name": {
+          "description": "Space display name",
+          "type": "string"
+        },
+        "exact": {
+          "default": false,
+          "description": "Exact match only",
+          "type": "boolean"
+        },
+        "max": {
+          "default": 25,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "display_name"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "chat",
+      "spaces",
+      "find"
+    ],
+    "flags": {
+      "--exact": "",
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "chat_list_messages": {
+    "service": "chat",
+    "risk": "read",
+    "description": "List messages in a Google Chat space.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "space": {
+          "description": "Space name or ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "space"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "chat",
+      "messages",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "chat_list_spaces": {
+    "service": "chat",
+    "risk": "read",
+    "description": "List Google Chat spaces.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "chat",
+      "spaces",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": null
+  },
+  "chat_list_threads": {
+    "service": "chat",
+    "risk": "read",
+    "description": "List threads in a Google Chat space.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "space": {
+          "description": "Space name or ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "space"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "chat",
+      "threads",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "chat_send_dm": {
+    "service": "chat",
+    "risk": "write",
+    "description": "Send a Google Chat direct message to a user by email. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "description": "Recipient email",
+          "type": "string"
+        },
+        "text": {
+          "description": "Message text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "email",
+        "text"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "chat",
+      "dm",
+      "send"
+    ],
+    "flags": {
+      "--text": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "chat_send_message": {
+    "service": "chat",
+    "risk": "write",
+    "description": "Send a message to a Google Chat space. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "space": {
+          "description": "Space name or ID",
+          "type": "string"
+        },
+        "text": {
+          "description": "Message text",
+          "type": "string"
+        },
+        "thread": {
+          "description": "Thread key to reply within",
+          "type": "string"
+        }
+      },
+      "required": [
+        "space",
+        "text"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "chat",
+      "messages",
+      "send"
+    ],
+    "flags": {
+      "--text": "x",
+      "--thread": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "classroom_get_course": {
+    "service": "classroom",
+    "risk": "read",
+    "description": "Get a Google Classroom course by ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "course_id": {
+          "description": "Course ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "course_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "classroom",
+      "courses",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "classroom_get_coursework": {
+    "service": "classroom",
+    "risk": "read",
+    "description": "Get a coursework item by ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "course_id": {
+          "description": "Course ID",
+          "type": "string"
+        },
+        "coursework_id": {
+          "description": "Coursework ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "course_id",
+        "coursework_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "classroom",
+      "coursework",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "classroom_list_announcements": {
+    "service": "classroom",
+    "risk": "read",
+    "description": "List announcements for a course.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "course_id": {
+          "description": "Course ID",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "course_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "classroom",
+      "announcements",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "classroom_list_courses": {
+    "service": "classroom",
+    "risk": "read",
+    "description": "List Google Classroom courses.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "state": {
+          "description": "Course state filter",
+          "enum": [
+            "ACTIVE",
+            "ARCHIVED",
+            "DECLINED",
+            "PROVISIONED",
+            "SUSPENDED"
+          ],
+          "type": "string"
+        },
+        "student": {
+          "description": "Filter by student (email or ID)",
+          "type": "string"
+        },
+        "teacher": {
+          "description": "Filter by teacher (email or ID)",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "classroom",
+      "courses",
+      "list"
+    ],
+    "flags": {
+      "--max": "1",
+      "--state": "x",
+      "--student": "x",
+      "--teacher": "x"
+    },
+    "positionals": null
+  },
+  "classroom_list_coursework": {
+    "service": "classroom",
+    "risk": "read",
+    "description": "List coursework for a Google Classroom course.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "course_id": {
+          "description": "Course ID",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "state": {
+          "description": "Coursework state filter",
+          "type": "string"
+        }
+      },
+      "required": [
+        "course_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "classroom",
+      "coursework",
+      "list"
+    ],
+    "flags": {
+      "--max": "1",
+      "--state": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "classroom_list_students": {
+    "service": "classroom",
+    "risk": "read",
+    "description": "List students enrolled in a course.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "course_id": {
+          "description": "Course ID",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "course_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "classroom",
+      "students",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "classroom_list_submissions": {
+    "service": "classroom",
+    "risk": "read",
+    "description": "List student submissions for a coursework item.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "course_id": {
+          "description": "Course ID",
+          "type": "string"
+        },
+        "coursework_id": {
+          "description": "Coursework ID",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "state": {
+          "description": "Submission state filter",
+          "type": "string"
+        },
+        "user": {
+          "description": "Filter by student (email or ID)",
+          "type": "string"
+        }
+      },
+      "required": [
+        "course_id",
+        "coursework_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "classroom",
+      "submissions",
+      "list"
+    ],
+    "flags": {
+      "--max": "1",
+      "--state": "x",
+      "--user": "x"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "classroom_list_teachers": {
+    "service": "classroom",
+    "risk": "read",
+    "description": "List teachers for a course.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "course_id": {
+          "description": "Course ID",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "course_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "classroom",
+      "teachers",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "classroom_list_topics": {
+    "service": "classroom",
+    "risk": "read",
+    "description": "List topics for a course.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "course_id": {
+          "description": "Course ID",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "course_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "classroom",
+      "topics",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "classroom_roster": {
+    "service": "classroom",
+    "risk": "read",
+    "description": "Get a course roster (students and teachers).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "course_id": {
+          "description": "Course ID",
+          "type": "string"
+        },
+        "max": {
+          "default": 100,
+          "description": "Maximum results",
+          "maximum": 400,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "course_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "classroom",
+      "roster"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "contacts_create": {
+    "service": "contacts",
+    "risk": "write",
+    "description": "Create a contact. Provide at least a name or email. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "description": "Email address",
+          "type": "string"
+        },
+        "family": {
+          "description": "Family (last) name",
+          "type": "string"
+        },
+        "given": {
+          "description": "Given (first) name",
+          "type": "string"
+        },
+        "note": {
+          "description": "Note",
+          "type": "string"
+        },
+        "org": {
+          "description": "Organization",
+          "type": "string"
+        },
+        "phone": {
+          "description": "Phone number",
+          "type": "string"
+        },
+        "title": {
+          "description": "Job title",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "contacts",
+      "create"
+    ],
+    "flags": {
+      "--email": "x",
+      "--family": "x",
+      "--given": "x",
+      "--note": "x",
+      "--org": "x",
+      "--phone": "x",
+      "--title": "x"
+    },
+    "positionals": null
+  },
+  "contacts_delete": {
+    "service": "contacts",
+    "risk": "write",
+    "description": "Delete a contact by resource name. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "resource_name": {
+          "description": "Contact resource name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource_name"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "contacts",
+      "delete"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "contacts_directory_search": {
+    "service": "contacts",
+    "risk": "read",
+    "description": "Search people in the Workspace directory.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 25,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "query": {
+          "description": "Search query",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "contacts",
+      "directory",
+      "search"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "contacts_get": {
+    "service": "contacts",
+    "risk": "read",
+    "description": "Get a contact by resource name (e.g. people/c123).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "resource_name": {
+          "description": "Contact resource name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource_name"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "contacts",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "contacts_list": {
+    "service": "contacts",
+    "risk": "read",
+    "description": "List the account's contacts.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "contacts",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": null
+  },
+  "contacts_search": {
+    "service": "contacts",
+    "risk": "read",
+    "description": "Search contacts by name, email, or phone.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 25,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "query": {
+          "description": "Search query",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "contacts",
+      "search"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "contacts_update": {
+    "service": "contacts",
+    "risk": "write",
+    "description": "Update a contact by resource name. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "description": "Email address",
+          "type": "string"
+        },
+        "family": {
+          "description": "Family (last) name",
+          "type": "string"
+        },
+        "given": {
+          "description": "Given (first) name",
+          "type": "string"
+        },
+        "org": {
+          "description": "Organization",
+          "type": "string"
+        },
+        "phone": {
+          "description": "Phone number",
+          "type": "string"
+        },
+        "resource_name": {
+          "description": "Contact resource name",
+          "type": "string"
+        },
+        "title": {
+          "description": "Job title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource_name"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "contacts",
+      "update"
+    ],
+    "flags": {
+      "--email": "x",
+      "--family": "x",
+      "--given": "x",
+      "--org": "x",
+      "--phone": "x",
+      "--title": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "docs_add_comment": {
+    "service": "docs",
+    "risk": "write",
+    "description": "Add a comment to a Google Doc. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "description": "Comment content",
+          "type": "string"
+        },
+        "document_id": {
+          "description": "Google Docs document ID",
+          "type": "string"
+        },
+        "quoted": {
+          "description": "Optional quoted text the comment anchors to",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content",
+        "document_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "docs",
+      "comments",
+      "add"
+    ],
+    "flags": {
+      "--quoted": "x"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "docs_create": {
+    "service": "docs",
+    "risk": "write",
+    "description": "Create a new Google Doc. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "parent": {
+          "description": "Parent folder ID",
+          "type": "string"
+        },
+        "title": {
+          "description": "Document title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "docs",
+      "create"
+    ],
+    "flags": {
+      "--parent": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "docs_find_replace": {
+    "service": "docs",
+    "risk": "write",
+    "description": "Find and replace text in a Google Doc. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "document_id": {
+          "description": "Google Docs document ID",
+          "type": "string"
+        },
+        "find": {
+          "description": "Text to find",
+          "type": "string"
+        },
+        "first": {
+          "default": false,
+          "description": "Replace only the first occurrence",
+          "type": "boolean"
+        },
+        "match_case": {
+          "default": false,
+          "description": "Case-sensitive match",
+          "type": "boolean"
+        },
+        "replace": {
+          "description": "Replacement text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "document_id",
+        "find",
+        "replace"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "docs",
+      "find-replace"
+    ],
+    "flags": {
+      "--first": "",
+      "--match-case": ""
+    },
+    "positionals": [
+      "x",
+      "x",
+      "x"
+    ]
+  },
+  "docs_get": {
+    "service": "docs",
+    "risk": "read",
+    "description": "Read a Google Doc as wrapped text, all tabs, or one tab.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "all_tabs": {
+          "default": false,
+          "description": "Read all tabs",
+          "type": "boolean"
+        },
+        "document_id": {
+          "description": "Google Docs document ID",
+          "type": "string"
+        },
+        "max_bytes": {
+          "default": 2000000,
+          "description": "Maximum text bytes, 0 for unlimited",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tab": {
+          "description": "Optional tab title or ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "document_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "docs",
+      "cat"
+    ],
+    "flags": {
+      "--max-bytes": "1",
+      "--tab": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "docs_info": {
+    "service": "docs",
+    "risk": "read",
+    "description": "Get Google Doc metadata (title, revision, tabs).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "document_id": {
+          "description": "Google Docs document ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "document_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "docs",
+      "info"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "docs_list_comments": {
+    "service": "docs",
+    "risk": "read",
+    "description": "List comments on a Google Doc.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "document_id": {
+          "description": "Google Docs document ID",
+          "type": "string"
+        },
+        "include_resolved": {
+          "default": false,
+          "description": "Include resolved comments",
+          "type": "boolean"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "document_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "docs",
+      "comments",
+      "list"
+    ],
+    "flags": {
+      "--include-resolved": "",
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "docs_list_tabs": {
+    "service": "docs",
+    "risk": "read",
+    "description": "List all tabs in a Google Doc with their IDs.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "document_id": {
+          "description": "Google Docs document ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "document_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "docs",
+      "list-tabs"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "docs_write": {
+    "service": "docs",
+    "risk": "write",
+    "description": "Write text to a Google Doc. Requires --allow-write on the MCP server.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "append": {
+          "default": true,
+          "description": "Append instead of replacing",
+          "type": "boolean"
+        },
+        "document_id": {
+          "description": "Google Docs document ID",
+          "type": "string"
+        },
+        "markdown": {
+          "default": false,
+          "description": "Convert markdown to Docs formatting",
+          "type": "boolean"
+        },
+        "replace": {
+          "default": false,
+          "description": "Replace all existing content",
+          "type": "boolean"
+        },
+        "tab": {
+          "description": "Optional tab title or ID",
+          "type": "string"
+        },
+        "text": {
+          "description": "Text or markdown to write",
+          "type": "string"
+        }
+      },
+      "required": [
+        "document_id",
+        "text"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "docs",
+      "write"
+    ],
+    "flags": {
+      "--append": "",
+      "--markdown": "",
+      "--tab": "x",
+      "--text": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "drive_copy": {
+    "service": "drive",
+    "risk": "write",
+    "description": "Copy a Drive file. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "file_id": {
+          "description": "Source file ID",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name for the copy",
+          "type": "string"
+        },
+        "parent": {
+          "description": "Destination folder ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_id",
+        "name"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "copy"
+    ],
+    "flags": {
+      "--parent": "x"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "drive_create_comment": {
+    "service": "drive",
+    "risk": "write",
+    "description": "Create a comment on a Drive file. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "description": "Comment content",
+          "type": "string"
+        },
+        "file_id": {
+          "description": "Drive file ID",
+          "type": "string"
+        },
+        "quoted": {
+          "description": "Optional quoted text the comment anchors to",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content",
+        "file_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "comments",
+      "create"
+    ],
+    "flags": {
+      "--quoted": "x"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "drive_create_folder": {
+    "service": "drive",
+    "risk": "write",
+    "description": "Create a Drive folder. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "Folder name",
+          "type": "string"
+        },
+        "parent": {
+          "description": "Parent folder ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "mkdir"
+    ],
+    "flags": {
+      "--parent": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "drive_get": {
+    "service": "drive",
+    "risk": "read",
+    "description": "Get Google Drive file metadata by ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "fields": {
+          "description": "Optional Drive API field mask",
+          "type": "string"
+        },
+        "file_id": {
+          "description": "Drive file ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "get"
+    ],
+    "flags": {
+      "--fields": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "drive_list": {
+    "service": "drive",
+    "risk": "read",
+    "description": "List files in a Drive folder (default: root).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "parent": {
+          "description": "Parent folder or shared drive ID",
+          "type": "string"
+        },
+        "query": {
+          "description": "Optional Drive query filter",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "ls"
+    ],
+    "flags": {
+      "--max": "1",
+      "--parent": "x",
+      "--query": "x"
+    },
+    "positionals": null
+  },
+  "drive_list_comments": {
+    "service": "drive",
+    "risk": "read",
+    "description": "List comments on a Drive file.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "file_id": {
+          "description": "Drive file ID",
+          "type": "string"
+        },
+        "include_quoted": {
+          "default": false,
+          "description": "Include quoted file content",
+          "type": "boolean"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "file_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "comments",
+      "list"
+    ],
+    "flags": {
+      "--include-quoted": "",
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "drive_list_drives": {
+    "service": "drive",
+    "risk": "read",
+    "description": "List shared drives (Team Drives).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "query": {
+          "description": "Optional name filter",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "drives"
+    ],
+    "flags": {
+      "--max": "1",
+      "--query": "x"
+    },
+    "positionals": null
+  },
+  "drive_list_revisions": {
+    "service": "drive",
+    "risk": "read",
+    "description": "List revisions for a Drive file.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "file_id": {
+          "description": "Drive file ID",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "file_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "revisions",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "drive_move": {
+    "service": "drive",
+    "risk": "write",
+    "description": "Move a Drive file to another folder. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "file_id": {
+          "description": "File ID to move",
+          "type": "string"
+        },
+        "parent": {
+          "description": "Destination folder ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_id",
+        "parent"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "move"
+    ],
+    "flags": {
+      "--parent": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "drive_permissions": {
+    "service": "drive",
+    "risk": "read",
+    "description": "List permissions on a Drive file or folder.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "file_id": {
+          "description": "Drive file ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "permissions"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "drive_rename": {
+    "service": "drive",
+    "risk": "write",
+    "description": "Rename a Drive file or folder. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "file_id": {
+          "description": "File ID",
+          "type": "string"
+        },
+        "new_name": {
+          "description": "New name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_id",
+        "new_name"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "rename"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "drive_search": {
+    "service": "drive",
+    "risk": "read",
+    "description": "Search Google Drive files using text search or Drive query language.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 20,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "parent": {
+          "description": "Optional parent folder/shared drive ID",
+          "type": "string"
+        },
+        "query": {
+          "description": "Search text or Drive query",
+          "type": "string"
+        },
+        "raw_query": {
+          "default": false,
+          "description": "Treat query as Drive query language",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "search"
+    ],
+    "flags": {
+      "--max": "1",
+      "--parent": "x",
+      "--raw-query": ""
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "drive_share": {
+    "service": "drive",
+    "risk": "write",
+    "description": "Share a Drive file or folder with a user or domain. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "domain": {
+          "description": "Domain to share with",
+          "type": "string"
+        },
+        "email": {
+          "description": "User or group email to share with",
+          "type": "string"
+        },
+        "file_id": {
+          "description": "File ID to share",
+          "type": "string"
+        },
+        "notify": {
+          "default": false,
+          "description": "Send notification email",
+          "type": "boolean"
+        },
+        "role": {
+          "description": "Permission role",
+          "enum": [
+            "commenter",
+            "fileOrganizer",
+            "organizer",
+            "owner",
+            "reader",
+            "writer"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "share"
+    ],
+    "flags": {
+      "--domain": "x",
+      "--email": "x",
+      "--notify": "",
+      "--role": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "drive_trash": {
+    "service": "drive",
+    "risk": "write",
+    "description": "Move a Drive file to Trash (reversible; never permanently deletes). Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "file_id": {
+          "description": "File ID to trash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "delete"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "drive_tree": {
+    "service": "drive",
+    "risk": "read",
+    "description": "Print a read-only Drive folder tree.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "depth": {
+          "default": 3,
+          "description": "Maximum depth",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max": {
+          "default": 200,
+          "description": "Maximum entries",
+          "maximum": 2000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "parent": {
+          "description": "Parent folder ID (default: root)",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "drive",
+      "tree"
+    ],
+    "flags": {
+      "--depth": "1",
+      "--max": "1",
+      "--parent": "x"
+    },
+    "positionals": null
+  },
+  "forms_add_question": {
+    "service": "forms",
+    "risk": "write",
+    "description": "Add a question to a Google Form. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "form_id": {
+          "description": "Form ID",
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "description": "Mark the question required",
+          "type": "boolean"
+        },
+        "title": {
+          "description": "Question title",
+          "type": "string"
+        },
+        "type": {
+          "description": "Question type",
+          "enum": [
+            "checkbox",
+            "choice",
+            "date",
+            "dropdown",
+            "paragraph",
+            "scale",
+            "text",
+            "time"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "form_id",
+        "title"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "forms",
+      "questions",
+      "add"
+    ],
+    "flags": {
+      "--required": "",
+      "--title": "x",
+      "--type": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "forms_create": {
+    "service": "forms",
+    "risk": "write",
+    "description": "Create a Google Form. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "description": "Form description",
+          "type": "string"
+        },
+        "title": {
+          "description": "Form title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "forms",
+      "create"
+    ],
+    "flags": {
+      "--description": "x",
+      "--title": "x"
+    },
+    "positionals": null
+  },
+  "forms_get": {
+    "service": "forms",
+    "risk": "read",
+    "description": "Get a Google Form definition.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "form_id": {
+          "description": "Form ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "form_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "forms",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "forms_get_response": {
+    "service": "forms",
+    "risk": "read",
+    "description": "Get a single Google Form response by ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "form_id": {
+          "description": "Form ID",
+          "type": "string"
+        },
+        "response_id": {
+          "description": "Response ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "form_id",
+        "response_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "forms",
+      "responses",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "forms_list_responses": {
+    "service": "forms",
+    "risk": "read",
+    "description": "List responses to a Google Form.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "filter": {
+          "description": "Optional response filter",
+          "type": "string"
+        },
+        "form_id": {
+          "description": "Form ID",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "form_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "forms",
+      "responses",
+      "list"
+    ],
+    "flags": {
+      "--filter": "x",
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "forms_update": {
+    "service": "forms",
+    "risk": "write",
+    "description": "Update a Google Form's title or description. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "description": "New description",
+          "type": "string"
+        },
+        "form_id": {
+          "description": "Form ID",
+          "type": "string"
+        },
+        "title": {
+          "description": "New title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "form_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "forms",
+      "update"
+    ],
+    "flags": {
+      "--description": "x",
+      "--title": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_create_draft": {
+    "service": "gmail",
+    "risk": "write",
+    "description": "Create a Gmail draft. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "bcc": {
+          "description": "Bcc address(es)",
+          "type": "string"
+        },
+        "body": {
+          "description": "Plain-text body",
+          "type": "string"
+        },
+        "cc": {
+          "description": "Cc address(es)",
+          "type": "string"
+        },
+        "subject": {
+          "description": "Subject line",
+          "type": "string"
+        },
+        "thread_id": {
+          "description": "Thread ID to draft within",
+          "type": "string"
+        },
+        "to": {
+          "description": "Recipient address(es)",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "drafts",
+      "create"
+    ],
+    "flags": {
+      "--bcc": "x",
+      "--body": "x",
+      "--cc": "x",
+      "--subject": "x",
+      "--thread-id": "x",
+      "--to": "x"
+    },
+    "positionals": null
+  },
+  "gmail_create_label": {
+    "service": "gmail",
+    "risk": "write",
+    "description": "Create a new Gmail label. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "Label name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "labels",
+      "create"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_forward": {
+    "service": "gmail",
+    "risk": "write",
+    "description": "Forward a Gmail message. Requires --allow-write; also blocked by --gmail-no-send.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "cc": {
+          "description": "Cc address(es)",
+          "type": "string"
+        },
+        "message_id": {
+          "description": "Message ID to forward",
+          "type": "string"
+        },
+        "note": {
+          "description": "Optional note prepended to the forward",
+          "type": "string"
+        },
+        "to": {
+          "description": "Recipient address(es)",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message_id",
+        "to"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "forward"
+    ],
+    "flags": {
+      "--cc": "x",
+      "--note": "x",
+      "--to": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_get_draft": {
+    "service": "gmail",
+    "risk": "read",
+    "description": "Get one Gmail draft by ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "draft_id": {
+          "description": "Gmail draft ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "draft_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "drafts",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_get_label": {
+    "service": "gmail",
+    "risk": "read",
+    "description": "Get one Gmail label (including message counts) by ID or name.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "description": "Label ID or name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "labels",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_get_message": {
+    "service": "gmail",
+    "risk": "read",
+    "description": "Get one Gmail message by ID. Sanitized content is enabled by default.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "message_id": {
+          "description": "Gmail message ID",
+          "type": "string"
+        },
+        "sanitize_content": {
+          "default": true,
+          "description": "Strip URLs/HTML and omit raw payloads",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "message_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "get"
+    ],
+    "flags": {
+      "--sanitize-content": ""
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_get_thread": {
+    "service": "gmail",
+    "risk": "read",
+    "description": "Get one Gmail thread by ID. Sanitized content is enabled by default.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "full": {
+          "default": false,
+          "description": "Include full message bodies",
+          "type": "boolean"
+        },
+        "sanitize_content": {
+          "default": true,
+          "description": "Strip URLs/HTML and omit raw payloads",
+          "type": "boolean"
+        },
+        "thread_id": {
+          "description": "Gmail thread ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "thread_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "thread",
+      "get"
+    ],
+    "flags": {
+      "--full": "",
+      "--sanitize-content": ""
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_history": {
+    "service": "gmail",
+    "risk": "read",
+    "description": "List Gmail history (mailbox changes) since a history ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "since": {
+          "description": "Start history ID",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "history"
+    ],
+    "flags": {
+      "--max": "1",
+      "--since": "x"
+    },
+    "positionals": null
+  },
+  "gmail_list_drafts": {
+    "service": "gmail",
+    "risk": "read",
+    "description": "List Gmail drafts.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 20,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "drafts",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": null
+  },
+  "gmail_list_labels": {
+    "service": "gmail",
+    "risk": "read",
+    "description": "List Gmail labels with their IDs.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {},
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "labels",
+      "list"
+    ],
+    "flags": {},
+    "positionals": null
+  },
+  "gmail_modify_message": {
+    "service": "gmail",
+    "risk": "write",
+    "description": "Add and/or remove labels on a single Gmail message. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "add": {
+          "description": "Comma-separated labels to add",
+          "type": "string"
+        },
+        "message_id": {
+          "description": "Message ID",
+          "type": "string"
+        },
+        "remove": {
+          "description": "Comma-separated labels to remove",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "messages",
+      "modify"
+    ],
+    "flags": {
+      "--add": "x",
+      "--remove": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_modify_thread": {
+    "service": "gmail",
+    "risk": "write",
+    "description": "Add and/or remove labels on a Gmail thread. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "add": {
+          "description": "Comma-separated labels to add",
+          "type": "string"
+        },
+        "remove": {
+          "description": "Comma-separated labels to remove",
+          "type": "string"
+        },
+        "thread_id": {
+          "description": "Thread ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "thread_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "labels",
+      "modify"
+    ],
+    "flags": {
+      "--add": "x",
+      "--remove": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_reply": {
+    "service": "gmail",
+    "risk": "write",
+    "description": "Reply to a Gmail message. Requires --allow-write; also blocked by --gmail-no-send.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "body": {
+          "description": "Reply body",
+          "type": "string"
+        },
+        "from": {
+          "description": "Send-as address",
+          "type": "string"
+        },
+        "message_id": {
+          "description": "Message ID to reply to",
+          "type": "string"
+        },
+        "reply_all": {
+          "default": false,
+          "description": "Reply to all participants",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "body",
+        "message_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "reply-all"
+    ],
+    "flags": {
+      "--body": "x",
+      "--from": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_search": {
+    "service": "gmail",
+    "risk": "read",
+    "description": "Search Gmail messages with Gmail query syntax. Returns message summaries and optional sanitized bodies.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "include_body": {
+          "default": false,
+          "description": "Include decoded message body",
+          "type": "boolean"
+        },
+        "max": {
+          "default": 10,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "query": {
+          "description": "Gmail search query, e.g. newer_than:7d from:person@example.com",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "messages",
+      "search"
+    ],
+    "flags": {
+      "--include-body": "",
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_search_threads": {
+    "service": "gmail",
+    "risk": "read",
+    "description": "Search Gmail threads with Gmail query syntax. Returns thread summaries.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 10,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "oldest": {
+          "default": false,
+          "description": "Sort oldest first",
+          "type": "boolean"
+        },
+        "query": {
+          "description": "Gmail search query, e.g. newer_than:7d from:person@example.com",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "search"
+    ],
+    "flags": {
+      "--max": "1",
+      "--oldest": ""
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_send": {
+    "service": "gmail",
+    "risk": "write",
+    "description": "Send an email. Requires --allow-write; also blocked by --gmail-no-send.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "bcc": {
+          "description": "Bcc address(es)",
+          "type": "string"
+        },
+        "body": {
+          "description": "Plain-text body",
+          "type": "string"
+        },
+        "cc": {
+          "description": "Cc address(es)",
+          "type": "string"
+        },
+        "from": {
+          "description": "Send-as address",
+          "type": "string"
+        },
+        "subject": {
+          "description": "Subject line",
+          "type": "string"
+        },
+        "thread_id": {
+          "description": "Thread ID to reply within",
+          "type": "string"
+        },
+        "to": {
+          "description": "Recipient address(es), comma-separated",
+          "type": "string"
+        }
+      },
+      "required": [
+        "body",
+        "subject",
+        "to"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "send"
+    ],
+    "flags": {
+      "--bcc": "x",
+      "--body": "x",
+      "--cc": "x",
+      "--from": "x",
+      "--subject": "x",
+      "--thread-id": "x",
+      "--to": "x"
+    },
+    "positionals": null
+  },
+  "gmail_send_draft": {
+    "service": "gmail",
+    "risk": "write",
+    "description": "Send an existing Gmail draft. Requires --allow-write; also blocked by --gmail-no-send.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "draft_id": {
+          "description": "Draft ID to send",
+          "type": "string"
+        }
+      },
+      "required": [
+        "draft_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "drafts",
+      "send"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "gmail_trash": {
+    "service": "gmail",
+    "risk": "write",
+    "description": "Move a Gmail message to Trash (reversible). Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "message_id": {
+          "description": "Message ID to trash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "gmail",
+      "trash"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "groups_list": {
+    "service": "groups",
+    "risk": "read",
+    "description": "List Cloud Identity groups you belong to.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "groups",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": null
+  },
+  "groups_members": {
+    "service": "groups",
+    "risk": "read",
+    "description": "List members of a Cloud Identity group.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "group_email": {
+          "description": "Group email address",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "group_email"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "groups",
+      "members"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "keep_create": {
+    "service": "keep",
+    "risk": "write",
+    "description": "Create a Google Keep note. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "description": "Note body text",
+          "type": "string"
+        },
+        "title": {
+          "description": "Note title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "keep",
+      "create"
+    ],
+    "flags": {
+      "--text": "x",
+      "--title": "x"
+    },
+    "positionals": null
+  },
+  "keep_get": {
+    "service": "keep",
+    "risk": "read",
+    "description": "Get a Google Keep note by ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "note_id": {
+          "description": "Note ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "note_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "keep",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "keep_list": {
+    "service": "keep",
+    "risk": "read",
+    "description": "List Google Keep notes (Workspace only).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "filter": {
+          "description": "Optional Keep filter expression",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "keep",
+      "list"
+    ],
+    "flags": {
+      "--filter": "x",
+      "--max": "1"
+    },
+    "positionals": null
+  },
+  "keep_search": {
+    "service": "keep",
+    "risk": "read",
+    "description": "Search Google Keep notes by text.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 25,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "query": {
+          "description": "Search query",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "keep",
+      "search"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "maps_directions": {
+    "service": "maps",
+    "risk": "read",
+    "description": "Get directions between two locations.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "destination": {
+          "description": "Destination address or coordinates",
+          "type": "string"
+        },
+        "mode": {
+          "description": "Travel mode",
+          "enum": [
+            "bicycling",
+            "driving",
+            "transit",
+            "walking"
+          ],
+          "type": "string"
+        },
+        "origin": {
+          "description": "Origin address or coordinates",
+          "type": "string"
+        }
+      },
+      "required": [
+        "destination",
+        "origin"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "maps",
+      "directions"
+    ],
+    "flags": {
+      "--destination": "x",
+      "--mode": "x",
+      "--origin": "x"
+    },
+    "positionals": null
+  },
+  "maps_distance": {
+    "service": "maps",
+    "risk": "read",
+    "description": "Get a travel distance and duration matrix.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "destinations": {
+          "description": "Destination(s), pipe-separated",
+          "type": "string"
+        },
+        "mode": {
+          "description": "Travel mode",
+          "enum": [
+            "bicycling",
+            "driving",
+            "transit",
+            "walking"
+          ],
+          "type": "string"
+        },
+        "origins": {
+          "description": "Origin(s), pipe-separated",
+          "type": "string"
+        }
+      },
+      "required": [
+        "destinations",
+        "origins"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "maps",
+      "distance"
+    ],
+    "flags": {
+      "--destinations": "x",
+      "--mode": "x",
+      "--origins": "x"
+    },
+    "positionals": null
+  },
+  "maps_geocode": {
+    "service": "maps",
+    "risk": "read",
+    "description": "Convert an address to coordinates.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "address": {
+          "description": "Address to geocode",
+          "type": "string"
+        },
+        "language": {
+          "description": "Result language",
+          "type": "string"
+        },
+        "region": {
+          "description": "Region bias (ccTLD)",
+          "type": "string"
+        }
+      },
+      "required": [
+        "address"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "maps",
+      "geocode"
+    ],
+    "flags": {
+      "--language": "x",
+      "--region": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "maps_place_details": {
+    "service": "maps",
+    "risk": "read",
+    "description": "Get details for a Google Maps Place by ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "description": "Result language",
+          "type": "string"
+        },
+        "place_id": {
+          "description": "Place ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "place_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "maps",
+      "places",
+      "details"
+    ],
+    "flags": {
+      "--language": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "maps_places_search": {
+    "service": "maps",
+    "risk": "read",
+    "description": "Search Google Maps Places by text.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "description": "Result language",
+          "type": "string"
+        },
+        "query": {
+          "description": "Search text",
+          "type": "string"
+        },
+        "region": {
+          "description": "Region bias (ccTLD)",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "maps",
+      "places",
+      "search"
+    ],
+    "flags": {
+      "--language": "x",
+      "--region": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "maps_reverse_geocode": {
+    "service": "maps",
+    "risk": "read",
+    "description": "Convert coordinates to an address.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "description": "Result language",
+          "type": "string"
+        },
+        "lat": {
+          "description": "Latitude",
+          "type": "string"
+        },
+        "lng": {
+          "description": "Longitude",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lat",
+        "lng"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "maps",
+      "reverse-geocode"
+    ],
+    "flags": {
+      "--language": "x",
+      "--lat": "x",
+      "--lng": "x"
+    },
+    "positionals": null
+  },
+  "meet_create": {
+    "service": "meet",
+    "risk": "write",
+    "description": "Create a Google Meet space. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "access": {
+          "description": "Access type",
+          "enum": [
+            "OPEN",
+            "RESTRICTED",
+            "TRUSTED"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "meet",
+      "create"
+    ],
+    "flags": {
+      "--access": "x"
+    },
+    "positionals": null
+  },
+  "meet_get": {
+    "service": "meet",
+    "risk": "read",
+    "description": "Get a Google Meet space by meeting code.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "meeting_code": {
+          "description": "Meeting code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "meeting_code"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "meet",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "meet_history": {
+    "service": "meet",
+    "risk": "read",
+    "description": "List past calls for a Google Meet space.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 25,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "meeting_code": {
+          "description": "Meeting code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "meeting_code"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "meet",
+      "history"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "meet_participants": {
+    "service": "meet",
+    "risk": "read",
+    "description": "List participants from the latest Google Meet call.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "meeting_code": {
+          "description": "Meeting code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "meeting_code"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "meet",
+      "participants"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "people_get": {
+    "service": "people",
+    "risk": "read",
+    "description": "Get a user profile by ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "user_id": {
+          "description": "User ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "user_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "people",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "people_me": {
+    "service": "people",
+    "risk": "read",
+    "description": "Show the authenticated user's profile.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {},
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "people",
+      "me"
+    ],
+    "flags": {},
+    "positionals": null
+  },
+  "people_search": {
+    "service": "people",
+    "risk": "read",
+    "description": "Search the Workspace directory.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 25,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "query": {
+          "description": "Search query",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "people",
+      "search"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "photos_get": {
+    "service": "photos",
+    "risk": "read",
+    "description": "Get an app-created Google Photos media item by ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "media_item_id": {
+          "description": "Media item ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "media_item_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "photos",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "photos_list": {
+    "service": "photos",
+    "risk": "read",
+    "description": "List app-created Google Photos media items.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "photos",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": null
+  },
+  "photos_search": {
+    "service": "photos",
+    "risk": "read",
+    "description": "Search app-created Google Photos media items.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "album": {
+          "description": "Album ID to search within",
+          "type": "string"
+        },
+        "from": {
+          "description": "Start date (YYYY-MM-DD)",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "media_type": {
+          "description": "Media type filter",
+          "enum": [
+            "ALL_MEDIA",
+            "PHOTO",
+            "VIDEO"
+          ],
+          "type": "string"
+        },
+        "to": {
+          "description": "End date (YYYY-MM-DD)",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "photos",
+      "search"
+    ],
+    "flags": {
+      "--album": "x",
+      "--from": "x",
+      "--max": "1",
+      "--media-type": "x",
+      "--to": "x"
+    },
+    "positionals": null
+  },
+  "searchconsole_list_sitemaps": {
+    "service": "searchconsole",
+    "risk": "read",
+    "description": "List sitemaps for a Search Console site.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "site_url": {
+          "description": "Site URL (property)",
+          "type": "string"
+        }
+      },
+      "required": [
+        "site_url"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "searchconsole",
+      "sitemaps",
+      "list"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "searchconsole_list_sites": {
+    "service": "searchconsole",
+    "risk": "read",
+    "description": "List accessible Search Console sites.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {},
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "searchconsole",
+      "sites",
+      "list"
+    ],
+    "flags": {},
+    "positionals": null
+  },
+  "searchconsole_query": {
+    "service": "searchconsole",
+    "risk": "read",
+    "description": "Run a Search Analytics query for a site.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "dimensions": {
+          "description": "Comma-separated dimensions, e.g. query,page",
+          "type": "string"
+        },
+        "from": {
+          "description": "Start date (YYYY-MM-DD)",
+          "type": "string"
+        },
+        "max": {
+          "default": 50,
+          "description": "Maximum rows",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "site_url": {
+          "description": "Site URL (property)",
+          "type": "string"
+        },
+        "to": {
+          "description": "End date (YYYY-MM-DD)",
+          "type": "string"
+        }
+      },
+      "required": [
+        "site_url"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "searchconsole",
+      "query"
+    ],
+    "flags": {
+      "--dimensions": "x",
+      "--from": "x",
+      "--max": "1",
+      "--to": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "sheets_add_tab": {
+    "service": "sheets",
+    "risk": "write",
+    "description": "Add a new tab/sheet to a spreadsheet. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "spreadsheet_id": {
+          "description": "Google Sheets spreadsheet ID",
+          "type": "string"
+        },
+        "tab_name": {
+          "description": "New tab name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "spreadsheet_id",
+        "tab_name"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "sheets",
+      "add-tab"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "sheets_append": {
+    "service": "sheets",
+    "risk": "write",
+    "description": "Append rows to a Google Sheets range from a literal JSON 2D array. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "default": "USER_ENTERED",
+          "description": "Value input option",
+          "enum": [
+            "RAW",
+            "USER_ENTERED"
+          ],
+          "type": "string"
+        },
+        "range": {
+          "description": "A1 notation or named range",
+          "type": "string"
+        },
+        "spreadsheet_id": {
+          "description": "Google Sheets spreadsheet ID",
+          "type": "string"
+        },
+        "values_json": {
+          "description": "JSON 2D array of values",
+          "type": "string"
+        }
+      },
+      "required": [
+        "range",
+        "spreadsheet_id",
+        "values_json"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "sheets",
+      "append"
+    ],
+    "flags": {
+      "--input": "x",
+      "--values-json": "[[1]]"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "sheets_clear": {
+    "service": "sheets",
+    "risk": "write",
+    "description": "Clear values in a Google Sheets range. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "range": {
+          "description": "A1 notation or named range",
+          "type": "string"
+        },
+        "spreadsheet_id": {
+          "description": "Google Sheets spreadsheet ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "range",
+        "spreadsheet_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "sheets",
+      "clear"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "sheets_create": {
+    "service": "sheets",
+    "risk": "write",
+    "description": "Create a new spreadsheet. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "parent": {
+          "description": "Parent folder ID",
+          "type": "string"
+        },
+        "title": {
+          "description": "Spreadsheet title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "sheets",
+      "create"
+    ],
+    "flags": {
+      "--parent": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "sheets_list_named_ranges": {
+    "service": "sheets",
+    "risk": "read",
+    "description": "List named ranges in a spreadsheet.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "spreadsheet_id": {
+          "description": "Google Sheets spreadsheet ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "spreadsheet_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "sheets",
+      "named-ranges",
+      "list"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "sheets_list_tables": {
+    "service": "sheets",
+    "risk": "read",
+    "description": "List tables defined in a spreadsheet.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "spreadsheet_id": {
+          "description": "Google Sheets spreadsheet ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "spreadsheet_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "sheets",
+      "table",
+      "list"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "sheets_metadata": {
+    "service": "sheets",
+    "risk": "read",
+    "description": "Get spreadsheet metadata (sheets, titles, dimensions).",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "spreadsheet_id": {
+          "description": "Google Sheets spreadsheet ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "spreadsheet_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "sheets",
+      "metadata"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "sheets_read_range": {
+    "service": "sheets",
+    "risk": "read",
+    "description": "Read values from a Google Sheets range.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "range": {
+          "description": "A1 notation or named range",
+          "type": "string"
+        },
+        "render": {
+          "description": "Value render option",
+          "enum": [
+            "FORMATTED_VALUE",
+            "FORMULA",
+            "UNFORMATTED_VALUE"
+          ],
+          "type": "string"
+        },
+        "spreadsheet_id": {
+          "description": "Google Sheets spreadsheet ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "range",
+        "spreadsheet_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "sheets",
+      "get"
+    ],
+    "flags": {
+      "--render": "x"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "sheets_update_range": {
+    "service": "sheets",
+    "risk": "write",
+    "description": "Update values in a Google Sheets range. Requires --allow-write on the MCP server.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "default": "USER_ENTERED",
+          "description": "Value input option",
+          "enum": [
+            "RAW",
+            "USER_ENTERED"
+          ],
+          "type": "string"
+        },
+        "range": {
+          "description": "A1 notation or named range",
+          "type": "string"
+        },
+        "spreadsheet_id": {
+          "description": "Google Sheets spreadsheet ID",
+          "type": "string"
+        },
+        "values_json": {
+          "description": "JSON 2D array of values",
+          "type": "string"
+        }
+      },
+      "required": [
+        "range",
+        "spreadsheet_id",
+        "values_json"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "sheets",
+      "update"
+    ],
+    "flags": {
+      "--input": "x",
+      "--values-json": "[[1]]"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "slides_create": {
+    "service": "slides",
+    "risk": "write",
+    "description": "Create a Google Slides presentation. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "parent": {
+          "description": "Parent folder ID",
+          "type": "string"
+        },
+        "template": {
+          "description": "Template presentation ID to base on",
+          "type": "string"
+        },
+        "title": {
+          "description": "Presentation title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "slides",
+      "create"
+    ],
+    "flags": {
+      "--parent": "x",
+      "--template": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "slides_create_from_markdown": {
+    "service": "slides",
+    "risk": "write",
+    "description": "Create a Google Slides presentation from markdown content. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "description": "Markdown content (slides separated by ---)",
+          "type": "string"
+        },
+        "no_notes": {
+          "default": false,
+          "description": "Do not generate speaker notes",
+          "type": "boolean"
+        },
+        "parent": {
+          "description": "Parent folder ID",
+          "type": "string"
+        },
+        "title": {
+          "description": "Presentation title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content",
+        "title"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "slides",
+      "create-from-markdown"
+    ],
+    "flags": {
+      "--content": "x",
+      "--no-notes": "",
+      "--parent": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "slides_delete_slide": {
+    "service": "slides",
+    "risk": "write",
+    "description": "Delete a slide by object ID. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "presentation_id": {
+          "description": "Google Slides presentation ID",
+          "type": "string"
+        },
+        "slide_id": {
+          "description": "Slide object ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "presentation_id",
+        "slide_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "slides",
+      "delete-slide"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "slides_duplicate_slide": {
+    "service": "slides",
+    "risk": "write",
+    "description": "Duplicate a slide by object ID. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "presentation_id": {
+          "description": "Google Slides presentation ID",
+          "type": "string"
+        },
+        "slide_id": {
+          "description": "Slide object ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "presentation_id",
+        "slide_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "slides",
+      "duplicate-slide"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "slides_info": {
+    "service": "slides",
+    "risk": "read",
+    "description": "Get Google Slides presentation metadata.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "presentation_id": {
+          "description": "Google Slides presentation ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "presentation_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "slides",
+      "info"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "slides_list_slides": {
+    "service": "slides",
+    "risk": "read",
+    "description": "List all slides in a presentation with their object IDs.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "presentation_id": {
+          "description": "Google Slides presentation ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "presentation_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "slides",
+      "list-slides"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "slides_read_slide": {
+    "service": "slides",
+    "risk": "read",
+    "description": "Read a slide's text, speaker notes, and images.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "detail": {
+          "default": false,
+          "description": "Include element-level detail",
+          "type": "boolean"
+        },
+        "presentation_id": {
+          "description": "Google Slides presentation ID",
+          "type": "string"
+        },
+        "slide_id": {
+          "description": "Slide object ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "presentation_id",
+        "slide_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "slides",
+      "read-slide"
+    ],
+    "flags": {
+      "--detail": ""
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "slides_replace_text": {
+    "service": "slides",
+    "risk": "write",
+    "description": "Find and replace text across a presentation. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "find": {
+          "description": "Text to find",
+          "type": "string"
+        },
+        "match_case": {
+          "default": false,
+          "description": "Case-sensitive match",
+          "type": "boolean"
+        },
+        "presentation_id": {
+          "description": "Google Slides presentation ID",
+          "type": "string"
+        },
+        "replacement": {
+          "description": "Replacement text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "find",
+        "presentation_id",
+        "replacement"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "slides",
+      "replace-text"
+    ],
+    "flags": {
+      "--match-case": ""
+    },
+    "positionals": [
+      "x",
+      "x",
+      "x"
+    ]
+  },
+  "tasks_add": {
+    "service": "tasks",
+    "risk": "write",
+    "description": "Add a task to a task list. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "due": {
+          "description": "Due date (RFC3339 or date)",
+          "type": "string"
+        },
+        "notes": {
+          "description": "Task notes",
+          "type": "string"
+        },
+        "tasklist_id": {
+          "description": "Task list ID",
+          "type": "string"
+        },
+        "title": {
+          "description": "Task title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tasklist_id",
+        "title"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "tasks",
+      "add"
+    ],
+    "flags": {
+      "--due": "x",
+      "--notes": "x",
+      "--title": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "tasks_complete": {
+    "service": "tasks",
+    "risk": "write",
+    "description": "Mark a task completed. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "description": "Task ID",
+          "type": "string"
+        },
+        "tasklist_id": {
+          "description": "Task list ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "tasklist_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "tasks",
+      "done"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "tasks_create_list": {
+    "service": "tasks",
+    "risk": "write",
+    "description": "Create a new task list. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "description": "Task list title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "tasks",
+      "lists",
+      "create"
+    ],
+    "flags": {},
+    "positionals": [
+      "x"
+    ]
+  },
+  "tasks_delete": {
+    "service": "tasks",
+    "risk": "write",
+    "description": "Delete a task. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "description": "Task ID",
+          "type": "string"
+        },
+        "tasklist_id": {
+          "description": "Task list ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "tasklist_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "tasks",
+      "delete"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "tasks_get": {
+    "service": "tasks",
+    "risk": "read",
+    "description": "Get a task by ID.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "description": "Task ID",
+          "type": "string"
+        },
+        "tasklist_id": {
+          "description": "Task list ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "tasklist_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "tasks",
+      "get"
+    ],
+    "flags": {},
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "tasks_list": {
+    "service": "tasks",
+    "risk": "read",
+    "description": "List tasks in a task list.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "show_completed": {
+          "default": false,
+          "description": "Include completed tasks",
+          "type": "boolean"
+        },
+        "tasklist_id": {
+          "description": "Task list ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tasklist_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "tasks",
+      "list"
+    ],
+    "flags": {
+      "--max": "1",
+      "--show-completed": ""
+    },
+    "positionals": [
+      "x"
+    ]
+  },
+  "tasks_lists": {
+    "service": "tasks",
+    "risk": "read",
+    "description": "List the account's task lists.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 50,
+          "description": "Maximum results",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "tasks",
+      "lists",
+      "list"
+    ],
+    "flags": {
+      "--max": "1"
+    },
+    "positionals": null
+  },
+  "tasks_update": {
+    "service": "tasks",
+    "risk": "write",
+    "description": "Update a task. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "due": {
+          "description": "New due date",
+          "type": "string"
+        },
+        "notes": {
+          "description": "New notes",
+          "type": "string"
+        },
+        "status": {
+          "description": "Status",
+          "enum": [
+            "completed",
+            "needsAction"
+          ],
+          "type": "string"
+        },
+        "task_id": {
+          "description": "Task ID",
+          "type": "string"
+        },
+        "tasklist_id": {
+          "description": "Task list ID",
+          "type": "string"
+        },
+        "title": {
+          "description": "New title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "tasklist_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "tasks",
+      "update"
+    ],
+    "flags": {
+      "--due": "x",
+      "--notes": "x",
+      "--status": "x",
+      "--title": "x"
+    },
+    "positionals": [
+      "x",
+      "x"
+    ]
+  },
+  "youtube_add_to_playlist": {
+    "service": "youtube",
+    "risk": "write",
+    "description": "Add a video to a YouTube playlist. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "playlist_id": {
+          "description": "Playlist ID",
+          "type": "string"
+        },
+        "video_id": {
+          "description": "Video ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "playlist_id",
+        "video_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "youtube",
+      "playlists",
+      "add"
+    ],
+    "flags": {
+      "--playlist-id": "x",
+      "--video-id": "x"
+    },
+    "positionals": null
+  },
+  "youtube_create_playlist": {
+    "service": "youtube",
+    "risk": "write",
+    "description": "Create a YouTube playlist. Requires --allow-write.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "description": "Playlist description",
+          "type": "string"
+        },
+        "privacy": {
+          "description": "Privacy status",
+          "enum": [
+            "private",
+            "public",
+            "unlisted"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "description": "Playlist title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "youtube",
+      "playlists",
+      "create"
+    ],
+    "flags": {
+      "--description": "x",
+      "--privacy": "x",
+      "--title": "x"
+    },
+    "positionals": null
+  },
+  "youtube_list_channels": {
+    "service": "youtube",
+    "risk": "read",
+    "description": "List YouTube channels by ID or for the authenticated user.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Comma-separated channel IDs",
+          "type": "string"
+        },
+        "max": {
+          "default": 25,
+          "description": "Maximum results",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mine": {
+          "default": false,
+          "description": "List the authenticated user's channels",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "youtube",
+      "channels",
+      "list"
+    ],
+    "flags": {
+      "--id": "x",
+      "--max": "1",
+      "--mine": ""
+    },
+    "positionals": null
+  },
+  "youtube_list_comments": {
+    "service": "youtube",
+    "risk": "read",
+    "description": "List comment threads for a YouTube video or channel.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "channel_id": {
+          "description": "Channel ID",
+          "type": "string"
+        },
+        "max": {
+          "default": 25,
+          "description": "Maximum results",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "video_id": {
+          "description": "Video ID",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "youtube",
+      "comments",
+      "list"
+    ],
+    "flags": {
+      "--channel-id": "x",
+      "--max": "1",
+      "--video-id": "x"
+    },
+    "positionals": null
+  },
+  "youtube_list_playlist_items": {
+    "service": "youtube",
+    "risk": "read",
+    "description": "List the videos inside a YouTube playlist.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "default": 25,
+          "description": "Maximum results",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "playlist_id": {
+          "description": "Playlist ID",
+          "type": "string"
+        }
+      },
+      "required": [
+        "playlist_id"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "youtube",
+      "playlists",
+      "items",
+      "list"
+    ],
+    "flags": {
+      "--max": "1",
+      "--playlist-id": "x"
+    },
+    "positionals": null
+  },
+  "youtube_list_playlists": {
+    "service": "youtube",
+    "risk": "read",
+    "description": "List YouTube playlists by channel or for the authenticated user.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "channel_id": {
+          "description": "Channel ID",
+          "type": "string"
+        },
+        "max": {
+          "default": 25,
+          "description": "Maximum results",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mine": {
+          "default": false,
+          "description": "List the authenticated user's playlists",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "youtube",
+      "playlists",
+      "list"
+    ],
+    "flags": {
+      "--channel-id": "x",
+      "--max": "1",
+      "--mine": ""
+    },
+    "positionals": null
+  },
+  "youtube_list_videos": {
+    "service": "youtube",
+    "risk": "read",
+    "description": "List YouTube videos by ID or chart.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "chart": {
+          "description": "Video chart",
+          "enum": [
+            "mostPopular"
+          ],
+          "type": "string"
+        },
+        "id": {
+          "description": "Comma-separated video IDs",
+          "type": "string"
+        },
+        "max": {
+          "default": 25,
+          "description": "Maximum results",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "region": {
+          "description": "Region code for charts",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "path": [
+      "youtube",
+      "videos",
+      "list"
+    ],
+    "flags": {
+      "--chart": "x",
+      "--id": "x",
+      "--max": "1",
+      "--region": "x"
+    },
+    "positionals": null
+  },
+  "youtube_search": {
+    "service": "youtube",
+    "risk": "read",
+    "description": "Search YouTube for videos, channels, or playlists.",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "channel_id": {
+          "description": "Restrict to a channel ID",
+          "type": "string"
+        },
+        "max": {
+          "default": 25,
+          "description": "Maximum results",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "order": {
+          "description": "Result order",
+          "enum": [
+            "date",
+            "rating",
+            "relevance",
+            "title",
+            "viewCount"
+          ],
+          "type": "string"
+        },
+        "query": {
+          "description": "Search query",
+          "type": "string"
+        },
+        "type": {
+          "description": "Result type",
+          "enum": [
+            "channel",
+            "playlist",
+            "video"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "path": [
+      "youtube",
+      "search",
+      "list"
+    ],
+    "flags": {
+      "--channel-id": "x",
+      "--max": "1",
+      "--order": "x",
+      "--type": "x"
+    },
+    "positionals": [
+      "x"
+    ]
+  }
+}
