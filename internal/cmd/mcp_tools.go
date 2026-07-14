@@ -10,10 +10,10 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
-// mcpAllTools returns every typed MCP tool, grouped by service area. Each area
-// contributes its own slice so the surface stays "gated by area": --allow-tool
-// selectors such as gmail, drive.*, or calendar map directly onto these groups,
-// and --allow-write hides the write tools within each area until requested.
+// mcpAllTools returns the full typed MCP tool surface: specs generated from
+// mcp/mcpdesc annotations on the command grammar (mcp_gen.go) plus the few
+// hand-written specs in mcp_tools_custom.go. --allow-tool selectors (gmail,
+// drive.*, ...) map onto each spec's Service; --allow-write gates Risk.
 func mcpAllTools() []mcpToolSpec {
 	generated, err := mcpGeneratedTools()
 	if err != nil {
@@ -21,15 +21,7 @@ func mcpAllTools() []mcpToolSpec {
 		// grammar must never serve a partial tool surface.
 		panic(fmt.Sprintf("invalid mcp annotations: %v", err))
 	}
-	groups := [][]mcpToolSpec{
-		mcpCustomTools(),
-		generated,
-	}
-	var all []mcpToolSpec
-	for _, group := range groups {
-		all = append(all, group...)
-	}
-	return all
+	return append(append([]mcpToolSpec(nil), mcpCustomTools()...), generated...)
 }
 
 // mcpArgs is a small fluent helper for assembling a child gog command's argv

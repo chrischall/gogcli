@@ -250,6 +250,12 @@ MCP clients discover the registered surface through the protocol's standard
 `tools/list` request. For shell-side inspection before starting the server, use
 `gog mcp --list-tools`; no model-callable discovery tool is added.
 
+Tool definitions are generated from annotations on the CLI command grammar, so
+each tool's schema (types, defaults, enums, bounds) cannot drift from the
+command it invokes. A handful of tools with cross-field rules remain
+hand-written. The registered surface is unchanged by this mechanism; it remains
+fixed, typed, and allowlisted as described above.
+
 ## Client configuration
 
 MCP clients usually need a command and an argument list. Put account selection

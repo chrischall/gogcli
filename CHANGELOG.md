@@ -4,6 +4,7 @@
 
 - Gmail: enforce per-account no-send guards before dry-run exits for first-class and Discovery send paths while preserving no-guard keyring avoidance. (#915, #916) — thanks @veteranbv.
 - MCP: add optional global and per-account capability ceilings in `config.json`, with narrow persistent write authorization, runtime-only restriction, and fail-closed selector validation. (#913) — thanks @mcaldas.
+- MCP: tool specs are now generated from command-grammar annotations (identical tool surface, verified by golden snapshot).
 
 ## 0.34.0 - 2026-07-11
 
