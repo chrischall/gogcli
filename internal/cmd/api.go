@@ -22,29 +22,29 @@ const maxDiscoveryResponseBytes = 64 << 20
 var errDiscoveryResponseTooLarge = errors.New("discovery API response exceeds output limit")
 
 type APICmd struct {
-	List     APIListCmd     `cmd:"" help:"List Google Discovery APIs"`
-	Describe APIDescribeCmd `cmd:"" help:"Describe a Discovery API or method"`
-	Call     APICallCmd     `cmd:"" help:"Call a Discovery-described API method"`
+	List     APIListCmd     `cmd:"" help:"List Google Discovery APIs" mcp:"api_list,read" mcpdesc:"List Google Discovery APIs."`
+	Describe APIDescribeCmd `cmd:"" help:"Describe a Discovery API or method" mcp:"api_describe,read" mcpdesc:"Describe a Discovery API or one of its methods."`
+	Call     APICallCmd     `cmd:"" help:"Call a Discovery-described API method" mcp:"api_call,write" mcpdesc:"Call a Discovery-described Google API method. Requires --allow-write; set write=true to permit mutating methods."`
 }
 
 type APIListCmd struct {
-	All bool `name:"all" help:"Include non-preferred API versions"`
+	All bool `name:"all" help:"Include non-preferred API versions" mcp:"all" mcpdesc:"Include preview and non-preferred versions"`
 }
 
 type APIDescribeCmd struct {
-	API     string `arg:"" name:"api" help:"Discovery API name (for example gmail)"`
-	Version string `arg:"" name:"version" help:"Discovery API version (for example v1)"`
-	Method  string `arg:"" optional:"" name:"method" help:"Optional Discovery method ID"`
+	API     string `arg:"" name:"api" help:"Discovery API name (for example gmail)" mcp:"api" mcpdesc:"API name, e.g. drive"`
+	Version string `arg:"" name:"version" help:"Discovery API version (for example v1)" mcp:"version" mcpdesc:"API version, e.g. v3"`
+	Method  string `arg:"" optional:"" name:"method" help:"Optional Discovery method ID" mcp:"method" mcpdesc:"Optional method ID, e.g. drive.files.list"`
 }
 
 type APICallCmd struct {
-	API        string `arg:"" name:"api" help:"Discovery API name"`
-	Version    string `arg:"" name:"version" help:"Discovery API version"`
-	Method     string `arg:"" name:"method" help:"Discovery method ID"`
-	ParamsJSON string `name:"params" help:"JSON object of path and query parameters" default:"{}"`
-	BodyJSON   string `name:"body" help:"JSON request body or @file"`
-	Scope      string `name:"scope" help:"OAuth scope override (default: narrowest Discovery-listed scope)"`
-	AllowWrite bool   `name:"allow-write" help:"Allow non-read HTTP methods (also requires confirmation or --force)"`
+	API        string `arg:"" name:"api" help:"Discovery API name" mcp:"api" mcpdesc:"API name, e.g. drive"`
+	Version    string `arg:"" name:"version" help:"Discovery API version" mcp:"version" mcpdesc:"API version, e.g. v3"`
+	Method     string `arg:"" name:"method" help:"Discovery method ID" mcp:"method" mcpdesc:"Method ID, e.g. drive.files.list"`
+	ParamsJSON string `name:"params" help:"JSON object of path and query parameters" default:"{}" mcp:"params" mcpdesc:"JSON object of method parameters"`
+	BodyJSON   string `name:"body" help:"JSON request body or @file" mcp:"body" mcpdesc:"JSON request body for write methods"`
+	Scope      string `name:"scope" help:"OAuth scope override (default: narrowest Discovery-listed scope)" mcp:"scope" mcpdesc:"Override OAuth scope"`
+	AllowWrite bool   `name:"allow-write" help:"Allow non-read HTTP methods (also requires confirmation or --force)" mcp:"write" mcpdesc:"Permit mutating (non-GET) methods"`
 }
 
 func discoveryClient() discoveryapi.Client {

@@ -11,16 +11,16 @@ import (
 
 // AdminOrgunitsCmd manages Workspace organizational units.
 type AdminOrgunitsCmd struct {
-	List   AdminOrgunitsListCmd   `cmd:"" name:"list" aliases:"ls" help:"List organizational units"`
-	Get    AdminOrgunitsGetCmd    `cmd:"" name:"get" aliases:"info,show" help:"Get organizational unit details"`
+	List   AdminOrgunitsListCmd   `cmd:"" name:"list" aliases:"ls" help:"List organizational units" mcp:"admin_list_orgunits,read" mcpdesc:"List organizational units (Directory API)."`
+	Get    AdminOrgunitsGetCmd    `cmd:"" name:"get" aliases:"info,show" help:"Get organizational unit details" mcp:"admin_get_orgunit,read" mcpdesc:"Get organizational unit details by path (Directory API)."`
 	Create AdminOrgunitsCreateCmd `cmd:"" name:"create" aliases:"add,new" help:"Create an organizational unit"`
 	Update AdminOrgunitsUpdateCmd `cmd:"" name:"update" aliases:"edit,set" help:"Update an organizational unit"`
 	Delete AdminOrgunitsDeleteCmd `cmd:"" name:"delete" aliases:"rm,del,remove" help:"Delete an organizational unit"`
 }
 
 type AdminOrgunitsListCmd struct {
-	Parent string `name:"parent" help:"Parent org unit path or ID" default:"/"`
-	Type   string `name:"type" enum:"all,children,allIncludingParent" help:"Return all descendants, children, or all including parent" default:"children"`
+	Parent string `name:"parent" help:"Parent org unit path or ID" default:"/" mcp:"parent" mcpdesc:"Parent org unit path"`
+	Type   string `name:"type" enum:"all,children,allIncludingParent" help:"Return all descendants, children, or all including parent" default:"children" mcp:"type,enum=all|children" mcpdesc:"Org unit type filter"`
 }
 
 func (c *AdminOrgunitsListCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -61,7 +61,7 @@ func (c *AdminOrgunitsListCmd) Run(ctx context.Context, flags *RootFlags) error 
 }
 
 type AdminOrgunitsGetCmd struct {
-	Path string `arg:"" name:"path" help:"Org unit path or ID"`
+	Path string `arg:"" name:"path" help:"Org unit path or ID" mcp:"path" mcpdesc:"Org unit path"`
 }
 
 func (c *AdminOrgunitsGetCmd) Run(ctx context.Context, flags *RootFlags) error {

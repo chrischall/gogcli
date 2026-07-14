@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"strconv"
 	"strings"
 
 	"github.com/mark3labs/mcp-go/mcp"
@@ -23,10 +22,6 @@ func mcpAllTools() []mcpToolSpec {
 		panic(fmt.Sprintf("invalid mcp annotations: %v", err))
 	}
 	groups := [][]mcpToolSpec{
-		mcpAdminTools(),
-		mcpGroupsTools(),
-		mcpAppScriptTools(),
-		mcpAPITools(),
 		mcpCustomTools(),
 		generated,
 	}
@@ -56,22 +51,6 @@ func (a *mcpArgs) str(key, flag string) *mcpArgs {
 	if v := strings.TrimSpace(a.req.GetString(key, "")); v != "" {
 		a.out = append(a.out, flag, v)
 	}
-	return a
-}
-
-// flag appends a bare "--flag" when the named boolean arg is true.
-func (a *mcpArgs) flag(key, name string) *mcpArgs {
-	if a.req.GetBool(key, false) {
-		a.out = append(a.out, name)
-	}
-	return a
-}
-
-// num appends "--flag N" using the request value (or def), clamped to [1,hi].
-//
-//nolint:unparam // key: remaining hand-written callers all pass "max"; the helper is deleted once every service is annotation-generated
-func (a *mcpArgs) num(key, flag string, def, hi int) *mcpArgs {
-	a.out = append(a.out, flag, strconv.Itoa(clampMCPInt(a.req.GetInt(key, def), 1, hi)))
 	return a
 }
 

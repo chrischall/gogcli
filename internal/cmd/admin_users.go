@@ -16,16 +16,16 @@ import (
 
 // AdminUsersCmd manages Workspace users.
 type AdminUsersCmd struct {
-	List    AdminUsersListCmd    `cmd:"" name:"list" aliases:"ls" help:"List users in a domain"`
-	Get     AdminUsersGetCmd     `cmd:"" name:"get" aliases:"info,show" help:"Get user details"`
+	List    AdminUsersListCmd    `cmd:"" name:"list" aliases:"ls" help:"List users in a domain" mcp:"admin_list_users,read" mcpdesc:"List Workspace users in a domain (Directory API; requires domain-wide delegation)."`
+	Get     AdminUsersGetCmd     `cmd:"" name:"get" aliases:"info,show" help:"Get user details" mcp:"admin_get_user,read" mcpdesc:"Get Workspace user details by email (Directory API)."`
 	Create  AdminUsersCreateCmd  `cmd:"" name:"create" aliases:"add,new" help:"Create a new user"`
 	Delete  AdminUsersDeleteCmd  `cmd:"" name:"delete" aliases:"rm,del,remove" help:"Delete a user account"`
-	Suspend AdminUsersSuspendCmd `cmd:"" name:"suspend" help:"Suspend a user account"`
+	Suspend AdminUsersSuspendCmd `cmd:"" name:"suspend" help:"Suspend a user account" mcp:"admin_suspend_user,write" mcpdesc:"Suspend a Workspace user account (Directory API; reversible via the admin console). Requires --allow-write."`
 }
 
 type AdminUsersListCmd struct {
-	Domain    string `name:"domain" help:"Domain to list users from (e.g., example.com)"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	Domain    string `name:"domain" help:"Domain to list users from (e.g., example.com)" mcp:"domain" mcpdesc:"Domain to list users for"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -118,7 +118,7 @@ func (c *AdminUsersListCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type AdminUsersGetCmd struct {
-	UserEmail string `arg:"" name:"userEmail" help:"User email (e.g., user@example.com)"`
+	UserEmail string `arg:"" name:"userEmail" help:"User email (e.g., user@example.com)" mcp:"user_email" mcpdesc:"User email address"`
 }
 
 func (c *AdminUsersGetCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -357,7 +357,7 @@ func (c *AdminUsersDeleteCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type AdminUsersSuspendCmd struct {
-	UserEmail string `arg:"" name:"userEmail" help:"User email to suspend"`
+	UserEmail string `arg:"" name:"userEmail" help:"User email to suspend" mcp:"user_email" mcpdesc:"User email address"`
 }
 
 func (c *AdminUsersSuspendCmd) Run(ctx context.Context, flags *RootFlags) error {

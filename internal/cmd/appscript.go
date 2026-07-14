@@ -12,14 +12,14 @@ import (
 )
 
 type AppScriptCmd struct {
-	Get     AppScriptGetCmd     `cmd:"" name:"get" aliases:"info,show" help:"Get Apps Script project metadata"`
-	Content AppScriptContentCmd `cmd:"" name:"content" aliases:"cat" help:"Get Apps Script project content"`
-	Run     AppScriptRunCmd     `cmd:"" name:"run" help:"Run a deployed Apps Script function"`
-	Create  AppScriptCreateCmd  `cmd:"" name:"create" aliases:"new" help:"Create an Apps Script project"`
+	Get     AppScriptGetCmd     `cmd:"" name:"get" aliases:"info,show" help:"Get Apps Script project metadata" mcp:"appscript_get,read" mcpdesc:"Get Apps Script project metadata by script ID."`
+	Content AppScriptContentCmd `cmd:"" name:"content" aliases:"cat" help:"Get Apps Script project content" mcp:"appscript_content,read" mcpdesc:"Get Apps Script project source content by script ID."`
+	Run     AppScriptRunCmd     `cmd:"" name:"run" help:"Run a deployed Apps Script function" mcp:"appscript_run,write" mcpdesc:"Run a deployed Apps Script function. Requires --allow-write."`
+	Create  AppScriptCreateCmd  `cmd:"" name:"create" aliases:"new" help:"Create an Apps Script project" mcp:"appscript_create,write" mcpdesc:"Create an Apps Script project. Requires --allow-write."`
 }
 
 type AppScriptGetCmd struct {
-	ScriptID string `arg:"" name:"scriptId" help:"Script ID"`
+	ScriptID string `arg:"" name:"scriptId" help:"Script ID" mcp:"script_id" mcpdesc:"Apps Script project ID"`
 }
 
 func (c *AppScriptGetCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -67,7 +67,7 @@ func (c *AppScriptGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type AppScriptContentCmd struct {
-	ScriptID string `arg:"" name:"scriptId" help:"Script ID"`
+	ScriptID string `arg:"" name:"scriptId" help:"Script ID" mcp:"script_id" mcpdesc:"Apps Script project ID"`
 }
 
 func (c *AppScriptContentCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -108,10 +108,10 @@ func (c *AppScriptContentCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type AppScriptRunCmd struct {
-	ScriptID string `arg:"" name:"scriptId" help:"Script ID"`
-	Function string `arg:"" name:"function" help:"Function name to run"`
-	Params   string `name:"params" help:"JSON array of function parameters" default:"[]"`
-	DevMode  bool   `name:"dev-mode" help:"Run latest saved code if you own the script"`
+	ScriptID string `arg:"" name:"scriptId" help:"Script ID" mcp:"script_id" mcpdesc:"Apps Script project ID"`
+	Function string `arg:"" name:"function" help:"Function name to run" mcp:"function" mcpdesc:"Function name to run"`
+	Params   string `name:"params" help:"JSON array of function parameters" default:"[]" mcp:"params" mcpdesc:"JSON array of function parameters"`
+	DevMode  bool   `name:"dev-mode" help:"Run latest saved code if you own the script" mcp:"dev_mode" mcpdesc:"Run the latest saved (dev) version"`
 }
 
 func (c *AppScriptRunCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -185,8 +185,8 @@ func (c *AppScriptRunCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type AppScriptCreateCmd struct {
-	Title    string `name:"title" help:"Project title" required:""`
-	ParentID string `name:"parent-id" help:"Optional Drive file ID to bind to"`
+	Title    string `name:"title" help:"Project title" required:"" mcp:"title,text" mcpdesc:"Project title"`
+	ParentID string `name:"parent-id" help:"Optional Drive file ID to bind to" mcp:"parent_id" mcpdesc:"Parent Drive file ID to bind the script to"`
 }
 
 func (c *AppScriptCreateCmd) Run(ctx context.Context, flags *RootFlags) error {

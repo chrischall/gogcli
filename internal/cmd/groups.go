@@ -27,12 +27,12 @@ const (
 )
 
 type GroupsCmd struct {
-	List    GroupsListCmd    `cmd:"" name:"list" aliases:"ls" help:"List groups you belong to"`
-	Members GroupsMembersCmd `cmd:"" name:"members" help:"List members of a group"`
+	List    GroupsListCmd    `cmd:"" name:"list" aliases:"ls" help:"List groups you belong to" mcp:"groups_list,read" mcpdesc:"List Cloud Identity groups you belong to."`
+	Members GroupsMembersCmd `cmd:"" name:"members" help:"List members of a group" mcp:"groups_members,read" mcpdesc:"List members of a Cloud Identity group."`
 }
 
 type GroupsListCmd struct {
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -229,8 +229,8 @@ func getRelationType(relationType string) string {
 }
 
 type GroupsMembersCmd struct {
-	GroupEmail string `arg:"" name:"groupEmail" help:"Group email (e.g., engineering@company.com)"`
-	Max        int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	GroupEmail string `arg:"" name:"groupEmail" help:"Group email (e.g., engineering@company.com)" mcp:"group_email" mcpdesc:"Group email address"`
+	Max        int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page       string `name:"page" aliases:"cursor" help:"Page token"`
 	All        bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty  bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`

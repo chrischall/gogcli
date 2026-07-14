@@ -13,13 +13,13 @@ import (
 
 // AdminGroupsCmd manages Workspace groups.
 type AdminGroupsCmd struct {
-	List    AdminGroupsListCmd    `cmd:"" name:"list" aliases:"ls" help:"List groups in a domain"`
+	List    AdminGroupsListCmd    `cmd:"" name:"list" aliases:"ls" help:"List groups in a domain" mcp:"admin_list_groups,read" mcpdesc:"List Workspace groups in a domain (Directory API)."`
 	Members AdminGroupsMembersCmd `cmd:"" name:"members" help:"Manage group members"`
 }
 
 type AdminGroupsListCmd struct {
-	Domain    string `name:"domain" help:"Domain to list groups from (e.g., example.com)"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	Domain    string `name:"domain" help:"Domain to list groups from (e.g., example.com)" mcp:"domain" mcpdesc:"Domain to list groups for"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -108,14 +108,14 @@ func (c *AdminGroupsListCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type AdminGroupsMembersCmd struct {
-	List   AdminGroupsMembersListCmd   `cmd:"" name:"list" aliases:"ls" help:"List group members"`
-	Add    AdminGroupsMembersAddCmd    `cmd:"" name:"add" aliases:"invite" help:"Add a member to a group"`
-	Remove AdminGroupsMembersRemoveCmd `cmd:"" name:"remove" aliases:"rm,del,delete" help:"Remove a member from a group"`
+	List   AdminGroupsMembersListCmd   `cmd:"" name:"list" aliases:"ls" help:"List group members" mcp:"admin_list_group_members,read" mcpdesc:"List members of a Workspace group (Directory API)."`
+	Add    AdminGroupsMembersAddCmd    `cmd:"" name:"add" aliases:"invite" help:"Add a member to a group" mcp:"admin_add_group_member,write" mcpdesc:"Add a member to a Workspace group (Directory API). Requires --allow-write."`
+	Remove AdminGroupsMembersRemoveCmd `cmd:"" name:"remove" aliases:"rm,del,delete" help:"Remove a member from a group" mcp:"admin_remove_group_member,write" mcpdesc:"Remove a member from a Workspace group (Directory API). Requires --allow-write."`
 }
 
 type AdminGroupsMembersListCmd struct {
-	GroupEmail string `arg:"" name:"groupEmail" help:"Group email (e.g., engineering@example.com)"`
-	Max        int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	GroupEmail string `arg:"" name:"groupEmail" help:"Group email (e.g., engineering@example.com)" mcp:"group_email" mcpdesc:"Group email address"`
+	Max        int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page       string `name:"page" aliases:"cursor" help:"Page token"`
 	All        bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty  bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -201,9 +201,9 @@ func (c *AdminGroupsMembersListCmd) Run(ctx context.Context, flags *RootFlags) e
 }
 
 type AdminGroupsMembersAddCmd struct {
-	GroupEmail  string `arg:"" name:"groupEmail" help:"Group email"`
-	MemberEmail string `arg:"" name:"memberEmail" help:"Member email to add"`
-	Role        string `name:"role" help:"Member role (MEMBER, MANAGER, OWNER)" default:"MEMBER"`
+	GroupEmail  string `arg:"" name:"groupEmail" help:"Group email" mcp:"group_email" mcpdesc:"Group email address"`
+	MemberEmail string `arg:"" name:"memberEmail" help:"Member email to add" mcp:"member_email" mcpdesc:"Member email address"`
+	Role        string `name:"role" help:"Member role (MEMBER, MANAGER, OWNER)" default:"MEMBER" mcp:"role,enum=MEMBER|MANAGER|OWNER" mcpdesc:"Membership role"`
 }
 
 func (c *AdminGroupsMembersAddCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -261,8 +261,8 @@ func (c *AdminGroupsMembersAddCmd) Run(ctx context.Context, flags *RootFlags) er
 }
 
 type AdminGroupsMembersRemoveCmd struct {
-	GroupEmail  string `arg:"" name:"groupEmail" help:"Group email"`
-	MemberEmail string `arg:"" name:"memberEmail" help:"Member email to remove"`
+	GroupEmail  string `arg:"" name:"groupEmail" help:"Group email" mcp:"group_email" mcpdesc:"Group email address"`
+	MemberEmail string `arg:"" name:"memberEmail" help:"Member email to remove" mcp:"member_email" mcpdesc:"Member email address"`
 }
 
 func (c *AdminGroupsMembersRemoveCmd) Run(ctx context.Context, flags *RootFlags) error {
