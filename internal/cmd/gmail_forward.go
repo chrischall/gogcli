@@ -13,11 +13,11 @@ import (
 )
 
 type GmailForwardCmd struct {
-	MessageID       string `arg:"" name:"messageId" help:"Gmail message ID to forward"`
-	To              string `name:"to" help:"Recipients (comma-separated; required)" required:""`
-	Cc              string `name:"cc" help:"CC recipients (comma-separated)"`
+	MessageID       string `arg:"" name:"messageId" help:"Gmail message ID to forward" mcp:"message_id" mcpdesc:"Message ID to forward"`
+	To              string `name:"to" help:"Recipients (comma-separated; required)" required:"" mcp:"to" mcpdesc:"Recipient address(es)"`
+	Cc              string `name:"cc" help:"CC recipients (comma-separated)" mcp:"cc" mcpdesc:"Cc address(es)"`
 	Bcc             string `name:"bcc" help:"BCC recipients (comma-separated)"`
-	Note            string `name:"note" aliases:"intro" help:"Introductory text above the forwarded message"`
+	Note            string `name:"note" aliases:"intro" help:"Introductory text above the forwarded message" mcp:"note" mcpdesc:"Optional note prepended to the forward"`
 	NoteFile        string `name:"note-file" help:"Note file path (plain text; '-' for stdin)"`
 	From            string `name:"from" help:"Send from this email address (must be a verified send-as alias)"`
 	SkipAttachments bool   `name:"skip-attachments" help:"Do not include original attachments"`

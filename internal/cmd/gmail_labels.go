@@ -12,17 +12,17 @@ import (
 )
 
 type GmailLabelsCmd struct {
-	List   GmailLabelsListCmd   `cmd:"" name:"list" aliases:"ls" help:"List labels"`
-	Get    GmailLabelsGetCmd    `cmd:"" name:"get" aliases:"info,show" help:"Get label details (including counts)"`
-	Create GmailLabelsCreateCmd `cmd:"" name:"create" aliases:"add,new" help:"Create a new label"`
+	List   GmailLabelsListCmd   `cmd:"" name:"list" aliases:"ls" help:"List labels" mcp:"gmail_list_labels,read" mcpdesc:"List Gmail labels with their IDs."`
+	Get    GmailLabelsGetCmd    `cmd:"" name:"get" aliases:"info,show" help:"Get label details (including counts)" mcp:"gmail_get_label,read" mcpdesc:"Get one Gmail label (including message counts) by ID or name."`
+	Create GmailLabelsCreateCmd `cmd:"" name:"create" aliases:"add,new" help:"Create a new label" mcp:"gmail_create_label,write" mcpdesc:"Create a new Gmail label. Requires --allow-write."`
 	Rename GmailLabelsRenameCmd `cmd:"" name:"rename" aliases:"mv" help:"Rename a label"`
 	Style  GmailLabelsStyleCmd  `cmd:"" name:"style" aliases:"color,colour" help:"Change a user label color or visibility"`
-	Modify GmailLabelsModifyCmd `cmd:"" name:"modify" aliases:"update,edit,set" help:"Modify labels on threads"`
+	Modify GmailLabelsModifyCmd `cmd:"" name:"modify" aliases:"update,edit,set" help:"Modify labels on threads" mcp:"gmail_modify_thread,write" mcpdesc:"Add and/or remove labels on a Gmail thread. Requires --allow-write."`
 	Delete GmailLabelsDeleteCmd `cmd:"" name:"delete" aliases:"rm,del" help:"Delete a label"`
 }
 
 type GmailLabelsGetCmd struct {
-	Label string `arg:"" name:"labelIdOrName" help:"Label ID or name"`
+	Label string `arg:"" name:"labelIdOrName" help:"Label ID or name" mcp:"label" mcpdesc:"Label ID or name"`
 }
 
 func (c *GmailLabelsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -70,7 +70,7 @@ func (c *GmailLabelsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type GmailLabelsCreateCmd struct {
-	Name string `arg:"" help:"Label name"`
+	Name string `arg:"" help:"Label name" mcp:"name" mcpdesc:"Label name"`
 }
 
 func (c *GmailLabelsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -312,9 +312,9 @@ func (c *GmailLabelsListCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type GmailLabelsModifyCmd struct {
-	ThreadIDs []string `arg:"" name:"threadId" help:"Thread IDs"`
-	Add       string   `name:"add" help:"Labels to add (comma-separated, name or ID)"`
-	Remove    string   `name:"remove" help:"Labels to remove (comma-separated, name or ID)"`
+	ThreadIDs []string `arg:"" name:"threadId" help:"Thread IDs" mcp:"thread_id" mcpdesc:"Thread ID"`
+	Add       string   `name:"add" help:"Labels to add (comma-separated, name or ID)" mcp:"add" mcpdesc:"Comma-separated labels to add"`
+	Remove    string   `name:"remove" help:"Labels to remove (comma-separated, name or ID)" mcp:"remove" mcpdesc:"Comma-separated labels to remove"`
 }
 
 func (c *GmailLabelsModifyCmd) Run(ctx context.Context, flags *RootFlags) error {

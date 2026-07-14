@@ -14,20 +14,20 @@ import (
 )
 
 type GmailSendCmd struct {
-	To               string   `name:"to" help:"Recipients (comma-separated; required unless --reply-all is used)"`
-	Cc               string   `name:"cc" help:"CC recipients (comma-separated)"`
-	Bcc              string   `name:"bcc" help:"BCC recipients (comma-separated)"`
-	Subject          string   `name:"subject" help:"Subject (required unless replying; inherited with Re: for replies)"`
-	Body             string   `name:"body" help:"Body (plain text; required unless --body-html is set)"`
+	To               string   `name:"to" help:"Recipients (comma-separated; required unless --reply-all is used)" mcp:"to,required" mcpdesc:"Recipient address(es), comma-separated"`
+	Cc               string   `name:"cc" help:"CC recipients (comma-separated)" mcp:"cc" mcpdesc:"Cc address(es)"`
+	Bcc              string   `name:"bcc" help:"BCC recipients (comma-separated)" mcp:"bcc" mcpdesc:"Bcc address(es)"`
+	Subject          string   `name:"subject" help:"Subject (required unless replying; inherited with Re: for replies)" mcp:"subject,required,text" mcpdesc:"Subject line"`
+	Body             string   `name:"body" help:"Body (plain text; required unless --body-html is set)" mcp:"body,required,text" mcpdesc:"Plain-text body"`
 	BodyFile         string   `name:"body-file" help:"Body file path (plain text; '-' for stdin)"`
 	BodyHTML         string   `name:"body-html" help:"Body (HTML; optional)"`
 	BodyHTMLFile     string   `name:"body-html-file" help:"HTML body file path ('-' for stdin)"`
 	ReplyToMessageID string   `name:"reply-to-message-id" aliases:"in-reply-to" help:"Reply to Gmail message ID (sets In-Reply-To/References and thread)"`
-	ThreadID         string   `name:"thread-id" help:"Reply within a Gmail thread (uses latest message for headers)"`
+	ThreadID         string   `name:"thread-id" help:"Reply within a Gmail thread (uses latest message for headers)" mcp:"thread_id" mcpdesc:"Thread ID to reply within"`
 	ReplyAll         bool     `name:"reply-all" help:"Auto-populate recipients from original message (requires --reply-to-message-id or --thread-id)"`
 	ReplyTo          string   `name:"reply-to" help:"Reply-To header address"`
 	Attach           []string `name:"attach" help:"Attachment file path (repeatable)"`
-	From             string   `name:"from" help:"Send from this email address (must be a verified send-as alias)"`
+	From             string   `name:"from" help:"Send from this email address (must be a verified send-as alias)" mcp:"from" mcpdesc:"Send-as address"`
 	Signature        bool     `name:"signature" help:"Append the Gmail signature from the active send-as address"`
 	SignatureFrom    string   `name:"signature-from" help:"Append the Gmail signature from this send-as email address"`
 	SignatureFile    string   `name:"signature-file" help:"Append a local signature file (plain text or HTML)"`

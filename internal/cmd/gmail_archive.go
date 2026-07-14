@@ -113,7 +113,7 @@ func gmailArchiveThreads(ctx context.Context, flags *RootFlags, rawIDs []string,
 
 // GmailTrashMsgCmd moves messages to trash.
 type GmailTrashMsgCmd struct {
-	MessageIDs []string `arg:"" optional:"" name:"messageId" help:"Message IDs to trash"`
+	MessageIDs []string `arg:"" optional:"" name:"messageId" help:"Message IDs to trash" mcp:"message_id,required" mcpdesc:"Message ID to trash"`
 	Query      string   `name:"query" short:"q" help:"Trash all messages matching this Gmail search query"`
 	Max        int64    `name:"max" aliases:"limit" help:"Max messages to trash (with --query)" default:"100"`
 }

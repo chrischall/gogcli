@@ -22,19 +22,19 @@ const (
 )
 
 type GmailMessagesCmd struct {
-	Search GmailMessagesSearchCmd `cmd:"" name:"search" aliases:"find,query,ls,list" group:"Read" help:"Search messages using Gmail query syntax"`
-	Modify GmailMessagesModifyCmd `cmd:"" name:"modify" aliases:"update,edit,set" group:"Organize" help:"Modify labels on a single message"`
+	Search GmailMessagesSearchCmd `cmd:"" name:"search" aliases:"find,query,ls,list" group:"Read" help:"Search messages using Gmail query syntax" mcp:"gmail_search,read" mcpdesc:"Search Gmail messages with Gmail query syntax. Returns message summaries and optional sanitized bodies."`
+	Modify GmailMessagesModifyCmd `cmd:"" name:"modify" aliases:"update,edit,set" group:"Organize" help:"Modify labels on a single message" mcp:"gmail_modify_message,write" mcpdesc:"Add and/or remove labels on a single Gmail message. Requires --allow-write."`
 }
 
 type GmailMessagesSearchCmd struct {
-	Query       []string `arg:"" name:"query" help:"Search query"`
-	Max         int64    `name:"max" aliases:"limit" help:"Max results" default:"10"`
+	Query       []string `arg:"" name:"query" help:"Search query" mcp:"query" mcpdesc:"Gmail search query, e.g. newer_than:7d from:person@example.com"`
+	Max         int64    `name:"max" aliases:"limit" help:"Max results" default:"10" mcp:"max,default=10,min=1,max=100" mcpdesc:"Maximum results"`
 	Page        string   `name:"page" aliases:"cursor" help:"Page token"`
 	All         bool     `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty   bool     `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
 	Timezone    string   `name:"timezone" short:"z" help:"Output timezone (IANA name, e.g. America/New_York, UTC). Default: GOG_TIMEZONE, config, then local"`
 	Local       bool     `name:"local" help:"Use local timezone (default behavior, useful to override --timezone)"`
-	IncludeBody bool     `name:"include-body" help:"Include decoded message body (JSON is full; text output truncates only unusually large bodies)"`
+	IncludeBody bool     `name:"include-body" help:"Include decoded message body (JSON is full; text output truncates only unusually large bodies)" mcp:"include_body" mcpdesc:"Include decoded message body"`
 	BodyFormat  string   `name:"body-format" help:"Body format preference when --include-body is set: text or html" default:"text" enum:"text,html"`
 	Full        bool     `name:"full" help:"Show full message bodies without truncation (implies --include-body)"`
 }
@@ -129,9 +129,9 @@ func (c *GmailMessagesSearchCmd) Run(ctx context.Context, flags *RootFlags) erro
 }
 
 type GmailMessagesModifyCmd struct {
-	MessageID string `arg:"" name:"messageId" help:"Message ID"`
-	Add       string `name:"add" help:"Labels to add (comma-separated, name or ID)"`
-	Remove    string `name:"remove" help:"Labels to remove (comma-separated, name or ID)"`
+	MessageID string `arg:"" name:"messageId" help:"Message ID" mcp:"message_id" mcpdesc:"Message ID"`
+	Add       string `name:"add" help:"Labels to add (comma-separated, name or ID)" mcp:"add" mcpdesc:"Comma-separated labels to add"`
+	Remove    string `name:"remove" help:"Labels to remove (comma-separated, name or ID)" mcp:"remove" mcpdesc:"Comma-separated labels to remove"`
 }
 
 func (c *GmailMessagesModifyCmd) Run(ctx context.Context, flags *RootFlags) error {

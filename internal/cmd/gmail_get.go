@@ -11,10 +11,10 @@ import (
 )
 
 type GmailGetCmd struct {
-	MessageID       string `arg:"" name:"messageId" help:"Message ID"`
+	MessageID       string `arg:"" name:"messageId" help:"Message ID" mcp:"message_id" mcpdesc:"Gmail message ID"`
 	Format          string `name:"format" help:"Message format: full|metadata|raw" default:"full"`
 	Headers         string `name:"headers" help:"Metadata headers (comma-separated; only for --format=metadata)"`
-	SanitizeContent bool   `name:"sanitize-content" aliases:"sanitize,safe" help:"Emit agent-oriented sanitized content: strip HTML, remove HTTP(S) URLs, and omit raw Gmail payloads from JSON"`
+	SanitizeContent bool   `name:"sanitize-content" aliases:"sanitize,safe" help:"Emit agent-oriented sanitized content: strip HTML, remove HTTP(S) URLs, and omit raw Gmail payloads from JSON" mcp:"sanitize_content,default=true" mcpdesc:"Strip URLs/HTML and omit raw payloads"`
 }
 
 const (

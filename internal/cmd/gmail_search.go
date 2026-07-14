@@ -13,13 +13,13 @@ import (
 )
 
 type GmailSearchCmd struct {
-	Query       []string `arg:"" name:"query" help:"Search query"`
+	Query       []string `arg:"" name:"query" help:"Search query" mcp:"query" mcpdesc:"Gmail search query, e.g. newer_than:7d from:person@example.com"`
 	FromContact string   `name:"from-contact" help:"Resolve a Google Contact and add from:(email OR email) to the Gmail query"`
-	Max         int64    `name:"max" aliases:"limit" help:"Max results" default:"10"`
+	Max         int64    `name:"max" aliases:"limit" help:"Max results" default:"10" mcp:"max,default=10,min=1,max=100" mcpdesc:"Maximum results"`
 	Page        string   `name:"page" aliases:"cursor" help:"Page token"`
 	All         bool     `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty   bool     `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
-	Oldest      bool     `name:"oldest" help:"Show first message date instead of last"`
+	Oldest      bool     `name:"oldest" help:"Show first message date instead of last" mcp:"oldest" mcpdesc:"Sort oldest first"`
 	Timezone    string   `name:"timezone" short:"z" help:"Output timezone (IANA name, e.g. America/New_York, UTC). Default: GOG_TIMEZONE, config, then local"`
 	Local       bool     `name:"local" help:"Use local timezone (default behavior, useful to override --timezone)"`
 }

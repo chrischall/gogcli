@@ -23,7 +23,6 @@ func mcpAllTools() []mcpToolSpec {
 		panic(fmt.Sprintf("invalid mcp annotations: %v", err))
 	}
 	groups := [][]mcpToolSpec{
-		mcpGmailTools(),
 		mcpDriveTools(),
 		mcpDocsTools(),
 		mcpSheetsTools(),
@@ -102,83 +101,6 @@ func (a *mcpArgs) done(pos ...string) ([]string, error) {
 		out = append(out, pos...)
 	}
 	return out, nil
-}
-
-func mcpGmailSearchTool() mcpToolSpec {
-	return mcpToolSpec{
-		Name:        "gmail_search",
-		Service:     "gmail",
-		Risk:        mcpRiskRead,
-		Description: "Search Gmail messages with Gmail query syntax. Returns message summaries and optional sanitized bodies.",
-		Options: []mcp.ToolOption{
-			mcp.WithString("query", mcp.Description("Gmail search query, e.g. newer_than:7d from:person@example.com"), mcp.Required()),
-			mcp.WithInteger("max", mcp.Description("Maximum results"), mcp.DefaultNumber(10), mcp.Min(1), mcp.Max(100)),
-			mcp.WithBoolean("include_body", mcp.Description("Include decoded message body"), mcp.DefaultBool(false)),
-		},
-		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
-			query, err := requireMCPString(req, "query")
-			if err != nil {
-				return nil, err
-			}
-			args := []string{"gmail", "messages", "search", "--max", strconv.Itoa(clampMCPInt(req.GetInt("max", 10), 1, 100))}
-			if req.GetBool("include_body", false) {
-				args = append(args, "--include-body")
-			}
-			return append(args, "--", query), nil
-		},
-	}
-}
-
-func mcpGmailGetMessageTool() mcpToolSpec {
-	return mcpToolSpec{
-		Name:        "gmail_get_message",
-		Service:     "gmail",
-		Risk:        mcpRiskRead,
-		Description: "Get one Gmail message by ID. Sanitized content is enabled by default.",
-		Options: []mcp.ToolOption{
-			mcp.WithString("message_id", mcp.Description("Gmail message ID"), mcp.Required()),
-			mcp.WithBoolean("sanitize_content", mcp.Description("Strip URLs/HTML and omit raw payloads"), mcp.DefaultBool(true)),
-		},
-		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
-			messageID, err := requireMCPString(req, "message_id")
-			if err != nil {
-				return nil, err
-			}
-			args := []string{"gmail", "get"}
-			if req.GetBool("sanitize_content", true) {
-				args = append(args, "--sanitize-content")
-			}
-			return append(args, "--", messageID), nil
-		},
-	}
-}
-
-func mcpGmailGetThreadTool() mcpToolSpec {
-	return mcpToolSpec{
-		Name:        "gmail_get_thread",
-		Service:     "gmail",
-		Risk:        mcpRiskRead,
-		Description: "Get one Gmail thread by ID. Sanitized content is enabled by default.",
-		Options: []mcp.ToolOption{
-			mcp.WithString("thread_id", mcp.Description("Gmail thread ID"), mcp.Required()),
-			mcp.WithBoolean("sanitize_content", mcp.Description("Strip URLs/HTML and omit raw payloads"), mcp.DefaultBool(true)),
-			mcp.WithBoolean("full", mcp.Description("Include full message bodies"), mcp.DefaultBool(false)),
-		},
-		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
-			threadID, err := requireMCPString(req, "thread_id")
-			if err != nil {
-				return nil, err
-			}
-			args := []string{"gmail", "thread", "get"}
-			if req.GetBool("sanitize_content", true) {
-				args = append(args, "--sanitize-content")
-			}
-			if req.GetBool("full", false) {
-				args = append(args, "--full")
-			}
-			return append(args, "--", threadID), nil
-		},
-	}
 }
 
 func mcpDriveSearchTool() mcpToolSpec {

@@ -17,16 +17,16 @@ import (
 )
 
 type GmailThreadCmd struct {
-	Get         GmailThreadGetCmd         `cmd:"" name:"get" aliases:"info,show" default:"withargs" help:"Get a thread with all messages (optionally download attachments)"`
+	Get         GmailThreadGetCmd         `cmd:"" name:"get" aliases:"info,show" default:"withargs" help:"Get a thread with all messages (optionally download attachments)" mcp:"gmail_get_thread,read" mcpdesc:"Get one Gmail thread by ID. Sanitized content is enabled by default."`
 	Modify      GmailThreadModifyCmd      `cmd:"" name:"modify" aliases:"update,edit,set" help:"Modify labels on all messages in a thread"`
 	Attachments GmailThreadAttachmentsCmd `cmd:"" name:"attachments" aliases:"files" help:"List all attachments in a thread"`
 }
 
 type GmailThreadGetCmd struct {
-	ThreadID        string        `arg:"" name:"threadId" help:"Thread ID"`
+	ThreadID        string        `arg:"" name:"threadId" help:"Thread ID" mcp:"thread_id" mcpdesc:"Gmail thread ID"`
 	Download        bool          `name:"download" help:"Download attachments"`
-	Full            bool          `name:"full" help:"Show full message bodies without truncation"`
-	SanitizeContent bool          `name:"sanitize-content" aliases:"sanitize,safe" help:"Emit agent-oriented sanitized content: strip HTML, remove HTTP(S) URLs, and omit raw Gmail payloads from JSON"`
+	Full            bool          `name:"full" help:"Show full message bodies without truncation" mcp:"full" mcpdesc:"Include full message bodies"`
+	SanitizeContent bool          `name:"sanitize-content" aliases:"sanitize,safe" help:"Emit agent-oriented sanitized content: strip HTML, remove HTTP(S) URLs, and omit raw Gmail payloads from JSON" mcp:"sanitize_content,default=true" mcpdesc:"Strip URLs/HTML and omit raw payloads"`
 	OutputDir       OutputDirFlag `embed:""`
 }
 

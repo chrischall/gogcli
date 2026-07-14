@@ -17,16 +17,16 @@ import (
 )
 
 type GmailDraftsCmd struct {
-	List   GmailDraftsListCmd   `cmd:"" name:"list" aliases:"ls" help:"List drafts"`
-	Get    GmailDraftsGetCmd    `cmd:"" name:"get" aliases:"info,show" help:"Get draft details"`
+	List   GmailDraftsListCmd   `cmd:"" name:"list" aliases:"ls" help:"List drafts" mcp:"gmail_list_drafts,read" mcpdesc:"List Gmail drafts."`
+	Get    GmailDraftsGetCmd    `cmd:"" name:"get" aliases:"info,show" help:"Get draft details" mcp:"gmail_get_draft,read" mcpdesc:"Get one Gmail draft by ID."`
 	Delete GmailDraftsDeleteCmd `cmd:"" name:"delete" aliases:"rm,del,remove" help:"Permanently delete a draft (not recoverable; drafts are not moved to Trash)"`
-	Send   GmailDraftsSendCmd   `cmd:"" name:"send" aliases:"post" help:"Send a draft"`
-	Create GmailDraftsCreateCmd `cmd:"" name:"create" aliases:"add,new" help:"Create a draft"`
+	Send   GmailDraftsSendCmd   `cmd:"" name:"send" aliases:"post" help:"Send a draft" mcp:"gmail_send_draft,write" mcpdesc:"Send an existing Gmail draft. Requires --allow-write; also blocked by --gmail-no-send."`
+	Create GmailDraftsCreateCmd `cmd:"" name:"create" aliases:"add,new" help:"Create a draft" mcp:"gmail_create_draft,write" mcpdesc:"Create a Gmail draft. Requires --allow-write."`
 	Update GmailDraftsUpdateCmd `cmd:"" name:"update" aliases:"edit,set" help:"Update a draft"`
 }
 
 type GmailDraftsListCmd struct {
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"20"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"20" mcp:"max,default=20,min=1,max=100" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -99,7 +99,7 @@ func (c *GmailDraftsListCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type GmailDraftsGetCmd struct {
-	DraftID  string `arg:"" name:"draftId" help:"Draft ID"`
+	DraftID  string `arg:"" name:"draftId" help:"Draft ID" mcp:"draft_id" mcpdesc:"Gmail draft ID"`
 	Download bool   `name:"download" help:"Download draft attachments"`
 }
 
@@ -220,7 +220,7 @@ func (c *GmailDraftsDeleteCmd) Run(ctx context.Context, flags *RootFlags) error 
 }
 
 type GmailDraftsSendCmd struct {
-	DraftID string `arg:"" name:"draftId" help:"Draft ID"`
+	DraftID string `arg:"" name:"draftId" help:"Draft ID" mcp:"draft_id" mcpdesc:"Draft ID to send"`
 }
 
 func (c *GmailDraftsSendCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -252,16 +252,16 @@ func (c *GmailDraftsSendCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type GmailDraftsCreateCmd struct {
-	To               string   `name:"to" help:"Recipients (comma-separated)"`
-	Cc               string   `name:"cc" help:"CC recipients (comma-separated)"`
-	Bcc              string   `name:"bcc" help:"BCC recipients (comma-separated)"`
-	Subject          string   `name:"subject" help:"Subject (required)"`
-	Body             string   `name:"body" help:"Body (plain text; required unless --body-html is set)"`
+	To               string   `name:"to" help:"Recipients (comma-separated)" mcp:"to" mcpdesc:"Recipient address(es)"`
+	Cc               string   `name:"cc" help:"CC recipients (comma-separated)" mcp:"cc" mcpdesc:"Cc address(es)"`
+	Bcc              string   `name:"bcc" help:"BCC recipients (comma-separated)" mcp:"bcc" mcpdesc:"Bcc address(es)"`
+	Subject          string   `name:"subject" help:"Subject (required)" mcp:"subject" mcpdesc:"Subject line"`
+	Body             string   `name:"body" help:"Body (plain text; required unless --body-html is set)" mcp:"body" mcpdesc:"Plain-text body"`
 	BodyFile         string   `name:"body-file" help:"Body file path (plain text; '-' for stdin)"`
 	BodyHTML         string   `name:"body-html" help:"Body (HTML; optional)"`
 	BodyHTMLFile     string   `name:"body-html-file" help:"HTML body file path ('-' for stdin)"`
 	ReplyToMessageID string   `name:"reply-to-message-id" help:"Reply to Gmail message ID (sets In-Reply-To/References and thread)"`
-	ThreadID         string   `name:"thread-id" help:"Reply within a Gmail thread (uses latest message for headers)"`
+	ThreadID         string   `name:"thread-id" help:"Reply within a Gmail thread (uses latest message for headers)" mcp:"thread_id" mcpdesc:"Thread ID to draft within"`
 	ReplyAll         bool     `name:"reply-all" help:"Auto-populate recipients from original message (requires --reply-to-message-id or --thread-id)"`
 	ReplyTo          string   `name:"reply-to" help:"Reply-To header address"`
 	Quote            bool     `name:"quote" help:"Include quoted original message in reply (requires --reply-to-message-id or --thread-id)"`
