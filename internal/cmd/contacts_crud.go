@@ -21,7 +21,7 @@ const (
 )
 
 type ContactsListCmd struct {
-	Max  int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	Max  int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page string `name:"page" help:"Page token"`
 }
 
@@ -93,7 +93,7 @@ func (c *ContactsListCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type ContactsGetCmd struct {
-	Identifier string `arg:"" name:"resourceName" help:"Resource name (people/...) or email"`
+	Identifier string `arg:"" name:"resourceName" help:"Resource name (people/...) or email" mcp:"resource_name" mcpdesc:"Contact resource name"`
 }
 
 func (c *ContactsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -468,13 +468,13 @@ func (c *ContactsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type ContactsUpdateCmd struct {
-	ResourceName string   `arg:"" name:"resourceName" help:"Resource name (people/...)"`
-	Given        string   `name:"given" help:"Given name"`
-	Family       string   `name:"family" help:"Family name"`
-	Email        string   `name:"email" help:"Email address (empty clears)"`
-	Phone        string   `name:"phone" help:"Phone number (empty clears)"`
-	Organization string   `name:"org" help:"Organization/company name (empty clears)"`
-	Title        string   `name:"title" help:"Job title (empty clears)"`
+	ResourceName string   `arg:"" name:"resourceName" help:"Resource name (people/...)" mcp:"resource_name" mcpdesc:"Contact resource name"`
+	Given        string   `name:"given" help:"Given name" mcp:"given" mcpdesc:"Given (first) name"`
+	Family       string   `name:"family" help:"Family name" mcp:"family" mcpdesc:"Family (last) name"`
+	Email        string   `name:"email" help:"Email address (empty clears)" mcp:"email" mcpdesc:"Email address"`
+	Phone        string   `name:"phone" help:"Phone number (empty clears)" mcp:"phone" mcpdesc:"Phone number"`
+	Organization string   `name:"org" help:"Organization/company name (empty clears)" mcp:"org" mcpdesc:"Organization"`
+	Title        string   `name:"title" help:"Job title (empty clears)" mcp:"title" mcpdesc:"Job title"`
 	URL          []string `name:"url" help:"URL (can be repeated; empty clears all)"`
 	Note         string   `name:"note" help:"Note/biography (empty clears)"`
 	Address      []string `name:"address" sep:";" help:"Postal address (can be repeated; empty clears all)"`
@@ -753,7 +753,7 @@ func (c *ContactsUpdateCmd) Run(ctx context.Context, kctx *kong.Context, flags *
 }
 
 type ContactsDeleteCmd struct {
-	ResourceName string `arg:"" name:"resourceName" help:"Resource name (people/...)"`
+	ResourceName string `arg:"" name:"resourceName" help:"Resource name (people/...)" mcp:"resource_name" mcpdesc:"Contact resource name"`
 }
 
 func parseYYYYMMDD(s string) (*people.Date, error) {

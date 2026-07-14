@@ -16,21 +16,21 @@ import (
 var errZoomConferenceAlreadyHandled = errors.New("zoom conference already handled")
 
 type CalendarCreateCmd struct {
-	CalendarID            string   `arg:"" name:"calendarId" help:"Calendar ID"`
-	Summary               string   `name:"summary" help:"Event summary/title"`
-	From                  string   `name:"from" help:"Start time (RFC3339)"`
-	To                    string   `name:"to" help:"End time (RFC3339)"`
+	CalendarID            string   `arg:"" name:"calendarId" help:"Calendar ID" mcp:"calendar_id" mcpdesc:"Calendar ID"`
+	Summary               string   `name:"summary" help:"Event summary/title" mcp:"summary,required,text" mcpdesc:"Event title"`
+	From                  string   `name:"from" help:"Start time (RFC3339)" mcp:"from" mcpdesc:"Start time: RFC3339, date, or relative value"`
+	To                    string   `name:"to" help:"End time (RFC3339)" mcp:"to" mcpdesc:"End time: RFC3339, date, or relative value"`
 	StartTimezone         string   `name:"start-timezone" aliases:"from-timezone" help:"IANA timezone metadata for --from (e.g., Europe/Rome)"`
 	EndTimezone           string   `name:"end-timezone" aliases:"to-timezone" help:"IANA timezone metadata for --to (e.g., America/New_York)"`
 	Timezone              string   `name:"timezone" aliases:"tz" help:"IANA timezone metadata applied to both --from and --to (e.g., America/Los_Angeles); mutually exclusive with --start-timezone/--end-timezone"`
-	Description           string   `name:"description" help:"Description"`
-	Location              string   `name:"location" help:"Location"`
+	Description           string   `name:"description" help:"Description" mcp:"description" mcpdesc:"Event description"`
+	Location              string   `name:"location" help:"Location" mcp:"location" mcpdesc:"Event location"`
 	LocationSearch        string   `name:"location-search" help:"Resolve a Google Places text search and use the best match as event location"`
 	PlaceID               string   `name:"place-id" help:"Resolve a Google Places ID and use it as event location"`
 	PlaceLanguage         string   `name:"place-language" help:"Places API language code for location lookup"`
 	PlaceRegion           string   `name:"place-region" help:"Places API region code for location lookup"`
-	Attendees             string   `name:"attendees" help:"Comma-separated attendee emails; modifiers: ;optional, ;resource, ;comment=TEXT"`
-	AllDay                bool     `name:"all-day" help:"All-day event (use date-only in --from/--to)"`
+	Attendees             string   `name:"attendees" help:"Comma-separated attendee emails; modifiers: ;optional, ;resource, ;comment=TEXT" mcp:"attendees" mcpdesc:"Comma-separated attendee emails"`
+	AllDay                bool     `name:"all-day" help:"All-day event (use date-only in --from/--to)" mcp:"all_day" mcpdesc:"All-day event"`
 	Recurrence            []string `name:"rrule" help:"Recurrence rules (e.g., 'RRULE:FREQ=MONTHLY;BYMONTHDAY=11'). Can be repeated." sep:"none"`
 	Reminders             []string `name:"reminder" help:"Custom reminders as method:duration (e.g., popup:30m, email:1d). Can be repeated (max 5)."`
 	ColorId               string   `name:"event-color" help:"Event color ID (1-11). Use 'gog calendar colors' to see available colors."`
@@ -40,7 +40,7 @@ type CalendarCreateCmd struct {
 	GuestsCanInviteOthers *bool    `name:"guests-can-invite" help:"Allow guests to invite others"`
 	GuestsCanModify       *bool    `name:"guests-can-modify" help:"Allow guests to modify event"`
 	GuestsCanSeeOthers    *bool    `name:"guests-can-see-others" help:"Allow guests to see other guests"`
-	WithMeet              bool     `name:"with-meet" help:"Create a Google Meet video conference for this event"`
+	WithMeet              bool     `name:"with-meet" help:"Create a Google Meet video conference for this event" mcp:"with_meet" mcpdesc:"Attach a Google Meet conference"`
 	WithZoom              bool     `name:"with-zoom" help:"Create a Zoom video conference for this event"`
 	IncludePasswords      bool     `name:"include-passwords" help:"Do not redact Zoom meeting passwords in output" env:"GOG_ZOOM_INCLUDE_PASSWORDS"`
 	SourceUrl             string   `name:"source-url" help:"URL where event was created/imported from"`
@@ -175,21 +175,21 @@ func (c *CalendarCreateCmd) Run(ctx context.Context, flags *RootFlags, kctx *kon
 }
 
 type CalendarUpdateCmd struct {
-	CalendarID            string   `arg:"" name:"calendarId" help:"Calendar ID"`
-	EventID               string   `arg:"" name:"eventId" help:"Event ID"`
-	Summary               string   `name:"summary" help:"New summary/title (set empty to clear)"`
-	From                  string   `name:"from" help:"New start time (RFC3339; set empty to clear)"`
-	To                    string   `name:"to" help:"New end time (RFC3339; set empty to clear)"`
+	CalendarID            string   `arg:"" name:"calendarId" help:"Calendar ID" mcp:"calendar_id" mcpdesc:"Calendar ID"`
+	EventID               string   `arg:"" name:"eventId" help:"Event ID" mcp:"event_id" mcpdesc:"Event ID"`
+	Summary               string   `name:"summary" help:"New summary/title (set empty to clear)" mcp:"summary" mcpdesc:"New event title"`
+	From                  string   `name:"from" help:"New start time (RFC3339; set empty to clear)" mcp:"from" mcpdesc:"New start time"`
+	To                    string   `name:"to" help:"New end time (RFC3339; set empty to clear)" mcp:"to" mcpdesc:"New end time"`
 	StartTimezone         string   `name:"start-timezone" aliases:"from-timezone" help:"IANA timezone metadata for --from (e.g., Europe/Rome)"`
 	EndTimezone           string   `name:"end-timezone" aliases:"to-timezone" help:"IANA timezone metadata for --to (e.g., America/New_York)"`
-	Description           string   `name:"description" help:"New description (set empty to clear)"`
-	Location              string   `name:"location" help:"New location (set empty to clear)"`
+	Description           string   `name:"description" help:"New description (set empty to clear)" mcp:"description" mcpdesc:"New description"`
+	Location              string   `name:"location" help:"New location (set empty to clear)" mcp:"location" mcpdesc:"New location"`
 	LocationSearch        string   `name:"location-search" help:"Resolve a Google Places text search and use the best match as event location"`
 	PlaceID               string   `name:"place-id" help:"Resolve a Google Places ID and use it as event location"`
 	PlaceLanguage         string   `name:"place-language" help:"Places API language code for location lookup"`
 	PlaceRegion           string   `name:"place-region" help:"Places API region code for location lookup"`
 	Attendees             string   `name:"attendees" help:"Comma-separated attendee emails (replaces all; set empty to clear); modifiers: ;optional, ;resource, ;comment=TEXT"`
-	AddAttendee           string   `name:"add-attendee" help:"Comma-separated attendee emails to add (preserves existing attendees); modifiers: ;optional, ;resource, ;comment=TEXT"`
+	AddAttendee           string   `name:"add-attendee" help:"Comma-separated attendee emails to add (preserves existing attendees); modifiers: ;optional, ;resource, ;comment=TEXT" mcp:"add_attendee" mcpdesc:"Attendee email to add"`
 	Attachments           []string `name:"attachment" help:"File attachment URL (can be repeated; replaces all; set empty to clear)"`
 	AllDay                bool     `name:"all-day" help:"All-day event (use date-only in --from/--to)"`
 	Recurrence            []string `name:"rrule" help:"Recurrence rules (e.g., 'RRULE:FREQ=MONTHLY;BYMONTHDAY=11'). Can be repeated. Set empty to clear." sep:"none"`
@@ -592,11 +592,11 @@ func resolveRecurringScope(scopeValue, originalStartTime string) (string, error)
 }
 
 type CalendarDeleteCmd struct {
-	CalendarID        string `arg:"" name:"calendarId" help:"Calendar ID"`
-	EventID           string `arg:"" name:"eventId" help:"Event ID"`
+	CalendarID        string `arg:"" name:"calendarId" help:"Calendar ID" mcp:"calendar_id" mcpdesc:"Calendar ID"`
+	EventID           string `arg:"" name:"eventId" help:"Event ID" mcp:"event_id" mcpdesc:"Event ID"`
 	Scope             string `name:"scope" help:"For recurring events: single, future, all" default:"all"`
 	OriginalStartTime string `name:"original-start" help:"Original start time of instance (required for scope=single,future)"`
-	SendUpdates       string `name:"send-updates" help:"Notification mode: all, externalOnly, none (default: none)"`
+	SendUpdates       string `name:"send-updates" help:"Notification mode: all, externalOnly, none (default: none)" mcp:"send_updates,enum=all|externalOnly|none" mcpdesc:"Notify guests"`
 }
 
 func (c *CalendarDeleteCmd) Run(ctx context.Context, flags *RootFlags) error {

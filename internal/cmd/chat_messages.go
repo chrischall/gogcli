@@ -12,15 +12,15 @@ import (
 )
 
 type ChatMessagesCmd struct {
-	List      ChatMessagesListCmd      `cmd:"" name:"list" aliases:"ls" help:"List messages"`
-	Send      ChatMessagesSendCmd      `cmd:"" name:"send" aliases:"create,post" help:"Send a message"`
+	List      ChatMessagesListCmd      `cmd:"" name:"list" aliases:"ls" help:"List messages" mcp:"chat_list_messages,read" mcpdesc:"List messages in a Google Chat space."`
+	Send      ChatMessagesSendCmd      `cmd:"" name:"send" aliases:"create,post" help:"Send a message" mcp:"chat_send_message,write" mcpdesc:"Send a message to a Google Chat space. Requires --allow-write."`
 	React     ChatMessagesReactCmd     `cmd:"" name:"react" help:"Add an emoji reaction to a message"`
 	Reactions ChatMessagesReactionsCmd `cmd:"" name:"reactions" aliases:"reaction" help:"Manage emoji reactions on a message"`
 }
 
 type ChatMessagesListCmd struct {
-	Space     string `arg:"" name:"space" help:"Space name (spaces/...)"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"50"`
+	Space     string `arg:"" name:"space" help:"Space name (spaces/...)" mcp:"space" mcpdesc:"Space name or ID"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"50" mcp:"max,default=50,min=1,max=100" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -147,9 +147,9 @@ func (c *ChatMessagesListCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type ChatMessagesSendCmd struct {
-	Space  string   `arg:"" name:"space" help:"Space name (spaces/...)"`
-	Text   string   `name:"text" help:"Message text (required unless --attach is provided)"`
-	Thread string   `name:"thread" help:"Reply to thread (spaces/.../threads/...)"`
+	Space  string   `arg:"" name:"space" help:"Space name (spaces/...)" mcp:"space" mcpdesc:"Space name or ID"`
+	Text   string   `name:"text" help:"Message text (required unless --attach is provided)" mcp:"text,required,text" mcpdesc:"Message text"`
+	Thread string   `name:"thread" help:"Reply to thread (spaces/.../threads/...)" mcp:"thread" mcpdesc:"Thread key to reply within"`
 	Attach []string `name:"attach" help:"Attachment file path, e.g. an image (repeatable)"`
 }
 

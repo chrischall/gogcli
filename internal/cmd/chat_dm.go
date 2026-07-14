@@ -12,13 +12,13 @@ import (
 )
 
 type ChatDMCmd struct {
-	Send  ChatDMSendCmd  `cmd:"" name:"send" aliases:"create,post" help:"Send a direct message"`
+	Send  ChatDMSendCmd  `cmd:"" name:"send" aliases:"create,post" help:"Send a direct message" mcp:"chat_send_dm,write" mcpdesc:"Send a Google Chat direct message to a user by email. Requires --allow-write."`
 	Space ChatDMSpaceCmd `cmd:"" name:"space" aliases:"find,setup" help:"Find or create a DM space"`
 }
 
 type ChatDMSendCmd struct {
-	Email  string `arg:"" name:"email" help:"Recipient email"`
-	Text   string `name:"text" help:"Message text (required)"`
+	Email  string `arg:"" name:"email" help:"Recipient email" mcp:"email" mcpdesc:"Recipient email"`
+	Text   string `name:"text" help:"Message text (required)" mcp:"text,required,text" mcpdesc:"Message text"`
 	Thread string `name:"thread" help:"Reply to thread (spaces/.../threads/...)"`
 }
 

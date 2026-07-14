@@ -12,10 +12,10 @@ import (
 )
 
 type CalendarSearchCmd struct {
-	Query string `arg:"" name:"query" help:"Search query"`
+	Query string `arg:"" name:"query" help:"Search query" mcp:"query" mcpdesc:"Free-text search query"`
 	TimeRangeFlags
-	CalendarID string `name:"calendar" help:"Calendar ID" default:"primary"`
-	Max        int64  `name:"max" aliases:"limit" help:"Max results" default:"25"`
+	CalendarID string `name:"calendar" help:"Calendar ID" default:"primary" mcp:"calendar" mcpdesc:"Calendar ID or selector; default primary"`
+	Max        int64  `name:"max" aliases:"limit" help:"Max results" default:"25" mcp:"max,default=20,min=1,max=250" mcpdesc:"Maximum results"`
 }
 
 func (c *CalendarSearchCmd) Run(ctx context.Context, flags *RootFlags) error {

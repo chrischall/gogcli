@@ -18,7 +18,7 @@ const (
 
 type ContactsDirectoryCmd struct {
 	List   ContactsDirectoryListCmd   `cmd:"" name:"list" help:"List people from the Workspace directory"`
-	Search ContactsDirectorySearchCmd `cmd:"" name:"search" help:"Search people in the Workspace directory"`
+	Search ContactsDirectorySearchCmd `cmd:"" name:"search" help:"Search people in the Workspace directory" mcp:"contacts_directory_search,read" mcpdesc:"Search people in the Workspace directory."`
 }
 
 type ContactsDirectoryListCmd struct {
@@ -114,8 +114,8 @@ func (c *ContactsDirectoryListCmd) Run(ctx context.Context, flags *RootFlags) er
 }
 
 type ContactsDirectorySearchCmd struct {
-	Query     []string `arg:"" name:"query" help:"Search query"`
-	Max       int64    `name:"max" aliases:"limit" help:"Max results" default:"50"`
+	Query     []string `arg:"" name:"query" help:"Search query" mcp:"query" mcpdesc:"Search query"`
+	Max       int64    `name:"max" aliases:"limit" help:"Max results" default:"50" mcp:"max,default=25,min=1,max=100" mcpdesc:"Maximum results"`
 	Page      string   `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool     `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool     `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`

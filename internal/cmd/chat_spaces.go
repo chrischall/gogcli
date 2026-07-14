@@ -11,13 +11,13 @@ import (
 )
 
 type ChatSpacesCmd struct {
-	List   ChatSpacesListCmd   `cmd:"" name:"list" aliases:"ls" help:"List spaces"`
-	Find   ChatSpacesFindCmd   `cmd:"" name:"find" aliases:"search,query" help:"Find spaces by display name"`
+	List   ChatSpacesListCmd   `cmd:"" name:"list" aliases:"ls" help:"List spaces" mcp:"chat_list_spaces,read" mcpdesc:"List Google Chat spaces."`
+	Find   ChatSpacesFindCmd   `cmd:"" name:"find" aliases:"search,query" help:"Find spaces by display name" mcp:"chat_find_spaces,read" mcpdesc:"Find Google Chat spaces by display name."`
 	Create ChatSpacesCreateCmd `cmd:"" name:"create" aliases:"add,new" help:"Create a space"`
 }
 
 type ChatSpacesListCmd struct {
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=100" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -109,9 +109,9 @@ func (c *ChatSpacesListCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type ChatSpacesFindCmd struct {
-	DisplayName string `arg:"" name:"displayName" help:"Space display name (substring match, case-insensitive)"`
-	Max         int64  `name:"max" aliases:"limit" help:"Max results per page" default:"100"`
-	Exact       bool   `name:"exact" help:"Require an exact, case-insensitive match on displayName instead of substring match"`
+	DisplayName string `arg:"" name:"displayName" help:"Space display name (substring match, case-insensitive)" mcp:"display_name" mcpdesc:"Space display name"`
+	Max         int64  `name:"max" aliases:"limit" help:"Max results per page" default:"100" mcp:"max,default=25,min=1,max=100" mcpdesc:"Maximum results"`
+	Exact       bool   `name:"exact" help:"Require an exact, case-insensitive match on displayName instead of substring match" mcp:"exact" mcpdesc:"Exact match only"`
 }
 
 func (c *ChatSpacesFindCmd) Run(ctx context.Context, flags *RootFlags) error {

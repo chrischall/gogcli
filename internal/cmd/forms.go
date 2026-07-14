@@ -12,9 +12,9 @@ import (
 )
 
 type FormsCmd struct {
-	Get            FormsGetCmd            `cmd:"" name:"get" aliases:"info,show" help:"Get a form"`
-	Create         FormsCreateCmd         `cmd:"" name:"create" aliases:"new" help:"Create a form"`
-	Update         FormsUpdateCmd         `cmd:"" name:"update" aliases:"edit" help:"Update form title, description, or settings"`
+	Get            FormsGetCmd            `cmd:"" name:"get" aliases:"info,show" help:"Get a form" mcp:"forms_get,read" mcpdesc:"Get a Google Form definition."`
+	Create         FormsCreateCmd         `cmd:"" name:"create" aliases:"new" help:"Create a form" mcp:"forms_create,write" mcpdesc:"Create a Google Form. Requires --allow-write."`
+	Update         FormsUpdateCmd         `cmd:"" name:"update" aliases:"edit" help:"Update form title, description, or settings" mcp:"forms_update,write" mcpdesc:"Update a Google Form's title or description. Requires --allow-write."`
 	Publish        FormsPublishCmd        `cmd:"" name:"publish" help:"Publish or unpublish a form"`
 	Questions      FormsQuestionsCmd      `cmd:"" name:"questions" help:"Form questions"`
 	AddQuestion    FormsAddQuestionCmd    `cmd:"" name:"add-question" aliases:"add-q,aq" help:"Add a question to a form"`
@@ -26,18 +26,18 @@ type FormsCmd struct {
 }
 
 type FormsQuestionsCmd struct {
-	Add    FormsAddQuestionCmd    `cmd:"" name:"add" aliases:"create,new" help:"Add a question to a form"`
+	Add    FormsAddQuestionCmd    `cmd:"" name:"add" aliases:"create,new" help:"Add a question to a form" mcp:"forms_add_question,write" mcpdesc:"Add a question to a Google Form. Requires --allow-write."`
 	Delete FormsDeleteQuestionCmd `cmd:"" name:"delete" aliases:"rm,remove,del" help:"Delete a question by index"`
 	Move   FormsMoveQuestionCmd   `cmd:"" name:"move" help:"Move a question to a new position"`
 }
 
 type FormsResponsesCmd struct {
-	List FormsResponsesListCmd `cmd:"" name:"list" aliases:"ls" help:"List form responses"`
-	Get  FormsResponseGetCmd   `cmd:"" name:"get" aliases:"info,show" help:"Get a form response"`
+	List FormsResponsesListCmd `cmd:"" name:"list" aliases:"ls" help:"List form responses" mcp:"forms_list_responses,read" mcpdesc:"List responses to a Google Form."`
+	Get  FormsResponseGetCmd   `cmd:"" name:"get" aliases:"info,show" help:"Get a form response" mcp:"forms_get_response,read" mcpdesc:"Get a single Google Form response by ID."`
 }
 
 type FormsGetCmd struct {
-	FormID string `arg:"" name:"formId" help:"Form ID"`
+	FormID string `arg:"" name:"formId" help:"Form ID" mcp:"form_id" mcpdesc:"Form ID"`
 }
 
 func (c *FormsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -73,8 +73,8 @@ func (c *FormsGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type FormsCreateCmd struct {
-	Title       string `name:"title" help:"Form title" required:""`
-	Description string `name:"description" help:"Form description"`
+	Title       string `name:"title" help:"Form title" required:"" mcp:"title" mcpdesc:"Form title"`
+	Description string `name:"description" help:"Form description" mcp:"description" mcpdesc:"Form description"`
 }
 
 func (c *FormsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -152,10 +152,10 @@ func (c *FormsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type FormsResponsesListCmd struct {
-	FormID string `arg:"" name:"formId" help:"Form ID"`
-	Max    int    `name:"max" help:"Maximum responses" default:"20"`
+	FormID string `arg:"" name:"formId" help:"Form ID" mcp:"form_id" mcpdesc:"Form ID"`
+	Max    int    `name:"max" help:"Maximum responses" default:"20" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page   string `name:"page" help:"Page token"`
-	Filter string `name:"filter" help:"Filter expression"`
+	Filter string `name:"filter" help:"Filter expression" mcp:"filter" mcpdesc:"Optional response filter"`
 }
 
 func (c *FormsResponsesListCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -216,8 +216,8 @@ func (c *FormsResponsesListCmd) Run(ctx context.Context, flags *RootFlags) error
 }
 
 type FormsResponseGetCmd struct {
-	FormID     string `arg:"" name:"formId" help:"Form ID"`
-	ResponseID string `arg:"" name:"responseId" help:"Response ID"`
+	FormID     string `arg:"" name:"formId" help:"Form ID" mcp:"form_id" mcpdesc:"Form ID"`
+	ResponseID string `arg:"" name:"responseId" help:"Response ID" mcp:"response_id" mcpdesc:"Response ID"`
 }
 
 func (c *FormsResponseGetCmd) Run(ctx context.Context, flags *RootFlags) error {

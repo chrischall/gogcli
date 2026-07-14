@@ -17,9 +17,9 @@ import (
 )
 
 type PeopleCmd struct {
-	Me        PeopleMeCmd        `cmd:"" name:"me" help:"Show your profile (people/me)"`
-	Get       PeopleGetCmd       `cmd:"" name:"get" aliases:"info,show" help:"Get a user profile by ID"`
-	Search    PeopleSearchCmd    `cmd:"" name:"search" aliases:"find,query" help:"Search the Workspace directory"`
+	Me        PeopleMeCmd        `cmd:"" name:"me" help:"Show your profile (people/me)" mcp:"people_me,read" mcpdesc:"Show the authenticated user's profile."`
+	Get       PeopleGetCmd       `cmd:"" name:"get" aliases:"info,show" help:"Get a user profile by ID" mcp:"people_get,read" mcpdesc:"Get a user profile by ID."`
+	Search    PeopleSearchCmd    `cmd:"" name:"search" aliases:"find,query" help:"Search the Workspace directory" mcp:"people_search,read" mcpdesc:"Search the Workspace directory."`
 	Relations PeopleRelationsCmd `cmd:"" name:"relations" help:"Get user relations"`
 	Raw       PeopleRawCmd       `cmd:"" name:"raw" help:"Dump raw People API response as JSON (People.Get; lossless; for scripting and LLM consumption)"`
 }

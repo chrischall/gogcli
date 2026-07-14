@@ -11,17 +11,17 @@ import (
 )
 
 type MeetCmd struct {
-	Create       MeetCreateCmd       `cmd:"" name:"create" aliases:"new" help:"Create a meeting space"`
-	Get          MeetGetCmd          `cmd:"" name:"get" aliases:"info,show" help:"Get a meeting space"`
+	Create       MeetCreateCmd       `cmd:"" name:"create" aliases:"new" help:"Create a meeting space" mcp:"meet_create,write" mcpdesc:"Create a Google Meet space. Requires --allow-write."`
+	Get          MeetGetCmd          `cmd:"" name:"get" aliases:"info,show" help:"Get a meeting space" mcp:"meet_get,read" mcpdesc:"Get a Google Meet space by meeting code."`
 	Update       MeetUpdateCmd       `cmd:"" name:"update" aliases:"edit,set" help:"Update space config"`
 	End          MeetEndCmd          `cmd:"" name:"end" aliases:"stop" help:"End active conference"`
-	History      MeetHistoryCmd      `cmd:"" name:"history" aliases:"calls,past" help:"List past calls in a meeting"`
-	Participants MeetParticipantsCmd `cmd:"" name:"participants" aliases:"people,attendees,who" help:"List participants from the latest call"`
+	History      MeetHistoryCmd      `cmd:"" name:"history" aliases:"calls,past" help:"List past calls in a meeting" mcp:"meet_history,read" mcpdesc:"List past calls for a Google Meet space."`
+	Participants MeetParticipantsCmd `cmd:"" name:"participants" aliases:"people,attendees,who" help:"List participants from the latest call" mcp:"meet_participants,read" mcpdesc:"List participants from the latest Google Meet call."`
 }
 
 // MeetCreateCmd creates a new meeting space.
 type MeetCreateCmd struct {
-	Access     string `name:"access" aliases:"access-type" help:"Access type: open, trusted, or restricted" default:"trusted"`
+	Access     string `name:"access" aliases:"access-type" help:"Access type: open, trusted, or restricted" default:"trusted" mcp:"access,enum=OPEN|TRUSTED|RESTRICTED" mcpdesc:"Access type"`
 	EntryPoint string `name:"entry-point" aliases:"entry-point-access" help:"Entry point access: all or creator-only" default:"all" hidden:""`
 	Open       bool   `name:"open" aliases:"browser" help:"Open the meeting in a browser after creation"`
 }
@@ -83,7 +83,7 @@ func (c *MeetCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 
 // MeetGetCmd gets a meeting space by meeting code.
 type MeetGetCmd struct {
-	MeetingCode string `arg:"" name:"meeting-code" help:"Meeting code (e.g. abc-defg-hij)"`
+	MeetingCode string `arg:"" name:"meeting-code" help:"Meeting code (e.g. abc-defg-hij)" mcp:"meeting_code" mcpdesc:"Meeting code"`
 }
 
 func (c *MeetGetCmd) Run(ctx context.Context, flags *RootFlags) error {

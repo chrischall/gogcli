@@ -14,9 +14,9 @@ import (
 // MeetParticipantsCmd lists participants from the most recent call in a meeting,
 // or from a specific conference if --conference is provided.
 type MeetParticipantsCmd struct {
-	MeetingCode string `arg:"" name:"meeting-code" help:"Meeting code (e.g. abc-defg-hij)"`
+	MeetingCode string `arg:"" name:"meeting-code" help:"Meeting code (e.g. abc-defg-hij)" mcp:"meeting_code" mcpdesc:"Meeting code"`
 	Conference  string `name:"conference" help:"Specific conference ID (default: most recent call)"`
-	Max         int    `name:"max" aliases:"limit" help:"Max results" default:"50"`
+	Max         int    `name:"max" aliases:"limit" help:"Max results" default:"50" mcp:"max,default=50,min=1,max=100" mcpdesc:"Maximum results"`
 	Page        string `name:"page" aliases:"cursor" help:"Page token"`
 	All         bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty   bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`

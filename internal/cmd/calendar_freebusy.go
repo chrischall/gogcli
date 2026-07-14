@@ -12,11 +12,11 @@ import (
 )
 
 type CalendarFreeBusyCmd struct {
-	CalendarIDs string   `arg:"" optional:"" name:"calendarIds" help:"Comma-separated calendar IDs, names, or indices from 'calendar calendars'"`
+	CalendarIDs string   `arg:"" optional:"" name:"calendarIds" help:"Comma-separated calendar IDs, names, or indices from 'calendar calendars'" mcp:"calendar_ids,required" mcpdesc:"Calendar ID (or space-separated IDs)"`
 	Cal         []string `name:"cal" help:"Calendar ID, name, or index (can be repeated)"`
 	All         bool     `name:"all" help:"Query all calendars"`
-	From        string   `name:"from" help:"Start time (RFC3339 with timezone, date, or relative: now, today, tomorrow, monday)"`
-	To          string   `name:"to" help:"End time (RFC3339 with timezone, date, or relative: now, today, tomorrow, monday)"`
+	From        string   `name:"from" help:"Start time (RFC3339 with timezone, date, or relative: now, today, tomorrow, monday)" mcp:"from" mcpdesc:"Start time: RFC3339, date, or relative value"`
+	To          string   `name:"to" help:"End time (RFC3339 with timezone, date, or relative: now, today, tomorrow, monday)" mcp:"to" mcpdesc:"End time: RFC3339, date, or relative value"`
 }
 
 func (c *CalendarFreeBusyCmd) Run(ctx context.Context, flags *RootFlags) error {

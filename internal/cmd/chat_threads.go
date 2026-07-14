@@ -11,12 +11,12 @@ import (
 )
 
 type ChatThreadsCmd struct {
-	List ChatThreadsListCmd `cmd:"" name:"list" help:"List threads in a space"`
+	List ChatThreadsListCmd `cmd:"" name:"list" help:"List threads in a space" mcp:"chat_list_threads,read" mcpdesc:"List threads in a Google Chat space."`
 }
 
 type ChatThreadsListCmd struct {
-	Space     string `arg:"" name:"space" help:"Space name (spaces/...)"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"50"`
+	Space     string `arg:"" name:"space" help:"Space name (spaces/...)" mcp:"space" mcpdesc:"Space name or ID"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"50" mcp:"max,default=50,min=1,max=100" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`

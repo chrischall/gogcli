@@ -12,22 +12,22 @@ import (
 )
 
 type ContactsCmd struct {
-	Search    ContactsSearchCmd    `cmd:"" name:"search" help:"Search contacts by name/email/phone"`
-	List      ContactsListCmd      `cmd:"" name:"list" aliases:"ls" help:"List contacts"`
-	Get       ContactsGetCmd       `cmd:"" name:"get" aliases:"info,show" help:"Get a contact"`
+	Search    ContactsSearchCmd    `cmd:"" name:"search" help:"Search contacts by name/email/phone" mcp:"contacts_search,read" mcpdesc:"Search contacts by name, email, or phone."`
+	List      ContactsListCmd      `cmd:"" name:"list" aliases:"ls" help:"List contacts" mcp:"contacts_list,read" mcpdesc:"List the account's contacts."`
+	Get       ContactsGetCmd       `cmd:"" name:"get" aliases:"info,show" help:"Get a contact" mcp:"contacts_get,read" mcpdesc:"Get a contact by resource name (e.g. people/c123)."`
 	Export    ContactsExportCmd    `cmd:"" name:"export" help:"Export contacts as vCard (.vcf)"`
 	Dedupe    ContactsDedupeCmd    `cmd:"" name:"dedupe" help:"Find likely duplicate contacts and optionally merge them"`
 	Create    ContactsCreateCmd    `cmd:"" name:"create" aliases:"add,new" help:"Create a contact"`
-	Update    ContactsUpdateCmd    `cmd:"" name:"update" aliases:"edit,set" help:"Update a contact"`
-	Delete    ContactsDeleteCmd    `cmd:"" name:"delete" aliases:"rm,del,remove" help:"Delete a contact"`
+	Update    ContactsUpdateCmd    `cmd:"" name:"update" aliases:"edit,set" help:"Update a contact" mcp:"contacts_update,write" mcpdesc:"Update a contact by resource name. Requires --allow-write."`
+	Delete    ContactsDeleteCmd    `cmd:"" name:"delete" aliases:"rm,del,remove" help:"Delete a contact" mcp:"contacts_delete,write" mcpdesc:"Delete a contact by resource name. Requires --allow-write."`
 	Directory ContactsDirectoryCmd `cmd:"" name:"directory" help:"Directory contacts"`
 	Other     ContactsOtherCmd     `cmd:"" name:"other" help:"Other contacts"`
 	Raw       ContactsRawCmd       `cmd:"" name:"raw" help:"Dump raw People API response as JSON (People.Get; lossless; for scripting and LLM consumption)"`
 }
 
 type ContactsSearchCmd struct {
-	Query []string `arg:"" name:"query" help:"Search query"`
-	Max   int64    `name:"max" aliases:"limit" help:"Max results" default:"50"`
+	Query []string `arg:"" name:"query" help:"Search query" mcp:"query" mcpdesc:"Search query"`
+	Max   int64    `name:"max" aliases:"limit" help:"Max results" default:"50" mcp:"max,default=25,min=1,max=100" mcpdesc:"Maximum results"`
 }
 
 func (c *ContactsSearchCmd) Run(ctx context.Context, flags *RootFlags) error {

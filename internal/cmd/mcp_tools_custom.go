@@ -17,6 +17,7 @@ func mcpCustomTools() []mcpToolSpec {
 		mcpGmailReplyTool(),
 		mcpDocsGetTool(),
 		mcpDocsWriteTool(),
+		mcpContactsCreateTool(),
 	}
 }
 
@@ -91,6 +92,43 @@ func mcpDocsGetTool() mcpToolSpec {
 				args = append(args, "--all-tabs")
 			}
 			return append(args, "--", docID), nil
+		},
+	}
+}
+
+// mcpContactsCreateTool stays hand-written: the "at least one of given,
+// family, or email" cross-field rule cannot be expressed with the annotation
+// grammar.
+func mcpContactsCreateTool() mcpToolSpec {
+	return mcpToolSpec{
+		Name:        "contacts_create",
+		Service:     "contacts",
+		Risk:        mcpRiskWrite,
+		Description: "Create a contact. Provide at least a name or email. Requires --allow-write.",
+		Options: []mcp.ToolOption{
+			mcp.WithString("given", mcp.Description("Given (first) name")),
+			mcp.WithString("family", mcp.Description("Family (last) name")),
+			mcp.WithString("email", mcp.Description("Email address")),
+			mcp.WithString("phone", mcp.Description("Phone number")),
+			mcp.WithString("org", mcp.Description("Organization")),
+			mcp.WithString("title", mcp.Description("Job title")),
+			mcp.WithString("note", mcp.Description("Note")),
+		},
+		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
+			given := strings.TrimSpace(req.GetString("given", ""))
+			family := strings.TrimSpace(req.GetString("family", ""))
+			email := strings.TrimSpace(req.GetString("email", ""))
+			if given == "" && family == "" && email == "" {
+				return nil, fmt.Errorf("provide at least one of given, family, or email")
+			}
+			return mcpCommand(req, "contacts", "create").
+				str("given", "--given").
+				str("family", "--family").
+				str("email", "--email").
+				str("phone", "--phone").
+				str("org", "--org").
+				str("title", "--title").
+				str("note", "--note").done()
 		},
 	}
 }

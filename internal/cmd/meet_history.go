@@ -13,8 +13,8 @@ import (
 
 // MeetHistoryCmd lists past conferences (calls) for a meeting.
 type MeetHistoryCmd struct {
-	MeetingCode string `arg:"" name:"meeting-code" help:"Meeting code (e.g. abc-defg-hij)"`
-	Max         int    `name:"max" aliases:"limit" help:"Max results" default:"20"`
+	MeetingCode string `arg:"" name:"meeting-code" help:"Meeting code (e.g. abc-defg-hij)" mcp:"meeting_code" mcpdesc:"Meeting code"`
+	Max         int    `name:"max" aliases:"limit" help:"Max results" default:"20" mcp:"max,default=25,min=1,max=100" mcpdesc:"Maximum results"`
 	Page        string `name:"page" aliases:"cursor" help:"Page token"`
 	All         bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty   bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`

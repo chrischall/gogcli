@@ -23,14 +23,6 @@ func mcpAllTools() []mcpToolSpec {
 		panic(fmt.Sprintf("invalid mcp annotations: %v", err))
 	}
 	groups := [][]mcpToolSpec{
-		mcpCalendarTools(),
-		mcpContactsTools(),
-		mcpPeopleTools(),
-		mcpTasksTools(),
-		mcpChatTools(),
-		mcpKeepTools(),
-		mcpMeetTools(),
-		mcpFormsTools(),
 		mcpClassroomTools(),
 		mcpPhotosTools(),
 		mcpMapsTools(),
@@ -99,48 +91,6 @@ func (a *mcpArgs) done(pos ...string) ([]string, error) {
 		out = append(out, pos...)
 	}
 	return out, nil
-}
-
-func mcpCalendarEventsTool() mcpToolSpec {
-	return mcpToolSpec{
-		Name:        "calendar_events",
-		Service:     "calendar",
-		Risk:        mcpRiskRead,
-		Description: "List Google Calendar events from primary or selected calendars.",
-		Options: []mcp.ToolOption{
-			mcp.WithString("calendar_id", mcp.Description("Calendar ID or selector; default primary")),
-			mcp.WithString("from", mcp.Description("Start time: RFC3339, date, or relative value")),
-			mcp.WithString("to", mcp.Description("End time: RFC3339, date, or relative value")),
-			mcp.WithBoolean("today", mcp.Description("Today only"), mcp.DefaultBool(false)),
-			mcp.WithBoolean("tomorrow", mcp.Description("Tomorrow only"), mcp.DefaultBool(false)),
-			mcp.WithInteger("days", mcp.Description("Next N days"), mcp.DefaultNumber(0), mcp.Min(0), mcp.Max(31)),
-			mcp.WithInteger("max", mcp.Description("Maximum results"), mcp.DefaultNumber(10), mcp.Min(1), mcp.Max(250)),
-			mcp.WithString("query", mcp.Description("Free text search")),
-		},
-		BuildArgs: func(req mcp.CallToolRequest) ([]string, error) {
-			args := []string{"calendar", "events"}
-			calendarID := strings.TrimSpace(req.GetString("calendar_id", ""))
-			for _, pair := range [][2]string{{"from", "--from"}, {"to", "--to"}, {"query", "--query"}} {
-				if v := strings.TrimSpace(req.GetString(pair[0], "")); v != "" {
-					args = append(args, pair[1], v)
-				}
-			}
-			if req.GetBool("today", false) {
-				args = append(args, "--today")
-			}
-			if req.GetBool("tomorrow", false) {
-				args = append(args, "--tomorrow")
-			}
-			if days := req.GetInt("days", 0); days > 0 {
-				args = append(args, "--days", strconv.Itoa(clampMCPInt(days, 1, 31)))
-			}
-			args = append(args, "--max", strconv.Itoa(clampMCPInt(req.GetInt("max", 10), 1, 250)))
-			if calendarID != "" {
-				args = append(args, "--", calendarID)
-			}
-			return args, nil
-		},
-	}
 }
 
 func requireMCPText(req mcp.CallToolRequest, key string) (string, error) {

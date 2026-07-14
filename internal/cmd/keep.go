@@ -17,20 +17,20 @@ type KeepCmd struct {
 	ServiceAccount string `name:"service-account" help:"Path to service account JSON file"`
 	Impersonate    string `name:"impersonate" help:"Email to impersonate (required with service-account)"`
 
-	List       KeepListCmd       `cmd:"" default:"withargs" help:"List notes"`
-	Get        KeepGetCmd        `cmd:"" name:"get" help:"Get a note"`
-	Search     KeepSearchCmd     `cmd:"" name:"search" help:"Search notes by text (client-side)"`
-	Create     KeepCreateCmd     `cmd:"" name:"create" help:"Create a new note"`
+	List       KeepListCmd       `cmd:"" default:"withargs" help:"List notes" mcp:"keep_list,read" mcpdesc:"List Google Keep notes (Workspace only)."`
+	Get        KeepGetCmd        `cmd:"" name:"get" help:"Get a note" mcp:"keep_get,read" mcpdesc:"Get a Google Keep note by ID."`
+	Search     KeepSearchCmd     `cmd:"" name:"search" help:"Search notes by text (client-side)" mcp:"keep_search,read" mcpdesc:"Search Google Keep notes by text."`
+	Create     KeepCreateCmd     `cmd:"" name:"create" help:"Create a new note" mcp:"keep_create,write" mcpdesc:"Create a Google Keep note. Requires --allow-write."`
 	Delete     KeepDeleteCmd     `cmd:"" name:"delete" help:"Delete a note"`
 	Attachment KeepAttachmentCmd `cmd:"" name:"attachment" help:"Download an attachment"`
 }
 
 type KeepListCmd struct {
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=100" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
-	Filter    string `name:"filter" help:"Filter expression (e.g. 'create_time > \"2024-01-01T00:00:00Z\"')"`
+	Filter    string `name:"filter" help:"Filter expression (e.g. 'create_time > \"2024-01-01T00:00:00Z\"')" mcp:"filter" mcpdesc:"Optional Keep filter expression"`
 }
 
 func (c *KeepListCmd) Run(ctx context.Context, flags *RootFlags, keep *KeepCmd) error {
@@ -122,8 +122,8 @@ func noteContains(n *keepapi.Note, query string) bool {
 }
 
 type KeepSearchCmd struct {
-	Query string `arg:"" name:"query" help:"Text to search for in title and body"`
-	Max   int64  `name:"max" aliases:"limit" help:"Max results to fetch before filtering" default:"500"`
+	Query string `arg:"" name:"query" help:"Text to search for in title and body" mcp:"query" mcpdesc:"Search query"`
+	Max   int64  `name:"max" aliases:"limit" help:"Max results to fetch before filtering" default:"500" mcp:"max,default=25,min=1,max=100" mcpdesc:"Maximum results"`
 }
 
 func (c *KeepSearchCmd) Run(ctx context.Context, flags *RootFlags, keep *KeepCmd) error {
@@ -193,7 +193,7 @@ func (c *KeepSearchCmd) Run(ctx context.Context, flags *RootFlags, keep *KeepCmd
 }
 
 type KeepGetCmd struct {
-	NoteID string `arg:"" name:"noteId" help:"Note ID or name (e.g. notes/abc123)"`
+	NoteID string `arg:"" name:"noteId" help:"Note ID or name (e.g. notes/abc123)" mcp:"note_id" mcpdesc:"Note ID"`
 }
 
 func (c *KeepGetCmd) Run(ctx context.Context, flags *RootFlags, keep *KeepCmd) error {
@@ -307,8 +307,8 @@ func (c *KeepAttachmentCmd) Run(ctx context.Context, flags *RootFlags, keep *Kee
 }
 
 type KeepCreateCmd struct {
-	Title string   `name:"title" help:"Note title"`
-	Text  string   `name:"text" help:"Note body text"`
+	Title string   `name:"title" help:"Note title" mcp:"title" mcpdesc:"Note title"`
+	Text  string   `name:"text" help:"Note body text" mcp:"text,required,text" mcpdesc:"Note body text"`
 	Item  []string `name:"item" help:"List item text (repeatable; creates a checklist note)"`
 }
 

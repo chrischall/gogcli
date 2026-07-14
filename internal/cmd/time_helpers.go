@@ -17,8 +17,8 @@ import (
 // TimeRangeFlags provides common time range options for calendar commands.
 // Embed this struct in commands that need time range support.
 type TimeRangeFlags struct {
-	From      string `name:"from" help:"Start time (RFC3339, date, or relative: now, today, tomorrow, monday)"`
-	To        string `name:"to" help:"End time (RFC3339, date, or relative: now, today, tomorrow, monday)"`
+	From      string `name:"from" help:"Start time (RFC3339, date, or relative: now, today, tomorrow, monday)" mcp:"from" mcpdesc:"Start time: RFC3339, date, or relative value"`
+	To        string `name:"to" help:"End time (RFC3339, date, or relative: now, today, tomorrow, monday)" mcp:"to" mcpdesc:"End time: RFC3339, date, or relative value"`
 	Today     bool   `name:"today" help:"Today only"`
 	Tomorrow  bool   `name:"tomorrow" help:"Tomorrow only"`
 	Week      bool   `name:"week" help:"This week (uses --week-start, default Mon)"`

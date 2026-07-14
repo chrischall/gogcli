@@ -16,7 +16,7 @@ const (
 )
 
 type PeopleGetCmd struct {
-	UserID string `arg:"" name:"userId" help:"User ID (people/...)"`
+	UserID string `arg:"" name:"userId" help:"User ID (people/...)" mcp:"user_id" mcpdesc:"User ID"`
 }
 
 func (c *PeopleGetCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -64,8 +64,8 @@ func (c *PeopleGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type PeopleSearchCmd struct {
-	Query     []string `arg:"" name:"query" help:"Search query"`
-	Max       int64    `name:"max" aliases:"limit" help:"Max results" default:"50"`
+	Query     []string `arg:"" name:"query" help:"Search query" mcp:"query" mcpdesc:"Search query"`
+	Max       int64    `name:"max" aliases:"limit" help:"Max results" default:"50" mcp:"max,default=25,min=1,max=100" mcpdesc:"Maximum results"`
 	Page      string   `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool     `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool     `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`

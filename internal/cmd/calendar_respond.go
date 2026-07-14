@@ -11,10 +11,10 @@ import (
 )
 
 type CalendarRespondCmd struct {
-	CalendarID string `arg:"" name:"calendarId" help:"Calendar ID"`
-	EventID    string `arg:"" name:"eventId" help:"Event ID"`
-	Status     string `name:"status" help:"Response status (accepted, declined, tentative, needsAction)"`
-	Comment    string `name:"comment" help:"Optional comment/note to include with response"`
+	CalendarID string `arg:"" name:"calendarId" help:"Calendar ID" mcp:"calendar_id" mcpdesc:"Calendar ID"`
+	EventID    string `arg:"" name:"eventId" help:"Event ID" mcp:"event_id" mcpdesc:"Event ID"`
+	Status     string `name:"status" help:"Response status (accepted, declined, tentative, needsAction)" mcp:"status,required,enum=accepted|declined|tentative" mcpdesc:"Response status"`
+	Comment    string `name:"comment" help:"Optional comment/note to include with response" mcp:"comment" mcpdesc:"Optional response comment"`
 }
 
 func (c *CalendarRespondCmd) Run(ctx context.Context, flags *RootFlags) error {

@@ -18,12 +18,12 @@ const (
 )
 
 type TasksListCmd struct {
-	TasklistID    string `arg:"" name:"tasklistId" help:"Task list ID"`
-	Max           int64  `name:"max" aliases:"limit" help:"Max results (max allowed: 100)" default:"20"`
+	TasklistID    string `arg:"" name:"tasklistId" help:"Task list ID" mcp:"tasklist_id" mcpdesc:"Task list ID"`
+	Max           int64  `name:"max" aliases:"limit" help:"Max results (max allowed: 100)" default:"20" mcp:"max,default=50,min=1,max=100" mcpdesc:"Maximum results"`
 	Page          string `name:"page" aliases:"cursor" help:"Page token"`
 	All           bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty     bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
-	ShowCompleted bool   `name:"show-completed" help:"Include completed tasks (requires --show-hidden for some clients)" default:"true"`
+	ShowCompleted bool   `name:"show-completed" help:"Include completed tasks (requires --show-hidden for some clients)" default:"true" mcp:"show_completed" mcpdesc:"Include completed tasks"`
 	ShowDeleted   bool   `name:"show-deleted" help:"Include deleted tasks"`
 	ShowHidden    bool   `name:"show-hidden" help:"Include hidden tasks"`
 	ShowAssigned  bool   `name:"show-assigned" help:"Include tasks assigned to current user" default:"true"`
@@ -128,8 +128,8 @@ func (c *TasksListCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type TasksGetCmd struct {
-	TasklistID string `arg:"" name:"tasklistId" help:"Task list ID"`
-	TaskID     string `arg:"" name:"taskId" help:"Task ID"`
+	TasklistID string `arg:"" name:"tasklistId" help:"Task list ID" mcp:"tasklist_id" mcpdesc:"Task list ID"`
+	TaskID     string `arg:"" name:"taskId" help:"Task ID" mcp:"task_id" mcpdesc:"Task ID"`
 }
 
 func (c *TasksGetCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -178,10 +178,10 @@ func (c *TasksGetCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type TasksAddCmd struct {
-	TasklistID  string `arg:"" name:"tasklistId" help:"Task list ID"`
-	Title       string `name:"title" help:"Task title (required)"`
-	Notes       string `name:"notes" help:"Task notes/description"`
-	Due         string `name:"due" help:"Due date (RFC3339 or YYYY-MM-DD; time may be ignored by Google Tasks)"`
+	TasklistID  string `arg:"" name:"tasklistId" help:"Task list ID" mcp:"tasklist_id" mcpdesc:"Task list ID"`
+	Title       string `name:"title" help:"Task title (required)" mcp:"title,required,text" mcpdesc:"Task title"`
+	Notes       string `name:"notes" help:"Task notes/description" mcp:"notes" mcpdesc:"Task notes"`
+	Due         string `name:"due" help:"Due date (RFC3339 or YYYY-MM-DD; time may be ignored by Google Tasks)" mcp:"due" mcpdesc:"Due date (RFC3339 or date)"`
 	Parent      string `name:"parent" help:"Parent task ID (create as subtask)"`
 	Previous    string `name:"previous" help:"Previous sibling task ID (controls ordering)"`
 	Repeat      string `name:"repeat" help:"Materialize repeated tasks: daily, weekly, monthly, yearly"`
@@ -344,12 +344,12 @@ func (c *TasksAddCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type TasksUpdateCmd struct {
-	TasklistID string `arg:"" name:"tasklistId" help:"Task list ID"`
-	TaskID     string `arg:"" name:"taskId" help:"Task ID"`
-	Title      string `name:"title" help:"New title (set empty to clear)"`
-	Notes      string `name:"notes" help:"New notes (set empty to clear)"`
-	Due        string `name:"due" help:"New due date (RFC3339 or YYYY-MM-DD; time may be ignored; set empty to clear)"`
-	Status     string `name:"status" help:"New status: needsAction|completed (set empty to clear)"`
+	TasklistID string `arg:"" name:"tasklistId" help:"Task list ID" mcp:"tasklist_id" mcpdesc:"Task list ID"`
+	TaskID     string `arg:"" name:"taskId" help:"Task ID" mcp:"task_id" mcpdesc:"Task ID"`
+	Title      string `name:"title" help:"New title (set empty to clear)" mcp:"title" mcpdesc:"New title"`
+	Notes      string `name:"notes" help:"New notes (set empty to clear)" mcp:"notes" mcpdesc:"New notes"`
+	Due        string `name:"due" help:"New due date (RFC3339 or YYYY-MM-DD; time may be ignored; set empty to clear)" mcp:"due" mcpdesc:"New due date"`
+	Status     string `name:"status" help:"New status: needsAction|completed (set empty to clear)" mcp:"status,enum=needsAction|completed" mcpdesc:"Status"`
 }
 
 func (c *TasksUpdateCmd) Run(ctx context.Context, kctx *kong.Context, flags *RootFlags) error {
@@ -410,8 +410,8 @@ func (c *TasksUpdateCmd) Run(ctx context.Context, kctx *kong.Context, flags *Roo
 }
 
 type TasksDoneCmd struct {
-	TasklistID string `arg:"" name:"tasklistId" help:"Task list ID"`
-	TaskID     string `arg:"" name:"taskId" help:"Task ID"`
+	TasklistID string `arg:"" name:"tasklistId" help:"Task list ID" mcp:"tasklist_id" mcpdesc:"Task list ID"`
+	TaskID     string `arg:"" name:"taskId" help:"Task ID" mcp:"task_id" mcpdesc:"Task ID"`
 }
 
 func (c *TasksDoneCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -508,8 +508,8 @@ func (c *TasksUndoCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type TasksDeleteCmd struct {
-	TasklistID string `arg:"" name:"tasklistId" help:"Task list ID"`
-	TaskID     string `arg:"" name:"taskId" help:"Task ID"`
+	TasklistID string `arg:"" name:"tasklistId" help:"Task list ID" mcp:"tasklist_id" mcpdesc:"Task list ID"`
+	TaskID     string `arg:"" name:"taskId" help:"Task ID" mcp:"task_id" mcpdesc:"Task ID"`
 }
 
 func (c *TasksDeleteCmd) Run(ctx context.Context, flags *RootFlags) error {

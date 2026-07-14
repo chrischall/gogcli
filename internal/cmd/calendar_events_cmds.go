@@ -9,21 +9,21 @@ import (
 )
 
 type CalendarEventsCmd struct {
-	CalendarID        []string `arg:"" name:"calendarId" optional:"" help:"Calendar ID (default: primary); optional leading list/ls selector is accepted for compatibility"`
+	CalendarID        []string `arg:"" name:"calendarId" optional:"" help:"Calendar ID (default: primary); optional leading list/ls selector is accepted for compatibility" mcp:"calendar_id" mcpdesc:"Calendar ID or selector; default primary"`
 	Cal               []string `name:"cal" help:"Calendar ID or name (can be repeated)"`
 	Calendars         string   `name:"calendars" help:"Comma-separated calendar IDs, names, or indices from 'calendar calendars'"`
-	From              string   `name:"from" help:"Start time (RFC3339 with timezone, date, or relative: now, today, tomorrow, monday)"`
-	To                string   `name:"to" help:"End time (RFC3339 with timezone, date, or relative: now, today, tomorrow, monday)"`
-	Today             bool     `name:"today" help:"Today only (timezone-aware)"`
-	Tomorrow          bool     `name:"tomorrow" help:"Tomorrow only (timezone-aware)"`
+	From              string   `name:"from" help:"Start time (RFC3339 with timezone, date, or relative: now, today, tomorrow, monday)" mcp:"from" mcpdesc:"Start time: RFC3339, date, or relative value"`
+	To                string   `name:"to" help:"End time (RFC3339 with timezone, date, or relative: now, today, tomorrow, monday)" mcp:"to" mcpdesc:"End time: RFC3339, date, or relative value"`
+	Today             bool     `name:"today" help:"Today only (timezone-aware)" mcp:"today" mcpdesc:"Today only"`
+	Tomorrow          bool     `name:"tomorrow" help:"Tomorrow only (timezone-aware)" mcp:"tomorrow" mcpdesc:"Tomorrow only"`
 	Week              bool     `name:"week" help:"This week (uses --week-start, default Mon)"`
-	Days              int      `name:"days" help:"Next N days (timezone-aware)" default:"0"`
+	Days              int      `name:"days" help:"Next N days (timezone-aware)" default:"0" mcp:"days,default=0,min=0,max=31,omitzero" mcpdesc:"Next N days"`
 	WeekStart         string   `name:"week-start" help:"Week start day for --week (sun, mon, ...)" default:""`
-	Max               int64    `name:"max" aliases:"limit" help:"Max results" default:"10"`
+	Max               int64    `name:"max" aliases:"limit" help:"Max results" default:"10" mcp:"max,default=10,min=1,max=250" mcpdesc:"Maximum results"`
 	Page              string   `name:"page" aliases:"cursor" help:"Page token"`
 	AllPages          bool     `name:"all-pages" aliases:"allpages" help:"Fetch all pages"`
 	FailEmpty         bool     `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
-	Query             string   `name:"query" help:"Free text search"`
+	Query             string   `name:"query" help:"Free text search" mcp:"query" mcpdesc:"Free text search"`
 	EventTypes        []string `name:"event-types" help:"Filter to event types (repeatable or comma-separated): default, birthday, focus-time, from-gmail, out-of-office, working-location"`
 	All               bool     `name:"all" help:"Fetch events from all calendars"`
 	PrivatePropFilter string   `name:"private-prop-filter" help:"Filter by private extended property (key=value)"`
@@ -136,8 +136,8 @@ func normalizeCalendarEventsArgs(args []string) (string, error) {
 }
 
 type CalendarEventCmd struct {
-	CalendarID string `arg:"" name:"calendarId" help:"Calendar ID"`
-	EventID    string `arg:"" name:"eventId" help:"Event ID"`
+	CalendarID string `arg:"" name:"calendarId" help:"Calendar ID" mcp:"calendar_id" mcpdesc:"Calendar ID"`
+	EventID    string `arg:"" name:"eventId" help:"Event ID" mcp:"event_id" mcpdesc:"Event ID"`
 	Timezone   string `name:"timezone" aliases:"tz" help:"Display timezone for event times (IANA name, e.g. America/New_York, or 'local' for the system timezone). Default: the event's timezone, then its calendar's timezone"`
 }
 

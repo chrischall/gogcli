@@ -12,12 +12,12 @@ import (
 )
 
 type TasksListsCmd struct {
-	List   TasksListsListCmd   `cmd:"" default:"withargs" help:"List task lists"`
-	Create TasksListsCreateCmd `cmd:"" name:"create" help:"Create a task list" aliases:"add,new"`
+	List   TasksListsListCmd   `cmd:"" default:"withargs" help:"List task lists" mcp:"tasks_lists,read" mcpdesc:"List the account's task lists."`
+	Create TasksListsCreateCmd `cmd:"" name:"create" help:"Create a task list" aliases:"add,new" mcp:"tasks_create_list,write" mcpdesc:"Create a new task list. Requires --allow-write."`
 }
 
 type TasksListsListCmd struct {
-	Max       int64  `name:"max" aliases:"limit" help:"Max results (max allowed: 1000)" default:"100"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results (max allowed: 1000)" default:"100" mcp:"max,default=50,min=1,max=100" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -84,7 +84,7 @@ func (c *TasksListsListCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type TasksListsCreateCmd struct {
-	Title []string `arg:"" name:"title" help:"Task list title"`
+	Title []string `arg:"" name:"title" help:"Task list title" mcp:"title" mcpdesc:"Task list title"`
 }
 
 func (c *TasksListsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {

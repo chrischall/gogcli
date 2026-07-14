@@ -13,10 +13,10 @@ import (
 
 // FormsAddQuestionCmd adds a question to an existing form via batchUpdate.
 type FormsAddQuestionCmd struct {
-	FormID   string   `arg:"" name:"formId" help:"Form ID"`
-	Title    string   `name:"title" help:"Question title/text" required:""`
-	Type     string   `name:"type" help:"Question type: text|paragraph|radio|checkbox|dropdown|scale|date|time" default:"text"`
-	Required bool     `name:"required" help:"Whether an answer is required"`
+	FormID   string   `arg:"" name:"formId" help:"Form ID" mcp:"form_id" mcpdesc:"Form ID"`
+	Title    string   `name:"title" help:"Question title/text" required:"" mcp:"title,text" mcpdesc:"Question title"`
+	Type     string   `name:"type" help:"Question type: text|paragraph|radio|checkbox|dropdown|scale|date|time" default:"text" mcp:"type,enum=text|paragraph|choice|checkbox|dropdown|scale|date|time" mcpdesc:"Question type"`
+	Required bool     `name:"required" help:"Whether an answer is required" mcp:"required" mcpdesc:"Mark the question required"`
 	Options  []string `name:"option" help:"Choice options (for radio/checkbox/dropdown, repeat for each)" short:"o"`
 	Index    int      `name:"index" help:"Position to insert (0-based, default append)" default:"-1"`
 	Correct  []string `name:"correct" help:"Correct answer value for quiz grading (repeat for multiple accepted/checkbox answers)"`
@@ -364,9 +364,9 @@ func formLocationIndex(index int) *formsapi.Location {
 
 // FormsUpdateCmd modifies form title, description, or settings.
 type FormsUpdateCmd struct {
-	FormID      string `arg:"" name:"formId" help:"Form ID"`
-	Title       string `name:"title" help:"New form title"`
-	Description string `name:"description" help:"New form description"`
+	FormID      string `arg:"" name:"formId" help:"Form ID" mcp:"form_id" mcpdesc:"Form ID"`
+	Title       string `name:"title" help:"New form title" mcp:"title" mcpdesc:"New title"`
+	Description string `name:"description" help:"New form description" mcp:"description" mcpdesc:"New description"`
 	IsQuiz      string `name:"quiz" help:"Enable quiz mode (true/false)"`
 }
 
