@@ -12,7 +12,7 @@ import (
 )
 
 type ClassroomTopicsCmd struct {
-	List   ClassroomTopicsListCmd   `cmd:"" default:"withargs" aliases:"ls" help:"List topics"`
+	List   ClassroomTopicsListCmd   `cmd:"" default:"withargs" aliases:"ls" help:"List topics" mcp:"classroom_list_topics,read" mcpdesc:"List topics for a course."`
 	Get    ClassroomTopicsGetCmd    `cmd:"" aliases:"info,show" help:"Get a topic"`
 	Create ClassroomTopicsCreateCmd `cmd:"" aliases:"add,new" help:"Create a topic"`
 	Update ClassroomTopicsUpdateCmd `cmd:"" aliases:"edit,set" help:"Update a topic"`
@@ -20,8 +20,8 @@ type ClassroomTopicsCmd struct {
 }
 
 type ClassroomTopicsListCmd struct {
-	CourseID  string `arg:"" name:"courseId" help:"Course ID or alias"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	CourseID  string `arg:"" name:"courseId" help:"Course ID or alias" mcp:"course_id" mcpdesc:"Course ID"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`

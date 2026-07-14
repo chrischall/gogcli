@@ -23,11 +23,6 @@ func mcpAllTools() []mcpToolSpec {
 		panic(fmt.Sprintf("invalid mcp annotations: %v", err))
 	}
 	groups := [][]mcpToolSpec{
-		mcpClassroomTools(),
-		mcpPhotosTools(),
-		mcpMapsTools(),
-		mcpYouTubeTools(),
-		mcpSearchConsoleTools(),
 		mcpAdminTools(),
 		mcpGroupsTools(),
 		mcpAppScriptTools(),

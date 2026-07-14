@@ -12,8 +12,8 @@ import (
 )
 
 type ClassroomCourseworkCmd struct {
-	List      ClassroomCourseworkListCmd      `cmd:"" default:"withargs" aliases:"ls" help:"List coursework"`
-	Get       ClassroomCourseworkGetCmd       `cmd:"" aliases:"info,show" help:"Get coursework"`
+	List      ClassroomCourseworkListCmd      `cmd:"" default:"withargs" aliases:"ls" help:"List coursework" mcp:"classroom_list_coursework,read" mcpdesc:"List coursework for a Google Classroom course."`
+	Get       ClassroomCourseworkGetCmd       `cmd:"" aliases:"info,show" help:"Get coursework" mcp:"classroom_get_coursework,read" mcpdesc:"Get a coursework item by ID."`
 	Create    ClassroomCourseworkCreateCmd    `cmd:"" aliases:"add,new" help:"Create coursework"`
 	Update    ClassroomCourseworkUpdateCmd    `cmd:"" aliases:"edit,set" help:"Update coursework"`
 	Delete    ClassroomCourseworkDeleteCmd    `cmd:"" aliases:"rm,del,remove" help:"Delete coursework"`
@@ -21,11 +21,11 @@ type ClassroomCourseworkCmd struct {
 }
 
 type ClassroomCourseworkListCmd struct {
-	CourseID  string `arg:"" name:"courseId" help:"Course ID or alias"`
-	States    string `name:"state" help:"Coursework states filter (comma-separated: DRAFT,PUBLISHED,DELETED)"`
+	CourseID  string `arg:"" name:"courseId" help:"Course ID or alias" mcp:"course_id" mcpdesc:"Course ID"`
+	States    string `name:"state" help:"Coursework states filter (comma-separated: DRAFT,PUBLISHED,DELETED)" mcp:"state" mcpdesc:"Coursework state filter"`
 	Topic     string `name:"topic" help:"Filter by topic ID"`
 	OrderBy   string `name:"order-by" help:"Order by (e.g., updateTime desc, dueDate desc)"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -42,8 +42,8 @@ func (c *ClassroomCourseworkListCmd) Run(ctx context.Context, flags *RootFlags) 
 }
 
 type ClassroomCourseworkGetCmd struct {
-	CourseID     string `arg:"" name:"courseId" help:"Course ID or alias"`
-	CourseworkID string `arg:"" name:"courseworkId" help:"Coursework ID"`
+	CourseID     string `arg:"" name:"courseId" help:"Course ID or alias" mcp:"course_id" mcpdesc:"Course ID"`
+	CourseworkID string `arg:"" name:"courseworkId" help:"Coursework ID" mcp:"coursework_id" mcpdesc:"Coursework ID"`
 }
 
 func (c *ClassroomCourseworkGetCmd) Run(ctx context.Context, flags *RootFlags) error {

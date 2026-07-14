@@ -20,8 +20,8 @@ const (
 )
 
 type ClassroomCoursesCmd struct {
-	List      ClassroomCoursesListCmd      `cmd:"" default:"withargs" aliases:"ls" help:"List courses"`
-	Get       ClassroomCoursesGetCmd       `cmd:"" aliases:"info,show" help:"Get a course"`
+	List      ClassroomCoursesListCmd      `cmd:"" default:"withargs" aliases:"ls" help:"List courses" mcp:"classroom_list_courses,read" mcpdesc:"List Google Classroom courses."`
+	Get       ClassroomCoursesGetCmd       `cmd:"" aliases:"info,show" help:"Get a course" mcp:"classroom_get_course,read" mcpdesc:"Get a Google Classroom course by ID."`
 	Create    ClassroomCoursesCreateCmd    `cmd:"" aliases:"add,new" help:"Create a course"`
 	Update    ClassroomCoursesUpdateCmd    `cmd:"" aliases:"edit,set" help:"Update a course"`
 	Delete    ClassroomCoursesDeleteCmd    `cmd:"" aliases:"rm,del,remove" help:"Delete an archived course"`
@@ -33,10 +33,10 @@ type ClassroomCoursesCmd struct {
 }
 
 type ClassroomCoursesListCmd struct {
-	States    string `name:"state" help:"Course states filter (comma-separated: ACTIVE,ARCHIVED,PROVISIONED,DECLINED)"`
-	TeacherID string `name:"teacher" help:"Filter by teacher user ID or email"`
-	StudentID string `name:"student" help:"Filter by student user ID or email"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	States    string `name:"state" help:"Course states filter (comma-separated: ACTIVE,ARCHIVED,PROVISIONED,DECLINED)" mcp:"state,enum=ACTIVE|ARCHIVED|PROVISIONED|DECLINED|SUSPENDED" mcpdesc:"Course state filter"`
+	TeacherID string `name:"teacher" help:"Filter by teacher user ID or email" mcp:"teacher" mcpdesc:"Filter by teacher (email or ID)"`
+	StudentID string `name:"student" help:"Filter by student user ID or email" mcp:"student" mcpdesc:"Filter by student (email or ID)"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -119,7 +119,7 @@ func (c *ClassroomCoursesListCmd) Run(ctx context.Context, flags *RootFlags) err
 }
 
 type ClassroomCoursesGetCmd struct {
-	CourseID string `arg:"" name:"courseId" help:"Course ID or alias"`
+	CourseID string `arg:"" name:"courseId" help:"Course ID or alias" mcp:"course_id" mcpdesc:"Course ID"`
 }
 
 func (c *ClassroomCoursesGetCmd) Run(ctx context.Context, flags *RootFlags) error {

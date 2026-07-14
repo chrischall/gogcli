@@ -15,21 +15,21 @@ import (
 
 type MapsCmd struct {
 	Places         MapsPlacesCmd         `cmd:"" name:"places" aliases:"place" help:"Google Maps Places API"`
-	Directions     MapsDirectionsCmd     `cmd:"" name:"directions" aliases:"route" help:"Get directions between two locations"`
-	Distance       MapsDistanceCmd       `cmd:"" name:"distance" aliases:"distance-matrix,matrix" help:"Get travel distance and duration matrix"`
-	Geocode        MapsGeocodeCmd        `cmd:"" name:"geocode" help:"Convert an address to coordinates"`
-	ReverseGeocode MapsReverseGeocodeCmd `cmd:"" name:"reverse-geocode" aliases:"reverse" help:"Convert coordinates to an address"`
+	Directions     MapsDirectionsCmd     `cmd:"" name:"directions" aliases:"route" help:"Get directions between two locations" mcp:"maps_directions,read" mcpdesc:"Get directions between two locations."`
+	Distance       MapsDistanceCmd       `cmd:"" name:"distance" aliases:"distance-matrix,matrix" help:"Get travel distance and duration matrix" mcp:"maps_distance,read" mcpdesc:"Get a travel distance and duration matrix."`
+	Geocode        MapsGeocodeCmd        `cmd:"" name:"geocode" help:"Convert an address to coordinates" mcp:"maps_geocode,read" mcpdesc:"Convert an address to coordinates."`
+	ReverseGeocode MapsReverseGeocodeCmd `cmd:"" name:"reverse-geocode" aliases:"reverse" help:"Convert coordinates to an address" mcp:"maps_reverse_geocode,read" mcpdesc:"Convert coordinates to an address."`
 }
 
 type MapsPlacesCmd struct {
-	Search  MapsPlacesSearchCmd  `cmd:"" name:"search" aliases:"find" help:"Search Places by text"`
-	Details MapsPlacesDetailsCmd `cmd:"" name:"details" aliases:"get,info,show" help:"Get Place details"`
+	Search  MapsPlacesSearchCmd  `cmd:"" name:"search" aliases:"find" help:"Search Places by text" mcp:"maps_places_search,read" mcpdesc:"Search Google Maps Places by text."`
+	Details MapsPlacesDetailsCmd `cmd:"" name:"details" aliases:"get,info,show" help:"Get Place details" mcp:"maps_place_details,read" mcpdesc:"Get details for a Google Maps Place by ID."`
 }
 
 type MapsDirectionsCmd struct {
-	Origin      string `name:"origin" help:"Origin address, place ID, or lat,lng" required:""`
-	Destination string `name:"destination" help:"Destination address, place ID, or lat,lng" required:""`
-	Mode        string `name:"mode" help:"Travel mode: driving|walking|bicycling|transit"`
+	Origin      string `name:"origin" help:"Origin address, place ID, or lat,lng" required:"" mcp:"origin" mcpdesc:"Origin address or coordinates"`
+	Destination string `name:"destination" help:"Destination address, place ID, or lat,lng" required:"" mcp:"destination" mcpdesc:"Destination address or coordinates"`
+	Mode        string `name:"mode" help:"Travel mode: driving|walking|bicycling|transit" mcp:"mode,enum=driving|walking|bicycling|transit" mcpdesc:"Travel mode"`
 	Language    string `name:"language" help:"BCP-47 language code"`
 	Region      string `name:"region" help:"Region bias"`
 }
@@ -58,9 +58,9 @@ func (c *MapsDirectionsCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type MapsDistanceCmd struct {
-	Origins      string `name:"origins" help:"Comma-separated origins" required:""`
-	Destinations string `name:"destinations" help:"Comma-separated destinations" required:""`
-	Mode         string `name:"mode" help:"Travel mode: driving|walking|bicycling|transit"`
+	Origins      string `name:"origins" help:"Comma-separated origins" required:"" mcp:"origins" mcpdesc:"Origin(s), pipe-separated"`
+	Destinations string `name:"destinations" help:"Comma-separated destinations" required:"" mcp:"destinations" mcpdesc:"Destination(s), pipe-separated"`
+	Mode         string `name:"mode" help:"Travel mode: driving|walking|bicycling|transit" mcp:"mode,enum=driving|walking|bicycling|transit" mcpdesc:"Travel mode"`
 	Units        string `name:"units" help:"Units: metric|imperial"`
 	Language     string `name:"language" help:"BCP-47 language code"`
 	Region       string `name:"region" help:"Region bias"`
@@ -97,9 +97,9 @@ func (c *MapsDistanceCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type MapsGeocodeCmd struct {
-	Address  []string `arg:"" name:"address" help:"Address to geocode"`
-	Language string   `name:"language" help:"BCP-47 language code"`
-	Region   string   `name:"region" help:"Region bias"`
+	Address  []string `arg:"" name:"address" help:"Address to geocode" mcp:"address" mcpdesc:"Address to geocode"`
+	Language string   `name:"language" help:"BCP-47 language code" mcp:"language" mcpdesc:"Result language"`
+	Region   string   `name:"region" help:"Region bias" mcp:"region" mcpdesc:"Region bias (ccTLD)"`
 }
 
 func (c *MapsGeocodeCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -122,9 +122,9 @@ func (c *MapsGeocodeCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type MapsReverseGeocodeCmd struct {
-	Lat      string `name:"lat" help:"Latitude" required:""`
-	Lng      string `name:"lng" help:"Longitude" required:""`
-	Language string `name:"language" help:"BCP-47 language code"`
+	Lat      string `name:"lat" help:"Latitude" required:"" mcp:"lat" mcpdesc:"Latitude"`
+	Lng      string `name:"lng" help:"Longitude" required:"" mcp:"lng" mcpdesc:"Longitude"`
+	Language string `name:"language" help:"BCP-47 language code" mcp:"language" mcpdesc:"Result language"`
 	Region   string `name:"region" help:"Region bias"`
 }
 
@@ -151,9 +151,9 @@ func (c *MapsReverseGeocodeCmd) Run(ctx context.Context, flags *RootFlags) error
 }
 
 type MapsPlacesSearchCmd struct {
-	Query    []string `arg:"" name:"query" help:"Text search query"`
-	Language string   `name:"language" help:"BCP-47 language code"`
-	Region   string   `name:"region" help:"CLDR region code"`
+	Query    []string `arg:"" name:"query" help:"Text search query" mcp:"query" mcpdesc:"Search text"`
+	Language string   `name:"language" help:"BCP-47 language code" mcp:"language" mcpdesc:"Result language"`
+	Region   string   `name:"region" help:"CLDR region code" mcp:"region" mcpdesc:"Region bias (ccTLD)"`
 }
 
 func (c *MapsPlacesSearchCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -177,8 +177,8 @@ func (c *MapsPlacesSearchCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type MapsPlacesDetailsCmd struct {
-	PlaceID  string `arg:"" name:"placeId" help:"Place ID (places/{id} accepted)"`
-	Language string `name:"language" help:"BCP-47 language code"`
+	PlaceID  string `arg:"" name:"placeId" help:"Place ID (places/{id} accepted)" mcp:"place_id" mcpdesc:"Place ID"`
+	Language string `name:"language" help:"BCP-47 language code" mcp:"language" mcpdesc:"Result language"`
 	Region   string `name:"region" help:"CLDR region code"`
 }
 

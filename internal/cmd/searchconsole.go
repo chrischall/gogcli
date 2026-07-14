@@ -18,12 +18,12 @@ import (
 type SearchConsoleCmd struct {
 	Sites           SearchConsoleSitesCmd           `cmd:"" name:"sites" aliases:"list,ls" help:"List and inspect Search Console sites"`
 	SearchAnalytics SearchConsoleSearchAnalyticsCmd `cmd:"" name:"searchanalytics" aliases:"analytics" help:"Search Analytics queries"`
-	Query           SearchConsoleQueryCmd           `cmd:"" name:"query" aliases:"report" help:"Run a Search Analytics query"`
+	Query           SearchConsoleQueryCmd           `cmd:"" name:"query" aliases:"report" help:"Run a Search Analytics query" mcp:"searchconsole_query,read" mcpdesc:"Run a Search Analytics query for a site."`
 	Sitemaps        SearchConsoleSitemapsCmd        `cmd:"" name:"sitemaps" help:"List/get/submit/delete sitemaps"`
 }
 
 type SearchConsoleSitesCmd struct {
-	List SearchConsoleSitesListCmd `cmd:"" default:"withargs" aliases:"ls" help:"List accessible Search Console sites"`
+	List SearchConsoleSitesListCmd `cmd:"" default:"withargs" aliases:"ls" help:"List accessible Search Console sites" mcp:"searchconsole_list_sites,read" mcpdesc:"List accessible Search Console sites."`
 	Get  SearchConsoleSitesGetCmd  `cmd:"" name:"get" aliases:"info,show" help:"Get a specific Search Console site"`
 }
 
@@ -119,15 +119,15 @@ type SearchConsoleSearchAnalyticsCmd struct {
 }
 
 type SearchConsoleQueryCmd struct {
-	SiteURL string `arg:"" name:"siteUrl" help:"Search Console property URL (e.g. https://example.com/ or sc-domain:example.com)"`
+	SiteURL string `arg:"" name:"siteUrl" help:"Search Console property URL (e.g. https://example.com/ or sc-domain:example.com)" mcp:"site_url" mcpdesc:"Site URL (property)"`
 
-	From        string   `name:"from" aliases:"start" help:"Start date (YYYY-MM-DD)"`
-	To          string   `name:"to" aliases:"end" help:"End date (YYYY-MM-DD)"`
-	Dimensions  string   `name:"dimensions" help:"Comma-separated dimensions (DATE,QUERY,PAGE,COUNTRY,DEVICE,SEARCH_APPEARANCE,HOUR)" default:"QUERY"`
+	From        string   `name:"from" aliases:"start" help:"Start date (YYYY-MM-DD)" mcp:"from" mcpdesc:"Start date (YYYY-MM-DD)"`
+	To          string   `name:"to" aliases:"end" help:"End date (YYYY-MM-DD)" mcp:"to" mcpdesc:"End date (YYYY-MM-DD)"`
+	Dimensions  string   `name:"dimensions" help:"Comma-separated dimensions (DATE,QUERY,PAGE,COUNTRY,DEVICE,SEARCH_APPEARANCE,HOUR)" default:"QUERY" mcp:"dimensions" mcpdesc:"Comma-separated dimensions, e.g. query,page"`
 	Type        string   `name:"type" help:"Search type (WEB,IMAGE,VIDEO,NEWS,DISCOVER,GOOGLE_NEWS)" default:"WEB"`
 	Aggregation string   `name:"aggregation" help:"Aggregation type (AUTO,BY_PROPERTY,BY_PAGE,BY_NEWS_SHOWCASE_PANEL)"`
 	DataState   string   `name:"data-state" help:"Data state (FINAL,ALL,HOURLY_ALL)"`
-	Max         int64    `name:"max" aliases:"limit" help:"Max rows to return (1-25000)" default:"1000"`
+	Max         int64    `name:"max" aliases:"limit" help:"Max rows to return (1-25000)" default:"1000" mcp:"max,default=50,min=1,max=1000" mcpdesc:"Maximum rows"`
 	Offset      int64    `name:"offset" aliases:"start-row" help:"Row offset for pagination" default:"0"`
 	Filter      []string `name:"filter" help:"Dimension filter, repeatable: dimension:operator:expression"`
 	Request     string   `name:"request" help:"SearchAnalyticsQueryRequest JSON spec. Accepts @file, a plain file path, -, or inline JSON."`
@@ -204,14 +204,14 @@ func (c *SearchConsoleQueryCmd) Run(ctx context.Context, flags *RootFlags) error
 }
 
 type SearchConsoleSitemapsCmd struct {
-	List   SearchConsoleSitemapsListCmd   `cmd:"" default:"withargs" aliases:"ls" help:"List sitemaps for a site"`
+	List   SearchConsoleSitemapsListCmd   `cmd:"" default:"withargs" aliases:"ls" help:"List sitemaps for a site" mcp:"searchconsole_list_sitemaps,read" mcpdesc:"List sitemaps for a Search Console site."`
 	Get    SearchConsoleSitemapsGetCmd    `cmd:"" name:"get" aliases:"info,show" help:"Get a sitemap"`
 	Submit SearchConsoleSitemapsSubmitCmd `cmd:"" name:"submit" help:"Submit a sitemap"`
 	Delete SearchConsoleSitemapsDeleteCmd `cmd:"" name:"delete" aliases:"rm,remove" help:"Delete a sitemap"`
 }
 
 type SearchConsoleSitemapsListCmd struct {
-	SiteURL      string `arg:"" name:"siteUrl" help:"Search Console property URL (e.g. https://example.com/ or sc-domain:example.com)"`
+	SiteURL      string `arg:"" name:"siteUrl" help:"Search Console property URL (e.g. https://example.com/ or sc-domain:example.com)" mcp:"site_url" mcpdesc:"Site URL (property)"`
 	SitemapIndex string `name:"sitemap-index" help:"Filter to a sitemap index URL"`
 	FailEmpty    bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
 }

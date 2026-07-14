@@ -12,7 +12,7 @@ import (
 )
 
 type ClassroomAnnouncementsCmd struct {
-	List      ClassroomAnnouncementsListCmd      `cmd:"" default:"withargs" aliases:"ls" help:"List announcements"`
+	List      ClassroomAnnouncementsListCmd      `cmd:"" default:"withargs" aliases:"ls" help:"List announcements" mcp:"classroom_list_announcements,read" mcpdesc:"List announcements for a course."`
 	Get       ClassroomAnnouncementsGetCmd       `cmd:"" aliases:"info,show" help:"Get an announcement"`
 	Create    ClassroomAnnouncementsCreateCmd    `cmd:"" aliases:"add,new" help:"Create an announcement"`
 	Update    ClassroomAnnouncementsUpdateCmd    `cmd:"" aliases:"edit,set" help:"Update an announcement"`
@@ -21,10 +21,10 @@ type ClassroomAnnouncementsCmd struct {
 }
 
 type ClassroomAnnouncementsListCmd struct {
-	CourseID  string `arg:"" name:"courseId" help:"Course ID or alias"`
+	CourseID  string `arg:"" name:"courseId" help:"Course ID or alias" mcp:"course_id" mcpdesc:"Course ID"`
 	States    string `name:"state" help:"Announcement states filter (comma-separated: DRAFT,PUBLISHED,DELETED)"`
 	OrderBy   string `name:"order-by" help:"Order by (e.g., updateTime desc)"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`

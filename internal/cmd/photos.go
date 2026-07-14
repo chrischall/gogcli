@@ -18,15 +18,15 @@ import (
 )
 
 type PhotosCmd struct {
-	List     PhotosListCmd     `cmd:"" name:"list" aliases:"ls" help:"List app-created media items"`
-	Search   PhotosSearchCmd   `cmd:"" name:"search" aliases:"find" help:"Search app-created media items"`
-	Get      PhotosGetCmd      `cmd:"" name:"get" aliases:"info,show" help:"Get an app-created media item"`
+	List     PhotosListCmd     `cmd:"" name:"list" aliases:"ls" help:"List app-created media items" mcp:"photos_list,read" mcpdesc:"List app-created Google Photos media items."`
+	Search   PhotosSearchCmd   `cmd:"" name:"search" aliases:"find" help:"Search app-created media items" mcp:"photos_search,read" mcpdesc:"Search app-created Google Photos media items."`
+	Get      PhotosGetCmd      `cmd:"" name:"get" aliases:"info,show" help:"Get an app-created media item" mcp:"photos_get,read" mcpdesc:"Get an app-created Google Photos media item by ID."`
 	Download PhotosDownloadCmd `cmd:"" name:"download" aliases:"dl" help:"Download an app-created media item"`
 	Picker   PhotosPickerCmd   `cmd:"" name:"picker" help:"Access user-selected media with the Photos Picker API"`
 }
 
 type PhotosListCmd struct {
-	Max  int64  `name:"max" aliases:"limit" help:"Max results (max 100)" default:"25"`
+	Max  int64  `name:"max" aliases:"limit" help:"Max results (max 100)" default:"25" mcp:"max,default=50,min=1,max=100" mcpdesc:"Maximum results"`
 	Page string `name:"page" aliases:"cursor" help:"Page token"`
 }
 
@@ -49,13 +49,13 @@ func (c *PhotosListCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type PhotosSearchCmd struct {
-	AlbumID         string `name:"album" aliases:"album-id" help:"App-created album ID"`
-	MediaType       string `name:"media-type" help:"Media type: PHOTO|VIDEO|ALL_MEDIA" enum:"PHOTO,VIDEO,ALL_MEDIA" default:"ALL_MEDIA"`
-	From            string `name:"from" help:"Start date YYYY-MM-DD"`
-	To              string `name:"to" help:"End date YYYY-MM-DD"`
+	AlbumID         string `name:"album" aliases:"album-id" help:"App-created album ID" mcp:"album" mcpdesc:"Album ID to search within"`
+	MediaType       string `name:"media-type" help:"Media type: PHOTO|VIDEO|ALL_MEDIA" enum:"PHOTO,VIDEO,ALL_MEDIA" default:"ALL_MEDIA" mcp:"media_type,enum=ALL_MEDIA|PHOTO|VIDEO" mcpdesc:"Media type filter"`
+	From            string `name:"from" help:"Start date YYYY-MM-DD" mcp:"from" mcpdesc:"Start date (YYYY-MM-DD)"`
+	To              string `name:"to" help:"End date YYYY-MM-DD" mcp:"to" mcpdesc:"End date (YYYY-MM-DD)"`
 	IncludeArchived bool   `name:"include-archived" help:"Include archived media"`
 	Order           string `name:"order" help:"Creation time order: desc|asc" enum:"desc,asc" default:"desc"`
-	Max             int64  `name:"max" aliases:"limit" help:"Max results (max 100)" default:"25"`
+	Max             int64  `name:"max" aliases:"limit" help:"Max results (max 100)" default:"25" mcp:"max,default=50,min=1,max=100" mcpdesc:"Maximum results"`
 	Page            string `name:"page" aliases:"cursor" help:"Page token"`
 }
 
@@ -96,7 +96,7 @@ func (c *PhotosSearchCmd) Run(ctx context.Context, flags *RootFlags) error {
 }
 
 type PhotosGetCmd struct {
-	MediaItemID string `arg:"" name:"mediaItemId" help:"Media item ID"`
+	MediaItemID string `arg:"" name:"mediaItemId" help:"Media item ID" mcp:"media_item_id" mcpdesc:"Media item ID"`
 }
 
 func (c *PhotosGetCmd) Run(ctx context.Context, flags *RootFlags) error {

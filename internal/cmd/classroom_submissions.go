@@ -11,7 +11,7 @@ import (
 )
 
 type ClassroomSubmissionsCmd struct {
-	List    ClassroomSubmissionsListCmd    `cmd:"" default:"withargs" aliases:"ls" help:"List student submissions"`
+	List    ClassroomSubmissionsListCmd    `cmd:"" default:"withargs" aliases:"ls" help:"List student submissions" mcp:"classroom_list_submissions,read" mcpdesc:"List student submissions for a coursework item."`
 	Get     ClassroomSubmissionsGetCmd     `cmd:"" aliases:"info,show" help:"Get a student submission"`
 	TurnIn  ClassroomSubmissionsTurnInCmd  `cmd:"" name:"turn-in" aliases:"turnin" help:"Turn in a submission"`
 	Reclaim ClassroomSubmissionsReclaimCmd `cmd:"" aliases:"undo" help:"Reclaim a submission"`
@@ -20,12 +20,12 @@ type ClassroomSubmissionsCmd struct {
 }
 
 type ClassroomSubmissionsListCmd struct {
-	CourseID     string `arg:"" name:"courseId" help:"Course ID or alias"`
-	CourseworkID string `arg:"" name:"courseworkId" help:"Coursework ID"`
-	States       string `name:"state" help:"Submission states filter (comma-separated: NEW,CREATED,TURNED_IN,RETURNED,RECLAIMED_BY_STUDENT)"`
+	CourseID     string `arg:"" name:"courseId" help:"Course ID or alias" mcp:"course_id" mcpdesc:"Course ID"`
+	CourseworkID string `arg:"" name:"courseworkId" help:"Coursework ID" mcp:"coursework_id" mcpdesc:"Coursework ID"`
+	States       string `name:"state" help:"Submission states filter (comma-separated: NEW,CREATED,TURNED_IN,RETURNED,RECLAIMED_BY_STUDENT)" mcp:"state" mcpdesc:"Submission state filter"`
 	Late         string `name:"late" help:"Late filter: late|not-late"`
-	UserID       string `name:"user" help:"Filter by user ID or email"`
-	Max          int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	UserID       string `name:"user" help:"Filter by user ID or email" mcp:"user" mcpdesc:"Filter by student (email or ID)"`
+	Max          int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page         string `name:"page" aliases:"cursor" help:"Page token"`
 	All          bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty    bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`

@@ -12,15 +12,15 @@ import (
 )
 
 type ClassroomStudentsCmd struct {
-	List   ClassroomStudentsListCmd   `cmd:"" default:"withargs" aliases:"ls" help:"List students"`
+	List   ClassroomStudentsListCmd   `cmd:"" default:"withargs" aliases:"ls" help:"List students" mcp:"classroom_list_students,read" mcpdesc:"List students enrolled in a course."`
 	Get    ClassroomStudentsGetCmd    `cmd:"" aliases:"info,show" help:"Get a student"`
 	Add    ClassroomStudentsAddCmd    `cmd:"" aliases:"create,new" help:"Add a student"`
 	Remove ClassroomStudentsRemoveCmd `cmd:"" aliases:"delete,rm,del" help:"Remove a student"`
 }
 
 type ClassroomStudentsListCmd struct {
-	CourseID  string `arg:"" name:"courseId" help:"Course ID or alias"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	CourseID  string `arg:"" name:"courseId" help:"Course ID or alias" mcp:"course_id" mcpdesc:"Course ID"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -151,15 +151,15 @@ func (c *ClassroomStudentsRemoveCmd) Run(ctx context.Context, flags *RootFlags) 
 }
 
 type ClassroomTeachersCmd struct {
-	List   ClassroomTeachersListCmd   `cmd:"" default:"withargs" aliases:"ls" help:"List teachers"`
+	List   ClassroomTeachersListCmd   `cmd:"" default:"withargs" aliases:"ls" help:"List teachers" mcp:"classroom_list_teachers,read" mcpdesc:"List teachers for a course."`
 	Get    ClassroomTeachersGetCmd    `cmd:"" aliases:"info,show" help:"Get a teacher"`
 	Add    ClassroomTeachersAddCmd    `cmd:"" aliases:"create,new" help:"Add a teacher"`
 	Remove ClassroomTeachersRemoveCmd `cmd:"" aliases:"delete,rm,del" help:"Remove a teacher"`
 }
 
 type ClassroomTeachersListCmd struct {
-	CourseID  string `arg:"" name:"courseId" help:"Course ID or alias"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100"`
+	CourseID  string `arg:"" name:"courseId" help:"Course ID or alias" mcp:"course_id" mcpdesc:"Course ID"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"100" mcp:"max,default=50,min=1,max=200" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
@@ -281,10 +281,10 @@ func (c *ClassroomTeachersRemoveCmd) Run(ctx context.Context, flags *RootFlags) 
 }
 
 type ClassroomRosterCmd struct {
-	CourseID  string `arg:"" name:"courseId" help:"Course ID or alias"`
+	CourseID  string `arg:"" name:"courseId" help:"Course ID or alias" mcp:"course_id" mcpdesc:"Course ID"`
 	Students  bool   `name:"students" help:"Include students"`
 	Teachers  bool   `name:"teachers" help:"Include teachers"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results (per role)" default:"100"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results (per role)" default:"100" mcp:"max,default=100,min=1,max=400" mcpdesc:"Maximum results"`
 	Page      string `name:"page" aliases:"cursor" help:"Page token (per role)"`
 	All       bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages (per role)"`
 	FailEmpty bool   `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`

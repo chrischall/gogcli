@@ -4,7 +4,7 @@ type ClassroomCmd struct {
 	Courses         ClassroomCoursesCmd         `cmd:"" aliases:"course" help:"Courses"`
 	Students        ClassroomStudentsCmd        `cmd:"" aliases:"student" help:"Course students"`
 	Teachers        ClassroomTeachersCmd        `cmd:"" aliases:"teacher" help:"Course teachers"`
-	Roster          ClassroomRosterCmd          `cmd:"" aliases:"members" help:"Course roster (students + teachers)"`
+	Roster          ClassroomRosterCmd          `cmd:"" aliases:"members" help:"Course roster (students + teachers)" mcp:"classroom_roster,read" mcpdesc:"Get a course roster (students and teachers)."`
 	Coursework      ClassroomCourseworkCmd      `cmd:"" name:"coursework" aliases:"work" help:"Coursework"`
 	Materials       ClassroomMaterialsCmd       `cmd:"" name:"materials" aliases:"material" help:"Coursework materials"`
 	Submissions     ClassroomSubmissionsCmd     `cmd:"" aliases:"submission" help:"Student submissions"`

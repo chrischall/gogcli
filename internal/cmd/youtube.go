@@ -87,16 +87,16 @@ func (c *YouTubeActivitiesListCmd) Run(ctx context.Context, flags *RootFlags) er
 }
 
 type YouTubeVideosCmd struct {
-	List YouTubeVideosListCmd `cmd:"" name:"list" aliases:"ls" help:"List videos by ID, chart, or your rating"`
+	List YouTubeVideosListCmd `cmd:"" name:"list" aliases:"ls" help:"List videos by ID, chart, or your rating" mcp:"youtube_list_videos,read" mcpdesc:"List YouTube videos by ID or chart."`
 }
 
 type YouTubeVideosListCmd struct {
-	ID       string `name:"id" help:"Comma-separated video IDs"`
-	Chart    string `name:"chart" help:"Chart: mostPopular (regionCode required)"`
-	Region   string `name:"region" help:"Region code (e.g. US) for chart"`
+	ID       string `name:"id" help:"Comma-separated video IDs" mcp:"id" mcpdesc:"Comma-separated video IDs"`
+	Chart    string `name:"chart" help:"Chart: mostPopular (regionCode required)" mcp:"chart,enum=mostPopular" mcpdesc:"Video chart"`
+	Region   string `name:"region" help:"Region code (e.g. US) for chart" mcp:"region" mcpdesc:"Region code for charts"`
 	MyRating string `name:"my-rating" help:"Your rated videos: like (liked videos) or dislike (requires -a account)"`
 	Parts    string `name:"parts" help:"Comma-separated videos.list parts or 'all' (default: snippet,contentDetails,statistics)"`
-	Max      int64  `name:"max" aliases:"limit" help:"Max results" default:"25"`
+	Max      int64  `name:"max" aliases:"limit" help:"Max results" default:"25" mcp:"max,default=25,min=1,max=50" mcpdesc:"Maximum results"`
 	Page     string `name:"page" help:"Page token"`
 }
 
@@ -195,18 +195,18 @@ func (c *YouTubeVideosListCmd) Run(ctx context.Context, flags *RootFlags) error 
 }
 
 type YouTubePlaylistsCmd struct {
-	List   YouTubePlaylistsListCmd   `cmd:"" name:"list" aliases:"ls" help:"List playlists by channel or authenticated user"`
+	List   YouTubePlaylistsListCmd   `cmd:"" name:"list" aliases:"ls" help:"List playlists by channel or authenticated user" mcp:"youtube_list_playlists,read" mcpdesc:"List YouTube playlists by channel or for the authenticated user."`
 	Items  YouTubePlaylistsItemsCmd  `cmd:"" name:"items" aliases:"item" help:"List the videos inside a playlist"`
-	Create YouTubePlaylistsCreateCmd `cmd:"" name:"create" help:"Create a new playlist"`
-	Add    YouTubePlaylistsAddCmd    `cmd:"" name:"add" help:"Add a video to a playlist"`
+	Create YouTubePlaylistsCreateCmd `cmd:"" name:"create" help:"Create a new playlist" mcp:"youtube_create_playlist,write" mcpdesc:"Create a YouTube playlist. Requires --allow-write."`
+	Add    YouTubePlaylistsAddCmd    `cmd:"" name:"add" help:"Add a video to a playlist" mcp:"youtube_add_to_playlist,write" mcpdesc:"Add a video to a YouTube playlist. Requires --allow-write."`
 	Remove YouTubePlaylistsRemoveCmd `cmd:"" name:"remove" aliases:"rm" help:"Remove a video from a playlist"`
 	Delete YouTubePlaylistsDeleteCmd `cmd:"" name:"delete" aliases:"del" help:"Delete a playlist"`
 }
 
 type YouTubePlaylistsListCmd struct {
-	ChannelID string `name:"channel-id" help:"Channel ID"`
-	Mine      bool   `name:"mine" help:"Use authenticated user (requires -a account)"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"25"`
+	ChannelID string `name:"channel-id" help:"Channel ID" mcp:"channel_id" mcpdesc:"Channel ID"`
+	Mine      bool   `name:"mine" help:"Use authenticated user (requires -a account)" mcp:"mine" mcpdesc:"List the authenticated user's playlists"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"25" mcp:"max,default=25,min=1,max=50" mcpdesc:"Maximum results"`
 	Page      string `name:"page" help:"Page token"`
 }
 
@@ -237,12 +237,12 @@ func (c *YouTubePlaylistsListCmd) Run(ctx context.Context, flags *RootFlags) err
 }
 
 type YouTubePlaylistsItemsCmd struct {
-	List YouTubePlaylistsItemsListCmd `cmd:"" name:"list" aliases:"ls" help:"List the videos inside a playlist"`
+	List YouTubePlaylistsItemsListCmd `cmd:"" name:"list" aliases:"ls" help:"List the videos inside a playlist" mcp:"youtube_list_playlist_items,read" mcpdesc:"List the videos inside a YouTube playlist."`
 }
 
 type YouTubePlaylistsItemsListCmd struct {
-	PlaylistID string `name:"playlist-id" help:"Playlist ID (use LL for your liked videos; LL/private playlists require -a account)"`
-	Max        int64  `name:"max" aliases:"limit" help:"Max results per page" default:"50"`
+	PlaylistID string `name:"playlist-id" help:"Playlist ID (use LL for your liked videos; LL/private playlists require -a account)" mcp:"playlist_id,required" mcpdesc:"Playlist ID"`
+	Max        int64  `name:"max" aliases:"limit" help:"Max results per page" default:"50" mcp:"max,default=25,min=1,max=50" mcpdesc:"Maximum results"`
 	Page       string `name:"page" aliases:"cursor" help:"Page token"`
 	All        bool   `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 }
@@ -311,9 +311,9 @@ func (c *YouTubePlaylistsItemsListCmd) Run(ctx context.Context, flags *RootFlags
 }
 
 type YouTubePlaylistsCreateCmd struct {
-	Title       string `name:"title" required:"" help:"Playlist title"`
-	Description string `name:"description" help:"Playlist description"`
-	Privacy     string `name:"privacy" help:"Privacy: public, unlisted, private" default:"private" enum:"public,unlisted,private"`
+	Title       string `name:"title" required:"" help:"Playlist title" mcp:"title,text" mcpdesc:"Playlist title"`
+	Description string `name:"description" help:"Playlist description" mcp:"description" mcpdesc:"Playlist description"`
+	Privacy     string `name:"privacy" help:"Privacy: public, unlisted, private" default:"private" enum:"public,unlisted,private" mcp:"privacy,enum=private|unlisted|public" mcpdesc:"Privacy status"`
 }
 
 func (c *YouTubePlaylistsCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -366,8 +366,8 @@ func (c *YouTubePlaylistsCreateCmd) Run(ctx context.Context, flags *RootFlags) e
 }
 
 type YouTubePlaylistsAddCmd struct {
-	PlaylistID string `name:"playlist-id" required:"" help:"Playlist ID"`
-	VideoID    string `name:"video-id" required:"" help:"Video ID to add"`
+	PlaylistID string `name:"playlist-id" required:"" help:"Playlist ID" mcp:"playlist_id" mcpdesc:"Playlist ID"`
+	VideoID    string `name:"video-id" required:"" help:"Video ID to add" mcp:"video_id" mcpdesc:"Video ID"`
 	Position   int64  `name:"position" help:"Position in playlist (0-based); appends if not set" default:"-1"`
 }
 
@@ -555,13 +555,13 @@ func (c *YouTubePlaylistsDeleteCmd) Run(ctx context.Context, flags *RootFlags) e
 }
 
 type YouTubeCommentsCmd struct {
-	List YouTubeCommentsListCmd `cmd:"" name:"list" aliases:"ls" help:"List comment threads for a video or channel"`
+	List YouTubeCommentsListCmd `cmd:"" name:"list" aliases:"ls" help:"List comment threads for a video or channel" mcp:"youtube_list_comments,read" mcpdesc:"List comment threads for a YouTube video or channel."`
 }
 
 type YouTubeCommentsListCmd struct {
-	VideoID   string `name:"video-id" help:"Video ID (list top-level comments for this video)"`
-	ChannelID string `name:"channel-id" help:"Channel ID (list comments that mention the channel)"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"25"`
+	VideoID   string `name:"video-id" help:"Video ID (list top-level comments for this video)" mcp:"video_id" mcpdesc:"Video ID"`
+	ChannelID string `name:"channel-id" help:"Channel ID (list comments that mention the channel)" mcp:"channel_id" mcpdesc:"Channel ID"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"25" mcp:"max,default=25,min=1,max=50" mcpdesc:"Maximum results"`
 	Page      string `name:"page" help:"Page token"`
 }
 
@@ -620,13 +620,13 @@ func (c *YouTubeCommentsListCmd) Run(ctx context.Context, flags *RootFlags) erro
 }
 
 type YouTubeChannelsCmd struct {
-	List YouTubeChannelsListCmd `cmd:"" name:"list" aliases:"ls" help:"List channels by ID or authenticated user"`
+	List YouTubeChannelsListCmd `cmd:"" name:"list" aliases:"ls" help:"List channels by ID or authenticated user" mcp:"youtube_list_channels,read" mcpdesc:"List YouTube channels by ID or for the authenticated user."`
 }
 
 type YouTubeChannelsListCmd struct {
-	ID   string `name:"id" help:"Comma-separated channel IDs"`
-	Mine bool   `name:"mine" help:"Use authenticated user (requires -a account)"`
-	Max  int64  `name:"max" aliases:"limit" help:"Max results" default:"25"`
+	ID   string `name:"id" help:"Comma-separated channel IDs" mcp:"id" mcpdesc:"Comma-separated channel IDs"`
+	Mine bool   `name:"mine" help:"Use authenticated user (requires -a account)" mcp:"mine" mcpdesc:"List the authenticated user's channels"`
+	Max  int64  `name:"max" aliases:"limit" help:"Max results" default:"25" mcp:"max,default=25,min=1,max=50" mcpdesc:"Maximum results"`
 	Page string `name:"page" help:"Page token"`
 }
 
@@ -694,15 +694,15 @@ func (c *YouTubeChannelsListCmd) Run(ctx context.Context, flags *RootFlags) erro
 }
 
 type YouTubeSearchCmd struct {
-	List YouTubeSearchListCmd `cmd:"" name:"list" aliases:"ls" help:"Search for videos, channels, or playlists"`
+	List YouTubeSearchListCmd `cmd:"" name:"list" aliases:"ls" help:"Search for videos, channels, or playlists" mcp:"youtube_search,read" mcpdesc:"Search YouTube for videos, channels, or playlists."`
 }
 
 type YouTubeSearchListCmd struct {
-	Query     string `arg:"" help:"Search query"`
-	Type      string `name:"type" help:"Resource type: video, channel, playlist (comma-separated)" default:"video"`
-	Order     string `name:"order" help:"Sort order: relevance, date, rating, title, videoCount, viewCount" default:"relevance" enum:"relevance,date,rating,title,videoCount,viewCount"`
-	ChannelID string `name:"channel-id" help:"Restrict results to a specific channel"`
-	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"25"`
+	Query     string `arg:"" help:"Search query" mcp:"query" mcpdesc:"Search query"`
+	Type      string `name:"type" help:"Resource type: video, channel, playlist (comma-separated)" default:"video" mcp:"type,enum=video|channel|playlist" mcpdesc:"Result type"`
+	Order     string `name:"order" help:"Sort order: relevance, date, rating, title, videoCount, viewCount" default:"relevance" enum:"relevance,date,rating,title,videoCount,viewCount" mcp:"order,enum=relevance|date|rating|title|viewCount" mcpdesc:"Result order"`
+	ChannelID string `name:"channel-id" help:"Restrict results to a specific channel" mcp:"channel_id" mcpdesc:"Restrict to a channel ID"`
+	Max       int64  `name:"max" aliases:"limit" help:"Max results" default:"25" mcp:"max,default=25,min=1,max=50" mcpdesc:"Maximum results"`
 	Page      string `name:"page" help:"Page token"`
 }
 
