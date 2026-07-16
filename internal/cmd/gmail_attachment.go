@@ -104,7 +104,15 @@ func (c *GmailAttachmentCmd) Run(ctx context.Context, flags *RootFlags) error {
 		// Only hit messages.get when we might have a cache-hit candidate.
 		expectedSize = lookupAttachmentSizeEstimate(ctx, svc, messageID, attachmentID)
 	}
-	path, cached, bytes, err := downloadAttachmentToPath(ctx, svc, messageID, attachmentID, dest, expectedSize)
+	var path string
+	var cached bool
+	var bytes int64
+	var data []byte
+	if c.Inline {
+		path, bytes, data, err = downloadAttachmentFreshToPath(ctx, svc, messageID, attachmentID, dest)
+	} else {
+		path, cached, bytes, err = downloadAttachmentToPath(ctx, svc, messageID, attachmentID, dest, expectedSize)
+	}
 	if err != nil {
 		return err
 	}
@@ -118,21 +126,16 @@ func (c *GmailAttachmentCmd) Run(ctx context.Context, flags *RootFlags) error {
 		}
 	}
 	if c.Inline {
-		addInlineContent(payload, path, bytes)
+		addInlineContent(payload, data)
 	}
 	return printAttachmentDownloadResult(ctx, u, payload)
 }
 
-// addInlineContent embeds the downloaded file base64-encoded, or a reason when
-// it exceeds the inline size limit.
-func addInlineContent(payload map[string]any, path string, size int64) {
-	if size > maxInlineAttachmentBytes {
-		payload["reason"] = fmt.Sprintf("attachment size %d bytes exceeds inline size limit (%d bytes); content written to path only", size, maxInlineAttachmentBytes)
-		return
-	}
-	data, err := os.ReadFile(path) // #nosec G304 -- path is the attachment destination this command just wrote.
-	if err != nil {
-		payload["reason"] = fmt.Sprintf("failed to read downloaded attachment for inlining: %v", err)
+// addInlineContent embeds the fetched bytes, avoiding a second read of the
+// caller-controlled destination path.
+func addInlineContent(payload map[string]any, data []byte) {
+	if len(data) > maxInlineAttachmentBytes {
+		payload["reason"] = fmt.Sprintf("attachment size %d bytes exceeds inline size limit (%d bytes); content written to path only", len(data), maxInlineAttachmentBytes)
 		return
 	}
 	payload["contentBase64"] = base64.StdEncoding.EncodeToString(data)
@@ -248,14 +251,28 @@ func downloadAttachmentToPath(
 		return outPath, true, cachedSize, nil
 	}
 
+	path, size, _, err := downloadAttachmentFreshToPath(ctx, svc, messageID, attachmentID, outPath)
+	return path, false, size, err
+}
+
+func downloadAttachmentFreshToPath(
+	ctx context.Context,
+	svc *gmail.Service,
+	messageID string,
+	attachmentID string,
+	outPath string,
+) (string, int64, []byte, error) {
+	if strings.TrimSpace(outPath) == "" {
+		return "", 0, nil, errors.New("missing outPath")
+	}
 	data, err := fetchAttachmentBytes(ctx, svc, messageID, attachmentID)
 	if err != nil {
-		return "", false, 0, err
+		return "", 0, nil, err
 	}
 	if err := writeFileAtomic(outPath, data); err != nil {
-		return "", false, 0, err
+		return "", 0, nil, err
 	}
-	return outPath, false, int64(len(data)), nil
+	return outPath, int64(len(data)), data, nil
 }
 
 func cachedRegularFile(outPath string, expectedSize int64) (cached bool, size int64, err error) {
