@@ -27,8 +27,6 @@ type GmailCmd struct {
 
 	Settings GmailSettingsCmd `cmd:"" name:"settings" group:"Admin" help:"Settings and admin"`
 
-	PDFExtract GmailPDFExtractCmd `cmd:"" name:"pdf-extract" hidden:"" help:"Extract text from PDF bytes on stdin (internal: killable child for attachment --text)"`
-
 	Watch       GmailWatchCmd       `cmd:"" name:"watch" hidden:"" help:"Manage Gmail watch"`
 	AutoForward GmailAutoForwardCmd `cmd:"" name:"autoforward" hidden:"" help:"Auto-forwarding settings"`
 	Delegates   GmailDelegatesCmd   `cmd:"" name:"delegates" hidden:"" help:"Delegate operations"`

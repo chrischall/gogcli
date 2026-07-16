@@ -23,13 +23,11 @@ type GmailAttachmentCmd struct {
 	Output       OutputPathFlag `embed:""`
 	Name         string         `name:"name" help:"Filename (used when --out is empty or points to a directory)"`
 	Inline       bool           `name:"inline" help:"Also return the attachment content base64-encoded (contentBase64) in the response; attachments over the inline size limit fall back to the file path with an explanatory reason"`
-	Text         bool           `name:"text" help:"Also return the attachment content as extracted text (PDF, HTML, plain text) in the response"`
 }
 
 const defaultGmailAttachmentFilename = "attachment.bin"
 
-// maxInlineAttachmentBytes caps how much raw attachment content --inline and
-// --text will embed in the command output.
+// maxInlineAttachmentBytes caps how much raw attachment content --inline embeds.
 const maxInlineAttachmentBytes = 3 << 20
 
 func printAttachmentDownloadResult(ctx context.Context, u *ui.UI, payload map[string]any) error {
@@ -39,7 +37,7 @@ func printAttachmentDownloadResult(ctx context.Context, u *ui.UI, payload map[st
 	u.Out().Linef("path\t%s", payload["path"])
 	u.Out().Linef("cached\t%t", payload["cached"])
 	u.Out().Linef("bytes\t%d", payload["bytes"])
-	for _, key := range []string{"filename", "mimeType", "contentBase64", "text", "note", "reason"} {
+	for _, key := range []string{"filename", "mimeType", "contentBase64", "reason"} {
 		if v, ok := payload[key]; ok {
 			u.Out().Linef("%s\t%s", key, tsvSafeValue(v))
 		}
@@ -47,9 +45,6 @@ func printAttachmentDownloadResult(ctx context.Context, u *ui.UI, payload map[st
 	return nil
 }
 
-// tsvSafeValue keeps plain output a stable one-record-per-line TSV: values
-// containing tabs or newlines (e.g. extracted attachment text) are emitted as
-// a single Go-quoted field.
 func tsvSafeValue(v any) string {
 	s := fmt.Sprintf("%v", v)
 	if strings.ContainsAny(s, "\t\n\r") {
@@ -65,10 +60,6 @@ func (c *GmailAttachmentCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if messageID == "" || attachmentID == "" {
 		return usage("messageId/attachmentId required")
 	}
-	if c.Inline && c.Text {
-		return usage("--inline and --text are mutually exclusive")
-	}
-
 	defaultDir := ""
 	if strings.TrimSpace(c.Output.Path) == "" {
 		layout, err := commandLayout(ctx, config.PathKindConfig)
@@ -87,6 +78,7 @@ func (c *GmailAttachmentCmd) Run(ctx context.Context, flags *RootFlags) error {
 		"message_id":    messageID,
 		"attachment_id": attachmentID,
 		"path":          dest,
+		"inline":        c.Inline,
 	}); dryRunErr != nil {
 		return dryRunErr
 	}
@@ -103,13 +95,10 @@ func (c *GmailAttachmentCmd) Run(ctx context.Context, flags *RootFlags) error {
 
 	expectedSize := int64(-1)
 	var info *attachmentInfo
-	if c.Inline || c.Text {
-		// Content modes need the part metadata (filename/mimeType); its size
-		// doubles as the cache-check estimate.
+	if c.Inline {
+		// Inline output needs the part metadata, but always fetches the attachment
+		// so contentBase64 cannot expose a stale same-size local cache entry.
 		info = lookupAttachmentPartInfo(ctx, svc, messageID, attachmentID)
-		if info != nil {
-			expectedSize = info.Size
-		}
 	} else if st, statErr := os.Stat(dest); statErr == nil && st.Mode().IsRegular() {
 		// Only hit messages.get when we might have a cache-hit candidate.
 		expectedSize = lookupAttachmentSizeEstimate(ctx, svc, messageID, attachmentID)
@@ -129,13 +118,6 @@ func (c *GmailAttachmentCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 	if c.Inline {
 		addInlineContent(payload, path, bytes)
-	}
-	if c.Text {
-		filename, mimeType := "", ""
-		if info != nil {
-			filename, mimeType = info.Filename, info.MimeType
-		}
-		addTextContent(ctx, payload, path, bytes, filename, mimeType)
 	}
 	return printAttachmentDownloadResult(ctx, u, payload)
 }

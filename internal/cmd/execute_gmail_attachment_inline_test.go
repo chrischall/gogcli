@@ -59,13 +59,6 @@ func newGmailAttachmentTestServiceWithPayloadID(t *testing.T, data []byte, filen
 	}}})
 }
 
-// newGmailAttachmentTestServiceNoParts serves a message whose payload exposes
-// no attachment parts at all.
-func newGmailAttachmentTestServiceNoParts(t *testing.T, data []byte) *gmail.Service {
-	t.Helper()
-	return newGmailAttachmentTestServicePayload(t, data, map[string]any{})
-}
-
 func TestExecute_GmailAttachment_Inline_SmallAttachment_ReturnsBase64(t *testing.T) {
 	data := []byte("hello inline attachment")
 	svc := newGmailAttachmentTestService(t, data, "photo.png", "image/png")
@@ -140,7 +133,7 @@ func TestExecute_GmailAttachment_Default_OutputUnchanged(t *testing.T) {
 		"--out", outPath,
 	)
 
-	for _, key := range []string{"contentBase64", "text", "reason", "mimeType", "filename"} {
+	for _, key := range []string{"contentBase64", "reason", "mimeType", "filename"} {
 		if _, ok := parsed[key]; ok {
 			t.Fatalf("default output must not contain %q: %#v", key, parsed)
 		}
@@ -150,14 +143,82 @@ func TestExecute_GmailAttachment_Default_OutputUnchanged(t *testing.T) {
 	}
 }
 
-func TestExecute_GmailAttachment_InlineAndText_Rejected(t *testing.T) {
-	svc := newGmailAttachmentTestService(t, []byte("x"), "a.txt", "text/plain")
-	result := executeWithGmailTestService(t, []string{
+func TestExecute_GmailAttachment_Inline_RefreshesSameSizeCache(t *testing.T) {
+	fresh := []byte("fresh bytes")
+	stale := []byte("stale bytes")
+	if len(fresh) != len(stale) {
+		t.Fatal("test fixture sizes must match")
+	}
+	var attachmentCalls int32
+	svc := newGmailAttachmentCacheTestService(t, fresh, "a.txt", &attachmentCalls)
+	outPath := tempFilePath(t, "a.txt")
+	if err := os.WriteFile(outPath, stale, 0o600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	parsed := executeGmailAttachmentJSON(t, svc,
 		"--json", "--account", "a@b.com",
 		"gmail", "attachment", "m1", "a1",
-		"--out", tempFilePath(t, "a.txt"), "--inline", "--text",
+		"--out", outPath, "--inline",
+	)
+	if parsed["cached"] != false {
+		t.Fatalf("inline output must not use local cache: %#v", parsed)
+	}
+	got, err := base64.StdEncoding.DecodeString(parsed["contentBase64"].(string))
+	if err != nil {
+		t.Fatalf("DecodeString: %v", err)
+	}
+	if !bytes.Equal(got, fresh) {
+		t.Fatalf("content=%q want=%q", got, fresh)
+	}
+	written, err := os.ReadFile(outPath)
+	if err != nil {
+		t.Fatalf("ReadFile: %v", err)
+	}
+	if !bytes.Equal(written, fresh) {
+		t.Fatalf("file=%q want=%q", written, fresh)
+	}
+	if attachmentCalls != 1 {
+		t.Fatalf("attachment calls=%d want=1", attachmentCalls)
+	}
+}
+
+func TestExecute_GmailAttachment_Inline_DryRunReportsMode(t *testing.T) {
+	result := executeWithTestRuntime(t, []string{
+		"--json", "--dry-run", "--account", "a@b.com",
+		"gmail", "attachment", "m1", "a1",
+		"--out", tempFilePath(t, "a.txt"), "--inline",
+	}, nil)
+	if result.err != nil {
+		t.Fatalf("Execute: %v\nstderr=%q", result.err, result.stderr)
+	}
+	var parsed struct {
+		DryRun  bool           `json:"dry_run"`
+		Request map[string]any `json:"request"`
+	}
+	if err := json.Unmarshal([]byte(result.stdout), &parsed); err != nil {
+		t.Fatalf("Unmarshal: %v\nstdout=%q", err, result.stdout)
+	}
+	if !parsed.DryRun || parsed.Request["inline"] != true {
+		t.Fatalf("unexpected dry-run output: %#v", parsed)
+	}
+}
+
+func TestExecute_GmailAttachment_Inline_PlainEscapesMetadata(t *testing.T) {
+	svc := newGmailAttachmentTestService(t, []byte("x"), "unsafe\tname\n.txt", "text/plain")
+	result := executeWithGmailTestService(t, []string{
+		"--plain", "--account", "a@b.com",
+		"gmail", "attachment", "m1", "a1",
+		"--out", tempFilePath(t, "a.txt"), "--inline",
 	}, svc)
-	if result.err == nil {
-		t.Fatalf("expected usage error for --inline with --text, got stdout=%q", result.stdout)
+	if result.err != nil {
+		t.Fatalf("Execute: %v\nstderr=%q", result.err, result.stderr)
+	}
+	lines := strings.Split(strings.TrimSuffix(result.stdout, "\n"), "\n")
+	if len(lines) != 6 {
+		t.Fatalf("plain output lines=%d want=6\noutput=%q", len(lines), result.stdout)
+	}
+	if lines[3] != "filename\t\"unsafe\\tname\\n.txt\"" {
+		t.Fatalf("filename line=%q", lines[3])
 	}
 }
