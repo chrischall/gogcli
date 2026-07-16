@@ -205,7 +205,7 @@ func TestExecute_GmailAttachment_Inline_DryRunReportsMode(t *testing.T) {
 }
 
 func TestExecute_GmailAttachment_Inline_PlainEscapesMetadata(t *testing.T) {
-	svc := newGmailAttachmentTestService(t, []byte("x"), "unsafe\tname\n.txt", "text/plain")
+	svc := newGmailAttachmentTestService(t, []byte("x"), "unsafe\x1b[31m.txt", "text/plain")
 	result := executeWithGmailTestService(t, []string{
 		"--plain", "--account", "a@b.com",
 		"gmail", "attachment", "m1", "a1",
@@ -218,7 +218,45 @@ func TestExecute_GmailAttachment_Inline_PlainEscapesMetadata(t *testing.T) {
 	if len(lines) != 6 {
 		t.Fatalf("plain output lines=%d want=6\noutput=%q", len(lines), result.stdout)
 	}
-	if lines[3] != "filename\t\"unsafe\\tname\\n.txt\"" {
+	if lines[3] != "filename\t\"unsafe\\x1b[31m.txt\"" {
 		t.Fatalf("filename line=%q", lines[3])
+	}
+}
+
+func TestExecute_GmailAttachment_Default_CacheRequiresExactAttachmentID(t *testing.T) {
+	fresh := []byte("fresh bytes")
+	stale := []byte("stale bytes")
+	svc := newGmailAttachmentTestServiceWithPayloadID(t, fresh, "a.txt", "text/plain", "different-id")
+	outPath := tempFilePath(t, "a.txt")
+	if err := os.WriteFile(outPath, stale, 0o600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	parsed := executeGmailAttachmentJSON(t, svc,
+		"--json", "--account", "a@b.com",
+		"gmail", "attachment", "m1", "a1",
+		"--out", outPath,
+	)
+	if parsed["cached"] != false {
+		t.Fatalf("non-matching attachment ID must not use cache: %#v", parsed)
+	}
+	written, err := os.ReadFile(outPath)
+	if err != nil {
+		t.Fatalf("ReadFile: %v", err)
+	}
+	if !bytes.Equal(written, fresh) {
+		t.Fatalf("file=%q want=%q", written, fresh)
+	}
+}
+
+func TestExecute_GmailAttachment_Inline_MetadataAllowsSingleAttachmentFallback(t *testing.T) {
+	svc := newGmailAttachmentTestServiceWithPayloadID(t, []byte("x"), "fallback.txt", "text/plain", "different-id")
+	parsed := executeGmailAttachmentJSON(t, svc,
+		"--json", "--account", "a@b.com",
+		"gmail", "attachment", "m1", "a1",
+		"--out", tempFilePath(t, "a.txt"), "--inline",
+	)
+	if parsed["filename"] != "fallback.txt" || parsed["mimeType"] != "text/plain" {
+		t.Fatalf("single-attachment metadata fallback missing: %#v", parsed)
 	}
 }

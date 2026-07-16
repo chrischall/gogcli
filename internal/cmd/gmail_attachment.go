@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"google.golang.org/api/gmail/v1"
 
@@ -47,7 +48,7 @@ func printAttachmentDownloadResult(ctx context.Context, u *ui.UI, payload map[st
 
 func tsvSafeValue(v any) string {
 	s := fmt.Sprintf("%v", v)
-	if strings.ContainsAny(s, "\t\n\r") {
+	if strings.IndexFunc(s, unicode.IsControl) >= 0 {
 		return strconv.Quote(s)
 	}
 	return s
@@ -98,7 +99,7 @@ func (c *GmailAttachmentCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if c.Inline {
 		// Inline output needs the part metadata, but always fetches the attachment
 		// so contentBase64 cannot expose a stale same-size local cache entry.
-		info = lookupAttachmentPartInfo(ctx, svc, messageID, attachmentID)
+		info = lookupAttachmentPartInfo(ctx, svc, messageID, attachmentID, true)
 	} else if st, statErr := os.Stat(dest); statErr == nil && st.Mode().IsRegular() {
 		// Only hit messages.get when we might have a cache-hit candidate.
 		expectedSize = lookupAttachmentSizeEstimate(ctx, svc, messageID, attachmentID)
@@ -195,7 +196,7 @@ func sanitizeAttachmentFilename(name, fallback string) string {
 }
 
 func lookupAttachmentSizeEstimate(ctx context.Context, svc *gmail.Service, messageID, attachmentID string) int64 {
-	info := lookupAttachmentPartInfo(ctx, svc, messageID, attachmentID)
+	info := lookupAttachmentPartInfo(ctx, svc, messageID, attachmentID, false)
 	if info == nil || info.Size <= 0 {
 		return -1
 	}
@@ -205,7 +206,7 @@ func lookupAttachmentSizeEstimate(ctx context.Context, svc *gmail.Service, messa
 // lookupAttachmentPartInfo fetches the message payload to resolve the part
 // metadata (filename, mimeType, size) for an attachment ID. Best-effort: nil
 // when the lookup fails or the attachment is not found.
-func lookupAttachmentPartInfo(ctx context.Context, svc *gmail.Service, messageID, attachmentID string) *attachmentInfo {
+func lookupAttachmentPartInfo(ctx context.Context, svc *gmail.Service, messageID, attachmentID string, allowSingleFallback bool) *attachmentInfo {
 	if svc == nil {
 		return nil
 	}
@@ -221,7 +222,7 @@ func lookupAttachmentPartInfo(ctx context.Context, svc *gmail.Service, messageID
 	}
 	// Gmail attachment IDs are not stable across API responses, so an exact
 	// match can miss; with a single attachment it is unambiguous anyway.
-	if len(attachments) == 1 {
+	if allowSingleFallback && len(attachments) == 1 {
 		return &attachments[0]
 	}
 	return nil
