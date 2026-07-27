@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Gmail: mark unsent drafts in human-readable message and thread output while preserving JSON and plain output contracts. (#931, #932) — thanks @MaxGhenis.
+- Gmail: report exact file-input byte counts in compose dry-run output, including forwarded-message notes with trailing newlines. (#936, #937) — thanks @chrischall.
 - Docs: `docs write` now rejects an explicitly empty `--tab`/`--tab-id` value instead of silently targeting the whole document.
 
 ## 0.34.1 - 2026-07-16
