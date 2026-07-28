@@ -191,9 +191,13 @@ func (c *GmailMessagesModifyCmd) Run(ctx context.Context, flags *RootFlags) erro
 }
 
 type messageItem struct {
-	ID          string             `json:"id"`
-	ThreadID    string             `json:"threadId,omitempty"`
-	Date        string             `json:"date,omitempty"`
+	ID       string `json:"id"`
+	ThreadID string `json:"threadId,omitempty"`
+	Date     string `json:"date,omitempty"`
+	// DateISO is the same instant as Date but RFC3339 with an explicit offset,
+	// sourced from the API's internalDate rather than the sender's Date header.
+	// Date stays the compact human column; this is what a parser should read.
+	DateISO     string             `json:"dateIso,omitempty"`
 	From        string             `json:"from,omitempty"`
 	Subject     string             `json:"subject,omitempty"`
 	Labels      []string           `json:"labels,omitempty"`
@@ -258,6 +262,7 @@ func fetchMessageDetails(ctx context.Context, svc *gmail.Service, messages []*gm
 			item.From = sanitizeTab(headerValue(msg.Payload, "From"))
 			item.Subject = sanitizeTab(headerValue(msg.Payload, "Subject"))
 			item.Date = formatGmailDateInLocation(headerValue(msg.Payload, "Date"), loc)
+			item.DateISO = formatGmailDateISO(msg.InternalDate, loc)
 			if includeBody {
 				if preferHTML {
 					item.Body = gmailcontent.BestBodyHTML(msg.Payload)

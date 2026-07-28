@@ -196,8 +196,11 @@ func isUnsubscribeLink(raw string) bool {
 }
 
 type threadItem struct {
-	ID           string   `json:"id"`
-	Date         string   `json:"date,omitempty"`
+	ID   string `json:"id"`
+	Date string `json:"date,omitempty"`
+	// DateISO is the same instant as Date but RFC3339 with an explicit offset,
+	// sourced from the API's internalDate rather than the sender's Date header.
+	DateISO      string   `json:"dateIso,omitempty"`
 	From         string   `json:"from,omitempty"`
 	Subject      string   `json:"subject,omitempty"`
 	Labels       []string `json:"labels,omitempty"`
@@ -271,6 +274,7 @@ func fetchThreadDetails(ctx context.Context, svc *gmail.Service, threads []*gmai
 			}
 			if dateMsg != nil {
 				item.Date = formatGmailDateInLocation(headerValue(dateMsg.Payload, "Date"), loc)
+				item.DateISO = formatGmailDateISO(dateMsg.InternalDate, loc)
 			}
 
 			results <- result{index: idx, item: item}

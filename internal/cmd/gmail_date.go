@@ -39,6 +39,31 @@ func formatGmailDateInLocation(raw string, loc *time.Location) string {
 	return formatMailDateInLocation(raw, loc, listDateLayout)
 }
 
+// formatGmailDateISO renders a message's internalDate as RFC3339 in loc.
+//
+// Two things make this the value a machine consumer should read:
+//
+//   - It carries an explicit offset. listDateLayout ("2006-01-02 15:04") does
+//     not, so a caller that sees "2026-07-28 03:36" has to already know which
+//     zone gog was configured for. Get that wrong and the timestamp can land on
+//     the wrong calendar DAY, which is what makes it worse than merely
+//     imprecise.
+//   - internalDate is the Gmail API's own receipt timestamp (epoch
+//     milliseconds, UTC). The Date header is written by the sending client and
+//     varies in format, offset, and honesty; internalDate does not.
+//
+// Returns "" when internalDate is absent, so the field stays omitempty rather
+// than claiming the Unix epoch.
+func formatGmailDateISO(internalDateMillis int64, loc *time.Location) string {
+	if internalDateMillis <= 0 {
+		return ""
+	}
+	if loc == nil {
+		loc = time.Local
+	}
+	return time.UnixMilli(internalDateMillis).In(loc).Format(time.RFC3339)
+}
+
 // formatQuoteDate renders an original message's Date header in the Gmail-style
 // human form used for quoted replies and forwarded-message headers, converted
 // into loc (matching how Gmail shows the attribution in the reader's timezone).
