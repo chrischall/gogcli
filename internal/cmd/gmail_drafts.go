@@ -286,12 +286,13 @@ type draftComposeInput struct {
 	// InReplyTo/References carry a reply lineage that has already been
 	// resolved elsewhere — on update, the lineage the draft itself already
 	// stores. Applied verbatim, so repeated updates are idempotent.
-	InReplyTo  string
-	References string
-	ReplyAll   bool
-	ReplyTo    string
-	Quote      bool
-	Attach     []string
+	InReplyTo          string
+	References         string
+	ReplyContextSource string
+	ReplyAll           bool
+	ReplyTo            string
+	Quote              bool
+	Attach             []string
 	// PrebuiltAttachments carry already-resolved attachment bytes (e.g. existing
 	// draft attachments preserved across an update) alongside any --attach paths.
 	PrebuiltAttachments []mailmime.Attachment
@@ -328,7 +329,7 @@ func buildDraftMessage(ctx context.Context, svc *gmail.Service, account string, 
 	}
 	replyContextSource := ""
 	if strings.TrimSpace(info.InReplyTo) != "" {
-		replyContextSource = replyContextCaller
+		replyContextSource = replyContextExplicit
 	}
 	// No reply target resolved a thread, so fall back to the thread the message
 	// already lives in. Thread continuity only — this must not populate
@@ -344,7 +345,10 @@ func buildDraftMessage(ctx context.Context, svc *gmail.Service, account string, 
 		if strings.TrimSpace(info.References) == "" {
 			info.References = input.InReplyTo
 		}
-		replyContextSource = replyContextCarried
+		replyContextSource = input.ReplyContextSource
+		if replyContextSource == "" {
+			replyContextSource = replyContextPreserved
+		}
 	}
 	threading := draftThreading{
 		ThreadID:   info.ThreadID,
@@ -490,10 +494,10 @@ func fetchDraftAttachmentBytes(ctx context.Context, svc *gmail.Service, messageI
 
 // draftThreading is the threading actually written to a draft: where it lives
 // (ThreadID) and what it replies to (InReplyTo/References), reported back so a
-// caller can verify without re-fetching raw headers. Source records where the
-// reply lineage came from — "caller" (an explicit reply target) or "carried"
-// (preserved from the draft's own stored headers); empty when the draft has no
-// reply context at all, which reports as null alongside the headers themselves.
+// caller can verify without re-fetching raw headers. Source records whether the
+// reply lineage was explicitly selected, preserved after validation, or
+// repaired from the existing thread. It is empty when the draft has no reply
+// context, which reports as null alongside the headers themselves.
 type draftThreading struct {
 	ThreadID   string
 	InReplyTo  string
@@ -502,9 +506,119 @@ type draftThreading struct {
 }
 
 const (
-	replyContextCaller  = "caller"
-	replyContextCarried = "carried"
+	replyContextExplicit  = "explicit"
+	replyContextPreserved = "preserved"
+	replyContextRepaired  = "repaired"
 )
+
+func resolveStoredDraftReplyContext(
+	ctx context.Context,
+	svc *gmail.Service,
+	threadID string,
+	inReplyTo string,
+	references string,
+) (draftThreading, error) {
+	threadID = strings.TrimSpace(threadID)
+	inReplyTo = strings.TrimSpace(inReplyTo)
+	references = strings.TrimSpace(references)
+	if inReplyTo == "" && references == "" {
+		return draftThreading{ThreadID: threadID}, nil
+	}
+	if threadID == "" {
+		return draftThreading{}, errors.New(
+			"stored draft reply context cannot be validated without a Gmail thread; use --reply-to-message-id or --thread-id to repair it, or --clear-reply-context to make the draft standalone",
+		)
+	}
+
+	thread, err := fetchThreadForReplyInfo(ctx, svc, threadID)
+	if err != nil {
+		return draftThreading{}, fmt.Errorf("validate stored draft reply context in thread %s: %w", threadID, err)
+	}
+	if thread == nil {
+		return draftThreading{}, fmt.Errorf(
+			"stored draft reply context cannot be repaired: thread %s was not returned by Gmail; use --reply-to-message-id or --thread-id to choose a parent, or --clear-reply-context to make the draft standalone",
+			threadID,
+		)
+	}
+
+	parentsByMessageID := make(map[string]*gmail.Message)
+	validParents := make([]*gmail.Message, 0, len(thread.Messages))
+	for _, msg := range nonDraftMessages(thread.Messages) {
+		messageID := strings.TrimSpace(headerValue(msg.Payload, "Message-ID"))
+		if messageID == "" {
+			messageID = strings.TrimSpace(headerValue(msg.Payload, "Message-Id"))
+		}
+		if messageID == "" {
+			continue
+		}
+		parentsByMessageID[messageID] = msg
+		validParents = append(validParents, msg)
+	}
+
+	if _, ok := newestMatchingReplyParent(inReplyTo, parentsByMessageID); ok {
+		return draftThreading{
+			ThreadID:   threadID,
+			InReplyTo:  inReplyTo,
+			References: references,
+			Source:     replyContextPreserved,
+		}, nil
+	}
+
+	parent, ok := newestMatchingReplyParent(references, parentsByMessageID)
+	if !ok {
+		parent = selectLatestThreadMessage(validParents)
+	}
+	if parent == nil {
+		return draftThreading{}, fmt.Errorf(
+			"stored draft reply context cannot be repaired: thread %s has no sent or received message with a Message-ID; use --reply-to-message-id or --thread-id to choose a parent, or --clear-reply-context to make the draft standalone",
+			threadID,
+		)
+	}
+
+	info := replyInfoFromMessage(parent, false)
+	if strings.TrimSpace(info.InReplyTo) == "" {
+		return draftThreading{}, fmt.Errorf(
+			"stored draft reply context cannot be repaired from thread %s; use --reply-to-message-id or --thread-id to choose a parent, or --clear-reply-context to make the draft standalone",
+			threadID,
+		)
+	}
+	return draftThreading{
+		ThreadID:   threadID,
+		InReplyTo:  strings.TrimSpace(info.InReplyTo),
+		References: strings.TrimSpace(info.References),
+		Source:     replyContextRepaired,
+	}, nil
+}
+
+func newestMatchingReplyParent(header string, parentsByMessageID map[string]*gmail.Message) (*gmail.Message, bool) {
+	ids := messageIDsFromHeader(header)
+	for i := len(ids) - 1; i >= 0; i-- {
+		if parent, ok := parentsByMessageID[ids[i]]; ok {
+			return parent, true
+		}
+	}
+	return nil, false
+}
+
+func messageIDsFromHeader(header string) []string {
+	var ids []string
+	for {
+		start := strings.IndexByte(header, '<')
+		if start < 0 {
+			break
+		}
+		header = header[start:]
+		end := strings.IndexByte(header, '>')
+		if end < 0 {
+			break
+		}
+		if end > 1 {
+			ids = append(ids, strings.TrimSpace(header[:end+1]))
+		}
+		header = header[end+1:]
+	}
+	return ids
+}
 
 // nilIfEmpty reports a header as an explicit JSON null when unset, so callers
 // can distinguish "no reply context" from "field not reported".
@@ -521,8 +635,8 @@ func writeDraftResult(ctx context.Context, u *ui.UI, draft *gmail.Draft, threadi
 		threadID = draft.Message.ThreadId
 	}
 	source := threading.Source
-	if source == replyContextCarried {
-		u.Err().Linef("Warning: reply headers preserved from the existing draft (In-Reply-To %s); pass --clear-reply-context to drop them", threading.InReplyTo)
+	if source == replyContextRepaired {
+		u.Err().Linef("Warning: repaired stale draft reply context; now replying to %s", threading.InReplyTo)
 	}
 	if outfmt.IsJSON(ctx) {
 		result := map[string]any{
@@ -740,7 +854,7 @@ type GmailDraftsUpdateCmd struct {
 	Attach           []string `name:"attach" help:"Attachment file path (repeatable). Replaces existing attachments; omit to preserve them, or use --clear-attachments to remove all."`
 	ClearAttachments bool     `name:"clear-attachments" help:"Remove all attachments from the draft. By default, omitting --attach preserves the draft's existing attachments."`
 	//nolint:lll // flag help text
-	ClearReplyContext bool   `name:"clear-reply-context" help:"Strip In-Reply-To/References from the draft, making it a standalone message. By default an update preserves the draft's existing reply headers."`
+	ClearReplyContext bool   `name:"clear-reply-context" help:"Strip In-Reply-To/References from the draft, making it standalone. By default an update validates stored reply headers and repairs stale context from the Gmail thread."`
 	From              string `name:"from" help:"Send from this email address (must be a verified send-as alias)"`
 }
 
@@ -893,24 +1007,31 @@ func (c *GmailDraftsUpdateCmd) Run(ctx context.Context, flags *RootFlags) error 
 		replyToThreadID = threadID
 	}
 
-	// Reply lineage survives an update because it is carried forward from the
-	// draft's own stored headers, not re-derived. Applying the same values
-	// every time keeps repeated updates idempotent and stops References from
-	// accumulating. An explicit target re-resolves instead; --clear-reply-context
-	// drops the lineage entirely.
-	carriedInReplyTo := ""
-	carriedReferences := ""
+	// Validate stored reply lineage against sent or received messages in the
+	// existing thread. Healthy context is preserved verbatim; stale context
+	// left by an older draft revision is repaired automatically. An explicit
+	// target re-resolves instead; --clear-reply-context drops the lineage.
+	var storedReplyContext draftThreading
 	if !c.ClearReplyContext && strings.TrimSpace(replyToMessageID) == "" && strings.TrimSpace(replyToThreadID) == "" {
-		carriedInReplyTo = existingInReplyTo
-		carriedReferences = existingReferences
+		storedReplyContext, err = resolveStoredDraftReplyContext(
+			ctx,
+			svc,
+			targetThreadID,
+			existingInReplyTo,
+			existingReferences,
+		)
+		if err != nil {
+			return err
+		}
 	}
 
 	input.To = to
 	input.ReplyToMessageID = replyToMessageID
 	input.ReplyToThreadID = replyToThreadID
 	input.ThreadContinuityID = targetThreadID
-	input.InReplyTo = carriedInReplyTo
-	input.References = carriedReferences
+	input.InReplyTo = storedReplyContext.InReplyTo
+	input.References = storedReplyContext.References
+	input.ReplyContextSource = storedReplyContext.Source
 
 	msg, threading, attachmentMetadata, err := buildDraftMessage(ctx, svc, account, input)
 	if err != nil {
