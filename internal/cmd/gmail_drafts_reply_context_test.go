@@ -93,9 +93,20 @@ func (c *draftReplyContextServer) rawPosted(t *testing.T) string {
 
 func runReplyCtxUpdate(t *testing.T, srv *httptest.Server, stdout io.Writer, args ...string) error {
 	t.Helper()
+	return runReplyCtxUpdateWithOutputs(t, srv, stdout, io.Discard, args...)
+}
+
+func runReplyCtxUpdateWithOutputs(
+	t *testing.T,
+	srv *httptest.Server,
+	stdout io.Writer,
+	stderr io.Writer,
+	args ...string,
+) error {
+	t.Helper()
 	svc := newGmailServiceFromServer(t, srv)
 	flags := &RootFlags{Account: "me@example.com"}
-	ctx := withGmailTestService(newCmdRuntimeJSONOutputContext(t, stdout, io.Discard), svc)
+	ctx := withGmailTestService(newCmdRuntimeJSONOutputContext(t, stdout, stderr), svc)
 	return runKong(t, &GmailDraftsUpdateCmd{}, args, ctx, flags)
 }
 
@@ -201,11 +212,30 @@ func TestGmailDraftsUpdateCmd_GenuineReplyContextPreserved(t *testing.T) {
 			{"name": "References", "value": "<orig@example.com>"},
 			{"name": "To", "value": "alice@example.com"},
 		},
-		threads: map[string][]map[string]any{},
+		threads: map[string][]map[string]any{
+			"tReal": {{
+				"id": "mOrig", "threadId": "tReal", "internalDate": "1000",
+				"labelIds": []string{"INBOX"},
+				"payload": map[string]any{"headers": []map[string]any{
+					{"name": "Message-ID", "value": "<orig@example.com>"},
+				}},
+			}},
+		},
 	}
 	srv := newDraftReplyContextServer(t, cfg)
+	var stderr strings.Builder
 
-	if err := runReplyCtxUpdate(t, srv, io.Discard, "d1", "--subject", "Re: hi", "--body", "Updated"); err != nil {
+	if err := runReplyCtxUpdateWithOutputs(
+		t,
+		srv,
+		io.Discard,
+		&stderr,
+		"d1",
+		"--subject",
+		"Re: hi",
+		"--body",
+		"Updated",
+	); err != nil {
 		t.Fatalf("execute: %v", err)
 	}
 
@@ -218,6 +248,12 @@ func TestGmailDraftsUpdateCmd_GenuineReplyContextPreserved(t *testing.T) {
 	}
 	if strings.Contains(raw, "<self@mail.gmail.com>") {
 		t.Fatalf("draft referenced its own Message-Id:\n%s", raw)
+	}
+	if len(cfg.threadFetches) != 1 || cfg.threadFetches[0] != "tReal" {
+		t.Fatalf("stored reply context was not validated against its thread: %v", cfg.threadFetches)
+	}
+	if stderr.Len() != 0 {
+		t.Fatalf("healthy reply context produced a warning: %q", stderr.String())
 	}
 }
 
@@ -233,7 +269,16 @@ func TestGmailDraftsUpdateCmd_ReferencesDoNotAccumulate(t *testing.T) {
 				{"name": "References", "value": refs},
 				{"name": "To", "value": "alice@example.com"},
 			},
-			threads: map[string][]map[string]any{},
+			threads: map[string][]map[string]any{
+				"tReal": {{
+					"id": "mParent", "threadId": "tReal", "internalDate": "1000",
+					"labelIds": []string{"INBOX"},
+					"payload": map[string]any{"headers": []map[string]any{
+						{"name": "Message-ID", "value": "<b@example.com>"},
+						{"name": "References", "value": "<a@example.com>"},
+					}},
+				}},
+			},
 		}
 		srv := newDraftReplyContextServer(t, cfg)
 		if err := runReplyCtxUpdate(t, srv, io.Discard, "d1", "--subject", "Re: hi", "--body", "Updated"); err != nil {
@@ -246,6 +291,166 @@ func TestGmailDraftsUpdateCmd_ReferencesDoNotAccumulate(t *testing.T) {
 		if got := headerLines(raw, "In-Reply-To"); len(got) != 1 || got[0] != "<b@example.com>" {
 			t.Fatalf("round %d: In-Reply-To drifted to %q", i, got)
 		}
+	}
+}
+
+// A draft corrupted by an older gog update may point at a draft revision that
+// Gmail replaced. Recover the nearest real ancestor from References by default.
+func TestGmailDraftsUpdateCmd_RepairsLegacyReplyContextFromReferences(t *testing.T) {
+	cfg := &draftReplyContextServer{
+		existingThread: "tReal",
+		existingHeaders: []map[string]any{
+			{"name": "Message-ID", "value": "<current-draft@mail.gmail.com>"},
+			{"name": "In-Reply-To", "value": "<deleted-draft@mail.gmail.com>"},
+			{"name": "References", "value": "<root@example.com> <orig@example.com> <deleted-draft@mail.gmail.com>"},
+			{"name": "To", "value": "alice@example.com"},
+		},
+		threads: map[string][]map[string]any{
+			"tReal": {
+				{
+					"id": "mRoot", "threadId": "tReal", "internalDate": "1000",
+					"labelIds": []string{"INBOX"},
+					"payload": map[string]any{"headers": []map[string]any{
+						{"name": "Message-ID", "value": "<root@example.com>"},
+					}},
+				},
+				{
+					"id": "mOrig", "threadId": "tReal", "internalDate": "2000",
+					"labelIds": []string{"INBOX"},
+					"payload": map[string]any{"headers": []map[string]any{
+						{"name": "Message-ID", "value": "<orig@example.com>"},
+						{"name": "References", "value": "<root@example.com>"},
+					}},
+				},
+				{
+					"id": "mDraft", "threadId": "tReal", "internalDate": "9000",
+					"labelIds": []string{"DRAFT"},
+					"payload": map[string]any{"headers": []map[string]any{
+						{"name": "Message-ID", "value": "<current-draft@mail.gmail.com>"},
+					}},
+				},
+			},
+		},
+	}
+	srv := newDraftReplyContextServer(t, cfg)
+	var stdout strings.Builder
+	var stderr strings.Builder
+
+	if err := runReplyCtxUpdateWithOutputs(
+		t,
+		srv,
+		&stdout,
+		&stderr,
+		"d1",
+		"--subject",
+		"Re: hi",
+		"--body",
+		"Updated",
+	); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+
+	raw := cfg.rawPosted(t)
+	if got := headerLines(raw, "In-Reply-To"); len(got) != 1 || got[0] != "<orig@example.com>" {
+		t.Fatalf("legacy context was not repaired to the real parent: %q\n%s", got, raw)
+	}
+	if got := headerLines(raw, "References"); len(got) != 1 || got[0] != "<root@example.com> <orig@example.com>" {
+		t.Fatalf("legacy References were not rebuilt from the real parent: %q\n%s", got, raw)
+	}
+	if strings.Contains(raw, "deleted-draft@mail.gmail.com") {
+		t.Fatalf("repaired message retained the deleted draft revision:\n%s", raw)
+	}
+	if !strings.Contains(stderr.String(), "repaired stale draft reply context") {
+		t.Fatalf("repair was not reported on stderr: %q", stderr.String())
+	}
+
+	var result map[string]any
+	if err := json.Unmarshal([]byte(stdout.String()), &result); err != nil {
+		t.Fatalf("decode result %q: %v", stdout.String(), err)
+	}
+	if result["replyContextSource"] != "repaired" {
+		t.Fatalf("want replyContextSource repaired, got %#v", result["replyContextSource"])
+	}
+}
+
+// If a stale direct parent has no surviving ancestor in References, use the
+// newest sent or received message in the existing Gmail thread.
+func TestGmailDraftsUpdateCmd_RepairsLegacyReplyContextFromLatestMessage(t *testing.T) {
+	cfg := &draftReplyContextServer{
+		existingThread: "tReal",
+		existingHeaders: []map[string]any{
+			{"name": "Message-ID", "value": "<current-draft@mail.gmail.com>"},
+			{"name": "In-Reply-To", "value": "<deleted-draft@mail.gmail.com>"},
+			{"name": "References", "value": "<deleted-draft@mail.gmail.com>"},
+			{"name": "To", "value": "alice@example.com"},
+		},
+		threads: map[string][]map[string]any{
+			"tReal": {
+				{
+					"id": "mOlder", "threadId": "tReal", "internalDate": "1000",
+					"labelIds": []string{"INBOX"},
+					"payload": map[string]any{"headers": []map[string]any{
+						{"name": "Message-ID", "value": "<older@example.com>"},
+					}},
+				},
+				{
+					"id": "mLatest", "threadId": "tReal", "internalDate": "2000",
+					"labelIds": []string{"SENT"},
+					"payload": map[string]any{"headers": []map[string]any{
+						{"name": "Message-ID", "value": "<latest@example.com>"},
+						{"name": "References", "value": "<older@example.com>"},
+					}},
+				},
+			},
+		},
+	}
+	srv := newDraftReplyContextServer(t, cfg)
+
+	if err := runReplyCtxUpdate(t, srv, io.Discard, "d1", "--subject", "Re: hi", "--body", "Updated"); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+
+	raw := cfg.rawPosted(t)
+	if got := headerLines(raw, "In-Reply-To"); len(got) != 1 || got[0] != "<latest@example.com>" {
+		t.Fatalf("legacy context was not repaired to the latest real message: %q\n%s", got, raw)
+	}
+	if got := headerLines(raw, "References"); len(got) != 1 || got[0] != "<older@example.com> <latest@example.com>" {
+		t.Fatalf("References were not rebuilt from the latest real message: %q\n%s", got, raw)
+	}
+}
+
+func TestGmailDraftsUpdateCmd_UnrepairableLegacyReplyContextFails(t *testing.T) {
+	cfg := &draftReplyContextServer{
+		existingThread: "tDraftsOnly",
+		existingHeaders: []map[string]any{
+			{"name": "Message-ID", "value": "<current-draft@mail.gmail.com>"},
+			{"name": "In-Reply-To", "value": "<deleted-draft@mail.gmail.com>"},
+			{"name": "References", "value": "<deleted-draft@mail.gmail.com>"},
+			{"name": "To", "value": "alice@example.com"},
+		},
+		threads: map[string][]map[string]any{
+			"tDraftsOnly": {{
+				"id": "mDraft", "threadId": "tDraftsOnly", "internalDate": "1000",
+				"labelIds": []string{"DRAFT"},
+				"payload": map[string]any{"headers": []map[string]any{
+					{"name": "Message-ID", "value": "<current-draft@mail.gmail.com>"},
+				}},
+			}},
+		},
+	}
+	srv := newDraftReplyContextServer(t, cfg)
+
+	err := runReplyCtxUpdate(t, srv, io.Discard, "d1", "--subject", "Re: hi", "--body", "Updated")
+	if err == nil {
+		t.Fatal("expected stale context without a real parent to fail")
+	}
+	for _, want := range []string{"cannot be repaired", "--reply-to-message-id", "--clear-reply-context"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("error %q does not contain %q", err, want)
+		}
+	}
+	if cfg.posted.Message != nil {
+		t.Fatal("unrepairable context must not update the draft")
 	}
 }
 
@@ -427,7 +632,7 @@ func TestGmailDraftsUpdateCmd_ResultReportsReplyContext(t *testing.T) {
 		}
 	})
 
-	t.Run("carried", func(t *testing.T) {
+	t.Run("preserved", func(t *testing.T) {
 		cfg := &draftReplyContextServer{
 			existingThread: "tReal",
 			existingHeaders: []map[string]any{
@@ -436,7 +641,15 @@ func TestGmailDraftsUpdateCmd_ResultReportsReplyContext(t *testing.T) {
 				{"name": "References", "value": "<orig@example.com>"},
 				{"name": "To", "value": "a@example.com"},
 			},
-			threads: map[string][]map[string]any{},
+			threads: map[string][]map[string]any{
+				"tReal": {{
+					"id": "mOrig", "threadId": "tReal", "internalDate": "1000",
+					"labelIds": []string{"INBOX"},
+					"payload": map[string]any{"headers": []map[string]any{
+						{"name": "Message-ID", "value": "<orig@example.com>"},
+					}},
+				}},
+			},
 		}
 		srv := newDraftReplyContextServer(t, cfg)
 		var out strings.Builder
@@ -448,13 +661,13 @@ func TestGmailDraftsUpdateCmd_ResultReportsReplyContext(t *testing.T) {
 			t.Fatalf("decode result %q: %v", out.String(), err)
 		}
 		if got["inReplyTo"] != "<orig@example.com>" {
-			t.Fatalf("want carried inReplyTo, got %#v", got["inReplyTo"])
+			t.Fatalf("want preserved inReplyTo, got %#v", got["inReplyTo"])
 		}
 		if got["references"] != "<orig@example.com>" {
-			t.Fatalf("want carried references, got %#v", got["references"])
+			t.Fatalf("want preserved references, got %#v", got["references"])
 		}
-		if got["replyContextSource"] != "carried" {
-			t.Fatalf("want replyContextSource carried, got %#v", got["replyContextSource"])
+		if got["replyContextSource"] != "preserved" {
+			t.Fatalf("want replyContextSource preserved, got %#v", got["replyContextSource"])
 		}
 	})
 }
