@@ -9,7 +9,7 @@
 - Gmail: report exact file-input byte counts in compose dry-run output, including forwarded-message notes with trailing newlines. (#936, #937) — thanks @chrischall.
 - Setup: replace obsolete Google Cloud API enablement links with direct API Library URLs while preserving project-scoped recovery hints. (#933) — thanks @LinXunFeng.
 - Docs: `docs write` now rejects an explicitly empty `--tab`/`--tab-id` value instead of silently targeting the whole document.
-- Gmail: stop `drafts update` anchoring `In-Reply-To`/`References` to the draft's own previous revision, keeping thread continuity separate from reply lineage, preserving genuine reply context across repeated updates without growing `References`, refusing drafts as reply targets, reporting the effective reply context, and adding `--clear-reply-context`. (#942)
+- Gmail: stop `drafts update` anchoring `In-Reply-To`/`References` to the draft's own previous revision, keeping thread continuity separate from reply lineage, preserving genuine reply context across repeated updates without growing `References`, refusing drafts as reply targets, reporting the effective reply context, and adding `--clear-reply-context`. (#942, #944)
 
 ## 0.34.1 - 2026-07-16
 
