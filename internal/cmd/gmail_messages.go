@@ -194,15 +194,17 @@ type messageItem struct {
 	ID       string `json:"id"`
 	ThreadID string `json:"threadId,omitempty"`
 	Date     string `json:"date,omitempty"`
-	// DateISO is the same instant as Date but RFC3339 with an explicit offset,
-	// sourced from the API's internalDate rather than the sender's Date header.
+	// InternalDateISO is Gmail's own internalDate — the instant Google accepted
+	// the message — rendered RFC3339 with an explicit offset. It is a DIFFERENT
+	// value from Date, which parses the sender-written Date header: the two
+	// disagree whenever that header is skewed, malformed, or in another zone.
 	// Date stays the compact human column; this is what a parser should read.
-	DateISO     string             `json:"dateIso,omitempty"`
-	From        string             `json:"from,omitempty"`
-	Subject     string             `json:"subject,omitempty"`
-	Labels      []string           `json:"labels,omitempty"`
-	Body        string             `json:"body,omitempty"`
-	Attachments []attachmentOutput `json:"attachments,omitempty"`
+	InternalDateISO string             `json:"internalDateIso,omitempty"`
+	From            string             `json:"from,omitempty"`
+	Subject         string             `json:"subject,omitempty"`
+	Labels          []string           `json:"labels,omitempty"`
+	Body            string             `json:"body,omitempty"`
+	Attachments     []attachmentOutput `json:"attachments,omitempty"`
 }
 
 func fetchMessageDetails(ctx context.Context, svc *gmail.Service, messages []*gmail.Message, idToName map[string]string, loc *time.Location, includeBody bool, bodyFormat string) ([]messageItem, error) {
@@ -246,7 +248,7 @@ func fetchMessageDetails(ctx context.Context, svc *gmail.Service, messages []*gm
 			} else {
 				call = call.Format("metadata").
 					MetadataHeaders(gmailMessageSummaryMetadataHeaders...).
-					Fields("id,threadId,labelIds,payload(headers)")
+					Fields(gmailMessageSummaryFields)
 			}
 			msg, err := call.Context(ctx).Do()
 			if err != nil {
@@ -262,7 +264,7 @@ func fetchMessageDetails(ctx context.Context, svc *gmail.Service, messages []*gm
 			item.From = sanitizeTab(headerValue(msg.Payload, "From"))
 			item.Subject = sanitizeTab(headerValue(msg.Payload, "Subject"))
 			item.Date = formatGmailDateInLocation(headerValue(msg.Payload, "Date"), loc)
-			item.DateISO = formatGmailDateISO(msg.InternalDate, loc)
+			item.InternalDateISO = formatGmailDateISO(msg.InternalDate, loc)
 			if includeBody {
 				if preferHTML {
 					item.Body = gmailcontent.BestBodyHTML(msg.Payload)
