@@ -194,10 +194,12 @@ type messageItem struct {
 	ID       string `json:"id"`
 	ThreadID string `json:"threadId,omitempty"`
 	Date     string `json:"date,omitempty"`
-	// InternalDateISO is Gmail's own internalDate — the instant Google accepted
-	// the message — rendered RFC3339 with an explicit offset. It is a DIFFERENT
-	// value from Date, which parses the sender-written Date header: the two
-	// disagree whenever that header is skewed, malformed, or in another zone.
+	// InternalDateISO is Gmail's own internalDate rendered RFC3339 with an
+	// explicit offset. It is a SEPARATELY SOURCED value from Date, which parses
+	// the sender-written Date header: for normal SMTP mail internalDate is when
+	// Google accepted the message, so the two can disagree when that header is
+	// skewed, malformed, or in another zone. They are not guaranteed to differ —
+	// API-migrated mail may have internalDate derived from the Date header.
 	// Date stays the compact human column; this is what a parser should read.
 	InternalDateISO string             `json:"internalDateIso,omitempty"`
 	From            string             `json:"from,omitempty"`

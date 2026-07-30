@@ -199,8 +199,9 @@ type threadItem struct {
 	ID   string `json:"id"`
 	Date string `json:"date,omitempty"`
 	// InternalDateISO is Gmail's own internalDate for the same message Date is
-	// taken from, rendered RFC3339 with an explicit offset. It is a DIFFERENT
-	// value from Date, which parses the sender-written Date header.
+	// taken from, rendered RFC3339 with an explicit offset. It is a SEPARATELY
+	// SOURCED value from Date, which parses the sender-written Date header; the
+	// two can disagree, and for API-migrated mail can share a source.
 	InternalDateISO string   `json:"internalDateIso,omitempty"`
 	From            string   `json:"from,omitempty"`
 	Subject         string   `json:"subject,omitempty"`

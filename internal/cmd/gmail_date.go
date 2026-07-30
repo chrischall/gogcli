@@ -48,9 +48,13 @@ func formatGmailDateInLocation(raw string, loc *time.Location) string {
 //     zone gog was configured for. Get that wrong and the timestamp can land on
 //     the wrong calendar DAY, which is what makes it worse than merely
 //     imprecise.
-//   - internalDate is the Gmail API's own receipt timestamp (epoch
-//     milliseconds, UTC). The Date header is written by the sending client and
-//     varies in format, offset, and honesty; internalDate does not.
+//   - internalDate is Gmail's own internal message timestamp (epoch
+//     milliseconds, UTC), independent of the sender's formatting. For normal
+//     SMTP-received mail it is when Google accepted the message, which Gmail
+//     documents as more reliable than the Date header. It is not universally
+//     independent of that header: for API-migrated mail the importing client
+//     may derive internalDate FROM the Date header, in which case the two
+//     agree by construction rather than by coincidence.
 //
 // Returns "" when internalDate is absent, so the field stays omitempty rather
 // than claiming the Unix epoch.
