@@ -56,21 +56,52 @@ func TestFormatGmailDateISO_NilLocation(t *testing.T) {
 }
 
 // Whatever the zone, the value round-trips to the same instant — the offset is
-// carried, not dropped.
+// carried, not dropped. internalDate is epoch MILLISECONDS, so this covers both
+// a whole-second instant and one with nonzero milliseconds: the fractional part
+// must survive formatting, not truncate to the preceding whole second.
 func TestFormatGmailDateISO_RoundTripsToSameInstant(t *testing.T) {
-	ms := time.Date(2026, 7, 28, 3, 36, 0, 0, time.UTC).UnixMilli()
+	instants := []int64{
+		time.Date(2026, 7, 28, 3, 36, 0, 0, time.UTC).UnixMilli(),
+		time.Date(2026, 7, 28, 3, 36, 0, 450*int(time.Millisecond), time.UTC).UnixMilli(),
+	}
 	for _, name := range []string{"America/New_York", "UTC", "Asia/Tokyo", "Asia/Kolkata"} {
 		loc, err := time.LoadLocation(name)
 		if err != nil {
 			t.Skipf("tzdata unavailable for %s: %v", name, err)
 		}
-		got := formatGmailDateISO(ms, loc)
-		parsed, parseErr := time.Parse(time.RFC3339, got)
-		if parseErr != nil {
-			t.Fatalf("%s: unparseable %q: %v", name, got, parseErr)
+		for _, ms := range instants {
+			got := formatGmailDateISO(ms, loc)
+			parsed, parseErr := time.Parse(time.RFC3339, got)
+			if parseErr != nil {
+				t.Fatalf("%s: unparseable %q: %v", name, got, parseErr)
+			}
+			if parsed.UnixMilli() != ms {
+				t.Fatalf("%s: %q round-tripped to %d, want %d", name, got, parsed.UnixMilli(), ms)
+			}
 		}
-		if parsed.UnixMilli() != ms {
-			t.Fatalf("%s: %q round-tripped to %d, want %d", name, got, parsed.UnixMilli(), ms)
+	}
+}
+
+// Nonzero milliseconds render as a fixed three-digit fraction; whole seconds
+// keep the fraction-free form the field has emitted since it was introduced.
+func TestFormatGmailDateISO_MillisecondPrecision(t *testing.T) {
+	eastern, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		t.Skipf("tzdata unavailable: %v", err)
+	}
+	base := time.Date(2026, 7, 28, 3, 36, 5, 0, time.UTC).UnixMilli()
+	cases := []struct {
+		ms   int64
+		want string
+	}{
+		{base, "2026-07-27T23:36:05-04:00"},
+		{base + 7, "2026-07-27T23:36:05.007-04:00"},
+		{base + 450, "2026-07-27T23:36:05.450-04:00"},
+		{base + 999, "2026-07-27T23:36:05.999-04:00"},
+	}
+	for _, tc := range cases {
+		if got := formatGmailDateISO(tc.ms, eastern); got != tc.want {
+			t.Fatalf("internalDate %d: got %q, want %q", tc.ms, got, tc.want)
 		}
 	}
 }

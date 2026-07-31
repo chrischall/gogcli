@@ -65,7 +65,14 @@ func formatGmailDateISO(internalDateMillis int64, loc *time.Location) string {
 	if loc == nil {
 		loc = time.Local
 	}
-	return time.UnixMilli(internalDateMillis).In(loc).Format(time.RFC3339)
+	// internalDate is epoch milliseconds, and time.RFC3339 has no fractional
+	// seconds — formatting a nonzero-millisecond instant with it would truncate
+	// to the preceding whole second. Whole seconds keep the fraction-free form.
+	layout := time.RFC3339
+	if internalDateMillis%1000 != 0 {
+		layout = "2006-01-02T15:04:05.000Z07:00"
+	}
+	return time.UnixMilli(internalDateMillis).In(loc).Format(layout)
 }
 
 // formatQuoteDate renders an original message's Date header in the Gmail-style
