@@ -285,6 +285,7 @@ func TestGmailDraftsUpdateCmd_ClearReplyContextConflictsWithReplyTarget(t *testi
 	for _, target := range [][]string{
 		{"--reply-to-message-id", "m1"},
 		{"--thread-id", "t1"},
+		{"--quote"},
 	} {
 		args := append([]string{"d1", "--subject", "S", "--body", "B", "--clear-reply-context"}, target...)
 		flags := &RootFlags{Account: "me@example.com"}

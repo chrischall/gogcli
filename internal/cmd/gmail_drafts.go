@@ -767,8 +767,8 @@ func (c *GmailDraftsUpdateCmd) Run(ctx context.Context, flags *RootFlags) error 
 	if replyToMessageID != "" && threadID != "" {
 		return usage("use only one of --reply-to-message-id or --thread-id")
 	}
-	if c.ClearReplyContext && (replyToMessageID != "" || threadID != "") {
-		return usage("use only one of --clear-reply-context or --reply-to-message-id/--thread-id")
+	if c.ClearReplyContext && (replyToMessageID != "" || threadID != "" || c.Quote) {
+		return usage("use only one of --clear-reply-context or --reply-to-message-id/--thread-id/--quote")
 	}
 
 	attachPaths, err := expandComposeAttachmentPaths(c.Attach)
