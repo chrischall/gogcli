@@ -33,6 +33,7 @@ type GmailMessagesSearchCmd struct {
 	Page                    string   `name:"page" aliases:"cursor" help:"Page token"`
 	All                     bool     `name:"all" aliases:"all-pages,allpages" help:"Fetch all pages"`
 	FailEmpty               bool     `name:"fail-empty" aliases:"non-empty,require-results" help:"Exit with code 3 if no results"`
+	Count                   bool     `name:"count" help:"Also report how many messages match in total (exact when the set fits one page, otherwise a lower bound)"`
 	Timezone                string   `name:"timezone" short:"z" help:"Output timezone (IANA name, e.g. America/New_York, UTC). Default: GOG_TIMEZONE, config, then local"`
 	Local                   bool     `name:"local" help:"Use local timezone (default behavior, useful to override --timezone)"`
 	IncludeBody             bool     `name:"include-body" help:"Include decoded message body (JSON is full; text output truncates only unusually large bodies)"`
@@ -82,10 +83,14 @@ func (c *GmailMessagesSearchCmd) Run(ctx context.Context, flags *RootFlags) erro
 
 	if len(messages) == 0 {
 		if outfmt.IsJSON(ctx) {
-			return writePagedJSONResult(ctx, map[string]any{
+			payload := map[string]any{
 				"messages":      []messageItem{},
 				"nextPageToken": nextPageToken,
-			}, 0, c.FailEmpty)
+			}
+			if c.Count {
+				payload["totalMatches"] = int64(0)
+			}
+			return writePagedJSONResult(ctx, payload, 0, c.FailEmpty)
 		}
 		u.Err().Println("No results")
 		return failEmptyExit(c.FailEmpty)
@@ -106,11 +111,23 @@ func (c *GmailMessagesSearchCmd) Run(ctx context.Context, flags *RootFlags) erro
 		return err
 	}
 
+	var matchCount gmailMatchCount
+	if c.Count {
+		matchCount, err = countGmailMessageMatches(ctx, svc, query)
+		if err != nil {
+			return err
+		}
+	}
+
 	if outfmt.IsJSON(ctx) {
-		return writePagedJSONResult(ctx, map[string]any{
+		payload := map[string]any{
 			"messages":      items,
 			"nextPageToken": nextPageToken,
-		}, len(items), c.FailEmpty)
+		}
+		if c.Count {
+			matchCount.apply(payload)
+		}
+		return writePagedJSONResult(ctx, payload, len(items), c.FailEmpty)
 	}
 
 	if len(items) == 0 {
@@ -125,6 +142,10 @@ func (c *GmailMessagesSearchCmd) Run(ctx context.Context, flags *RootFlags) erro
 		gmailMessageColumns(c.IncludeBody, c.IncludeAttachments, c.Full),
 	); err != nil {
 		return err
+	}
+	// stderr, so the table on stdout stays parseable.
+	if c.Count {
+		printGmailMatchCount(u, len(items), matchCount)
 	}
 	printNextPageHintWithAll(u, nextPageToken, "--all/--all-pages")
 	return nil
