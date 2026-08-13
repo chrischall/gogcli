@@ -84,3 +84,41 @@ func printGmailMatchCount(u *ui.UI, shown int, count gmailMatchCount) {
 	}
 	u.Err().Println(fmt.Sprintf("Showing %d of at least %d matches.", shown, count.Value))
 }
+
+// resolveGmailMatchCount decides how --count is answered for one search, and
+// whether it can be answered at all. Three cases, and only one of them is worth
+// an extra request:
+//
+//	--results-only  The count is an envelope field, and --results-only exists
+//	                to drop the envelope and emit the bare result array — so
+//	                the number would be computed and then thrown away. Say so
+//	                on stderr instead of spending a request in silence.
+//	--all           The walk already exhausted every page, so the items in hand
+//	                ARE the whole set. Probing would ask Google a question we
+//	                just finished answering.
+//	otherwise       Probe.
+//
+// The count is always for the WHOLE query, never the remainder after a
+// --page cursor: "how many match this" is the number that stops a caller
+// concluding an absence, and keeping it page-independent means it does not
+// drift while paging through a set.
+func resolveGmailMatchCount(
+	u *ui.UI,
+	resultsOnly, all bool,
+	shown int,
+	probe func() (gmailMatchCount, error),
+) (gmailMatchCount, bool, error) {
+	switch {
+	case resultsOnly:
+		u.Err().Println("--count has no effect with --results-only: the count is an envelope field, and --results-only emits only the result array. Skipping the extra request.")
+		return gmailMatchCount{}, false, nil
+	case all:
+		return gmailMatchCount{Value: int64(shown), Exact: true}, true, nil
+	default:
+		count, err := probe()
+		if err != nil {
+			return gmailMatchCount{}, false, err
+		}
+		return count, true, nil
+	}
+}

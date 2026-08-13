@@ -72,6 +72,39 @@ func gmailCountTestHandler(t *testing.T, capture *countProbeCapture, resource st
 	}
 }
 
+// gmailAllCountTestHandler serves a single complete page (no nextPageToken) and
+// records any count probe, which under --all must never fire.
+func gmailAllCountTestHandler(t *testing.T, capture *countProbeCapture, ids []string) http.HandlerFunc {
+	t.Helper()
+	return func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		w.Header().Set("Content-Type", "application/json")
+		switch {
+		case strings.Contains(path, "/users/me/labels"):
+			_ = json.NewEncoder(w).Encode(map[string]any{"labels": []map[string]any{}})
+		case strings.HasSuffix(path, "/users/me/threads") && strings.Contains(r.URL.Query().Get("fields"), "/id"):
+			capture.calls++
+			_ = json.NewEncoder(w).Encode(map[string]any{"threads": make([]map[string]any, 99)})
+		case strings.HasSuffix(path, "/users/me/threads"):
+			items := make([]map[string]any, 0, len(ids))
+			for _, id := range ids {
+				items = append(items, map[string]any{"id": id, "threadId": id})
+			}
+			_ = json.NewEncoder(w).Encode(map[string]any{"threads": items})
+		case strings.Contains(path, "/users/me/threads/"):
+			id := path[strings.LastIndex(path, "/")+1:]
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"id": id, "messages": []map[string]any{{
+					"id": id, "threadId": id, "internalDate": "1760000000000",
+					"payload": map[string]any{"headers": []map[string]any{{"name": "Subject", "value": "s"}}},
+				}},
+			})
+		default:
+			http.NotFound(w, r)
+		}
+	}
+}
+
 func TestGmailSearch_Count_ExactWhenSetFitsOnePage(t *testing.T) {
 	capture := &countProbeCapture{}
 	srv := httptest.NewServer(gmailCountTestHandler(t, capture, "threads",
@@ -273,5 +306,56 @@ func TestPrintGmailMatchCount_Wording(t *testing.T) {
 				t.Fatalf("got %q, want it to contain %q", stderr.String(), tc.want)
 			}
 		})
+	}
+}
+
+func TestGmailSearch_Count_SkipsProbeWithAll(t *testing.T) {
+	capture := &countProbeCapture{}
+	// The probe would report 99 if it ran; --all must instead report what the
+	// walk actually collected, so a probe result cannot masquerade as the total.
+	srv := httptest.NewServer(gmailAllCountTestHandler(t, capture, []string{"t1", "t2"}))
+	defer srv.Close()
+
+	result := executeWithGmailTestService(t,
+		[]string{"--json", "--account", "a@b.com", "gmail", "search", "invoice", "--all", "--count"},
+		newGmailServiceFromServer(t, srv))
+	if result.err != nil {
+		t.Fatalf("Execute: %v\nstderr=%q", result.err, result.stderr)
+	}
+
+	var parsed struct {
+		Threads      []struct{} `json:"threads"`
+		TotalMatches *int64     `json:"totalMatches"`
+	}
+	if err := json.Unmarshal([]byte(result.stdout), &parsed); err != nil {
+		t.Fatalf("decode: %v (%s)", err, result.stdout)
+	}
+	if parsed.TotalMatches == nil || *parsed.TotalMatches != 2 {
+		t.Fatalf("totalMatches = %v, want 2 (what --all collected)", parsed.TotalMatches)
+	}
+	if capture.calls != 0 {
+		t.Fatalf("--all already has the whole set; probe must not run, ran %d times", capture.calls)
+	}
+}
+
+func TestGmailSearch_Count_SkipsProbeWithResultsOnly(t *testing.T) {
+	capture := &countProbeCapture{}
+	srv := httptest.NewServer(gmailCountTestHandler(t, capture, "threads",
+		[]string{"t1"}, []string{"t1", "t2", "t3"}, ""))
+	defer srv.Close()
+
+	result := executeWithGmailTestService(t,
+		[]string{"--json", "--results-only", "--account", "a@b.com", "gmail", "search", "invoice", "--max", "1", "--count"},
+		newGmailServiceFromServer(t, srv))
+	if result.err != nil {
+		t.Fatalf("Execute: %v\nstderr=%q", result.err, result.stderr)
+	}
+	// --results-only unwraps to the bare array, so the count could never be
+	// reported. Spending the request anyway is pure waste.
+	if capture.calls != 0 {
+		t.Fatalf("probe must not run under --results-only, ran %d times", capture.calls)
+	}
+	if !strings.Contains(result.stderr, "--count has no effect with --results-only") {
+		t.Fatalf("the caller must be told, not silently ignored; stderr=%q", result.stderr)
 	}
 }
